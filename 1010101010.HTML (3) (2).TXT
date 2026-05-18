@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ASTRIX :: CONTEXT SWARM OS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --bg:#050508;
+  --glow:#00ffaa;
+  --panel:#0b1020;
+  --text:#e6fff8;
+  --dim:#223;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:monospace;
+  overflow:hidden;
+}
+
+#ui {
+  position:absolute;
+  top:0;
+  width:100%;
+  padding:8px;
+  background:rgba(5,8,15,0.9);
+  display:flex;
+  gap:8px;
+}
+
+#query {
+  flex:1;
+  background:#000;
+  border:1px solid var(--dim);
+  color:var(--text);
+  padding:6px;
+}
+
+button {
+  background:#000;
+  color:var(--glow);
+  border:1px solid var(--glow);
+  cursor:pointer;
+}
+
+.agent {
+  position:absolute;
+  font-size:24px;
+  cursor:pointer;
+}
+
+#log {
+  position:absolute;
+  bottom:0;
+  width:100%;
+  max-height:35%;
+  overflow:auto;
+  background:var(--panel);
+  border-top:1px solid var(--dim);
+  padding:8px;
+}
+
+.entry {
+  margin-bottom:8px;
+  border-bottom:1px dashed var(--dim);
+  padding-bottom:6px;
+}
+a { color:var(--glow); }
+</style>
+</head>
+
+<body>
+
+<div id="ui">
+  <input id="query" placeholder="Ask the swarm…" />
+  <button onclick="delegate()">DELEGATE</button>
+</div>
+
+<div id="log"></div>
+
+<script>
+/* ===== CONTEXT MEMORY ===== */
+const context = {
+  lastQuery: "",
+  interactions: 0,
+  activeAgent: null
+};
+
+/* ===== AGENTS ===== */
+const agents = [
+  {emoji:"🧭", role:"Navigator", action:navigate},
+  {emoji:"📡", role:"Scout", action:webSearch},
+  {emoji:"🧠", role:"Synthesizer", action:summarize}
+];
+
+/* ===== LOG ===== */
+const log = document.getElementById("log");
+
+function write(title, content) {
+  const e = document.createElement("div");
+  e.className = "entry";
+  e.innerHTML = `<strong>${title}</strong><br>${content}`;
+  log.prepend(e);
+}
+
+/* ===== DELEGATION ===== */
+function delegate() {
+  const q = document.getElementById("query").value.trim();
+  if (!q) return;
+
+  context.lastQuery = q;
+  context.interactions++;
+
+  write("👁 YOU", q);
+
+  // swarm decides
+  agents.forEach((a,i)=>{
+    setTimeout(()=>spawnAgent(a,q), i*600);
+  });
+}
+
+/* ===== AGENT SPAWN ===== */
+function spawnAgent(agent, query) {
+  const el = document.createElement("div");
+  el.className = "agent";
+  el.textContent = agent.emoji;
+  el.style.left = Math.random()*innerWidth+"px";
+  el.style.top = (60 + Math.random()*(innerHeight-200))+"px";
+
+  el.onclick = () => agent.action(query);
+
+  document.body.appendChild(el);
+
+  setTimeout(()=>el.remove(), 12000);
+}
+
+/* ===== AGENT ACTIONS ===== */
+function navigate(q) {
+  write("🧭 Navigator",
+    "Determining intent… You are likely seeking understanding, resources, or direction.");
+}
+
+function summarize(q) {
+  write("🧠 Synthesizer",
+    "Once scouts return data, I will compress it into insight.");
+}
+
+/* ===== REAL WEB SEARCH (DuckDuckGo IA) ===== */
+async function webSearch(q) {
+  write("📡 Scout", "Searching the web for: <em>"+q+"</em>");
+
+  const url = `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_redirect=1&no_html=1&skip_disambig=1`;
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    let output = "";
+
+    if (data.AbstractText) {
+      output += `<p>${data.AbstractText}</p>`;
+    }
+
+    if (data.RelatedTopics) {
+      data.RelatedTopics.slice(0,5).forEach(t=>{
+        if(t.Text && t.FirstURL){
+          output += `<p>🔗 <a href="${t.FirstURL}" target="_blank">${t.Text}</a></p>`;
+        }
+      });
+    }
+
+    if (!output) output = "No instant answers found, but deeper search may help.";
+
+    write("📡 Scout Results", output);
+
+  } catch(e) {
+    write("📡 Scout Error", "Search failed. Network or API limitation.");
+  }
+}
+</script>
+
+</body>
+</html>
+
