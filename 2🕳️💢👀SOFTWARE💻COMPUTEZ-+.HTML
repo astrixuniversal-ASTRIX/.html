@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🌀 Unicode Quantum Calculator · Node‑based · AI Swarm · Mount Folder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 30% 20%, #0a0a1a, #010105);
+            color: #eef5ff;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .glass {
+            background: rgba(10, 14, 30, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid #2a4a7a;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, #0ff, #f0f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+        }
+
+        .sub {
+            text-align: center;
+            color: #aaf;
+            margin-bottom: 16px;
+        }
+
+        .grid-3col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid-3col {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 700px) {
+            .grid-3col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(0, 10, 20, 0.7);
+            border-radius: 24px;
+            border: 1px solid #2a4a7a;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #0ff;
+            border-bottom: 1px solid #2a4a7a;
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reg-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+        }
+        .reg-item {
+            background: #010118;
+            border: 1px solid #2a4a7a;
+            border-radius: 12px;
+            padding: 4px 12px;
+        }
+        .reg-item .label {
+            color: #88aaff;
+        }
+        .reg-item .value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #1f2a4a;
+            border: 1px solid #0ff;
+            border-radius: 60px;
+            padding: 6px 16px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.8rem;
+        }
+        button:hover {
+            background: #0ff;
+            color: black;
+            box-shadow: 0 0 14px #0ff;
+        }
+        button.danger {
+            border-color: #ff44ff;
+        }
+        button.danger:hover {
+            background: #ff44ff;
+        }
+        button.gold {
+            border-color: #ffb800;
+        }
+        button.gold:hover {
+            background: #ffb800;
+            color: black;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            color: #88ffaa;
+        }
+
+        .terminal {
+            background: #010118;
+            border-radius: 12px;
+            padding: 12px;
+            height: 160px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            font-family: monospace;
+            border: 1px solid #2a4a7a;
+            color: #aaf;
+        }
+
+        .terminal .out {
+            color: #0ff;
+        }
+        .terminal .err {
+            color: #f44;
+        }
+
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            font-size: 0.6rem;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #010118;
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid #2a4a7a;
+        }
+        .node-cell {
+            background: #0a0a1a;
+            border: 1px solid #1a2a3a;
+            border-radius: 4px;
+            padding: 2px 0;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .node-cell:hover {
+            background: #1a3a5a;
+        }
+        .node-cell.entangled {
+            border-color: #0ff;
+            background: #0a1a2a;
+        }
+        .node-cell .char {
+            font-size: 1.2rem;
+        }
+        .node-cell .code {
+            font-size: 0.5rem;
+            color: #88aaff;
+        }
+        .node-cell .connections {
+            font-size: 0.5rem;
+            color: #ffb800;
+        }
+
+        .entanglement-lines {
+            font-size: 0.7rem;
+            color: #88ffaa;
+            background: #010118;
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #2a4a7a;
+            min-height: 40px;
+            overflow-y: auto;
+            max-height: 80px;
+        }
+
+        .file-list {
+            background: #010118;
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 80px;
+            overflow-y: auto;
+            font-size: 0.65rem;
+            border: 1px solid #2a4a7a;
+        }
+        .file-item {
+            padding: 2px 6px;
+            border-bottom: 1px solid #1a2a3a;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #010105;
+            border: 1px solid #0ff;
+            border-radius: 40px;
+            padding: 12px 24px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.3s;
+            pointer-events: none;
+            z-index: 999;
+            max-width: 400px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .search-area {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .search-area input {
+            flex: 1;
+            background: #010118;
+            border: 1px solid #2a4a7a;
+            border-radius: 40px;
+            padding: 6px 12px;
+            color: white;
+            font-family: monospace;
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .search-area input:focus {
+            border-color: #0ff;
+        }
+
+        .calc-display {
+            background: #010118;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 1.2rem;
+            font-family: monospace;
+            border: 1px solid #2a4a7a;
+            min-height: 40px;
+            color: #0ff;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="glass">
+        <h1>🌀 Unicode Quantum Calculator</h1>
+        <div class="sub">Node‑based · Limited connections · Quantum entanglement · AI Swarm · Mount Folder</div>
+    </div>
+
+    <div class="grid-3col">
+        <!-- LEFT: NODE GRID + CALCULATOR -->
+        <div class="panel">
+            <div class="panel-title">
+                🔮 Unicode Node Grid (64 nodes)
+                <span style="font-size:0.7rem; color:#aaf;" id="nodeCount">0/64 entangled</span>
+            </div>
+            <div class="node-grid" id="nodeGrid"></div>
+            <div class="reg-row">
+                <div class="reg-item"><span class="label">Active nodes</span> <span class="value" id="activeNodes">0</span></div>
+                <div class="reg-item"><span class="label">Entanglements</span> <span class="value" id="entanglementCount">0</span></div>
+                <div class="reg-item"><span class="label">Selected</span> <span class="value" id="selectedNode">—</span></div>
+            </div>
+            <div class="controls">
+                <button id="randomEntangleBtn" class="gold">🔗 Random Entangle</button>
+                <button id="clearEntangleBtn" class="danger">🗑️ Clear Entanglements</button>
+                <button id="calcUnicodeBtn">🧮 Calculate Unicode Sum</button>
+            </div>
+            <div class="calc-display" id="calcDisplay">0</div>
+            <div class="status" id="nodeStatus">Click a node to select it. Entangle nodes to create quantum connections.</div>
+        </div>
+
+        <!-- CENTER: ENTANGLEMENT + MOUNT FOLDER + AI SWARM -->
+        <div class="panel">
+            <div class="panel-title">
+                🧬 Quantum Entanglement Map
+                <span style="font-size:0.7rem; color:#aaf;">connections</span>
+            </div>
+            <div class="entanglement-lines" id="entanglementLines">No entanglements yet.</div>
+            <div class="controls">
+                <button id="entangleSelectedBtn" class="gold">⚡ Entangle Selected</button>
+                <button id="autoEntangleBtn">🌀 Auto‑Entangle (AI Swarm)</button>
+            </div>
+
+            <div class="panel-title" style="margin-top:6px;">
+                📁 Mount Folder · AI Swarm Unicode Search
+                <span style="font-size:0.7rem; color:#aaf;">data core</span>
+            </div>
+            <div class="search-area">
+                <input type="text" id="unicodeSearchInput" placeholder="Search Unicode (e.g. 'dragon', 'heart', '∞')">
+                <button id="searchUnicodeBtn" class="gold">🔍 Search</button>
+            </div>
+            <div class="file-list" id="fileList">
+                <div style="color:#668;">No files mounted. Search for Unicode to populate.</div>
+            </div>
+            <div class="controls">
+                <button id="mountFolderBtn">📂 Mount Folder (simulated)</button>
+                <button id="clearFilesBtn" class="danger">🗑️ Clear Files</button>
+                <button id="storeAllBtn">💾 Store All in Datacore</button>
+            </div>
+            <div class="status" id="mountStatus">📁 Mount folder ready. Search or mount to load Unicode data.</div>
+        </div>
+
+        <!-- RIGHT: TERMINAL & AI SWARM LOG -->
+        <div class="panel">
+            <div class="panel-title">
+                📡 AI Swarm Terminal
+                <span style="font-size:0.7rem; color:#aaf;">live</span>
+            </div>
+            <div class="terminal" id="terminal">
+                <div class="out">> Unicode Quantum Calculator initialized.</div>
+                <div class="out">> Mount folder, search Unicode, entangle nodes.</div>
+            </div>
+            <div class="controls">
+                <button id="clearTermBtn" class="danger">🗑️ CLEAR</button>
+                <button id="swarmStatusBtn">🐝 Swarm Status</button>
+                <button id="broadcastStateBtn" class="gold">📡 Broadcast State</button>
+            </div>
+            <div class="reg-row">
+                <div class="reg-item"><span class="label">Stored entries</span> <span class="value" id="storedCount">0</span></div>
+                <div class="reg-item"><span class="label">Swarm size</span> <span class="value" id="swarmSize">0</span></div>
+                <div class="reg-item"><span class="label">Last action</span> <span class="value" id="lastAction">—</span></div>
+            </div>
+            <div class="status" id="swarmStatus">🐝 Swarm ready. Use search or mount to feed data.</div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="glass" style="text-align:center; font-size:0.8rem; color:#88aaff;">
+        ⚡ Unicode Quantum Calculator · Node‑based · Limited connections · AI Swarm · Mount Folder · Data core
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // ================================================================
+    // UNICODE QUANTUM CALCULATOR – Node‑based · AI Swarm · Mount Folder
+    // ================================================================
+
+    // ----- 1. GLOBAL STATE -----
+    const GRID_SIZE = 64;
+    let nodes = [];
+    let entanglements = [];
+    let selectedNodeId = null;
+    let storedEntries = [];
+    let swarmSize = 0;
+    let lastAction = '—';
+    let mountedFiles = [];
+
+    // ----- 2. DOM REFS -----
+    const $ = id => document.getElementById(id);
+    const nodeGrid = $('nodeGrid');
+    const nodeCount = $('nodeCount');
+    const activeNodes = $('activeNodes');
+    const entanglementCount = $('entanglementCount');
+    const selectedNodeEl = $('selectedNode');
+    const nodeStatus = $('nodeStatus');
+    const calcDisplay = $('calcDisplay');
+    const entanglementLines = $('entanglementLines');
+    const fileList = $('fileList');
+    const mountStatus = $('mountStatus');
+    const terminal = $('terminal');
+    const storedCount = $('storedCount');
+    const swarmSizeEl = $('swarmSize');
+    const lastActionEl = $('lastAction');
+    const swarmStatus = $('swarmStatus');
+    const toast = $('toast');
+
+    // ----- 3. TOAST -----
+    function showToast(msg, duration = 2000) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // ----- 4. TERMINAL I/O -----
+    function terminalWrite(text, type = 'out') {
+        const entry = document.createElement('div');
+        entry.className = type;
+        entry.textContent = text;
+        terminal.appendChild(entry);
+        terminal.scrollTop = terminal.scrollHeight;
+        if (terminal.children.length > 50) terminal.removeChild(terminal.firstChild);
+    }
+
+    function clearTerminal() {
+        terminal.innerHTML = '';
+        terminalWrite('> Terminal cleared.');
+    }
+
+    // ----- 5. UNICODE NODE GRID -----
+    function initNodes() {
+        nodes = [];
+        // Generate 64 Unicode characters from various blocks
+        const ranges = [
+            { start: 0x0041, end: 0x005A }, // A-Z
+            { start: 0x0061, end: 0x007A }, // a-z
+            { start: 0x0391, end: 0x03A9 }, // Greek uppercase
+            { start: 0x03B1, end: 0x03C9 }, // Greek lowercase
+            { start: 0x4E00, end: 0x4E3F }, // CJK (first 64)
+            { start: 0x2200, end: 0x223F }, // Math symbols
+        ];
+        let charIndex = 0;
+        for (const range of ranges) {
+            for (let cp = range.start; cp <= range.end && charIndex < GRID_SIZE; cp++) {
+                nodes.push({
+                    id: charIndex,
+                    char: String.fromCodePoint(cp),
+                    code: 'U+' + cp.toString(16).toUpperCase().padStart(4, '0'),
+                    connections: [],
+                    entangled: false,
+                    value: cp
+                });
+                charIndex++;
+            }
+        }
+        // Fill remaining with random Unicode
+        while (nodes.length < GRID_SIZE) {
+            const cp = 0x1F300 + Math.floor(Math.random() * 0x100);
+            nodes.push({
+                id: nodes.length,
+                char: String.fromCodePoint(cp),
+                code: 'U+' + cp.toString(16).toUpperCase().padStart(4, '0'),
+                connections: [],
+                entangled: false,
+                value: cp
+            });
+        }
+        renderNodes();
+        terminalWrite(`🌀 Initialized ${nodes.length} Unicode nodes.`);
+    }
+
+    function renderNodes() {
+        let html = '';
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            const isEntangled = node.entangled;
+            const isSelected = (selectedNodeId === i);
+            html += `<div class="node-cell ${isEntangled ? 'entangled' : ''} ${isSelected ? 'selected' : ''}" data-id="${i}">
+                <div class="char">${node.char}</div>
+                <div class="code">${node.code}</div>
+                <div class="connections">${node.connections.length}</div>
+            </div>`;
+        }
+        nodeGrid.innerHTML = html;
+
+        // Click handler
+        nodeGrid.querySelectorAll('.node-cell').forEach(el => {
+            el.addEventListener('click', function() {
+                const id = parseInt(this.dataset.id);
+                selectedNodeId = id;
+                renderNodes();
+                selectedNodeEl.textContent = nodes[id].char;
+                nodeStatus.textContent = `✅ Selected: ${nodes[id].char} (${nodes[id].code})`;
+            });
+        });
+
+        updateStats();
+    }
+
+    function updateStats() {
+        const entangled = nodes.filter(n => n.entangled).length;
+        nodeCount.textContent = `${entangled}/${nodes.length} entangled`;
+        activeNodes.textContent = entangled;
+        entanglementCount.textContent = entanglements.length;
+        // Update stored count
+        storedCount.textContent = storedEntries.length;
+        swarmSizeEl.textContent = swarmSize;
+        lastActionEl.textContent = lastAction;
+    }
+
+    // ----- 6. ENTANGLEMENT ENGINE -----
+    function entangleNodes(id1, id2) {
+        if (id1 === id2) {
+            showToast('⚠️ Cannot entangle a node with itself.', 1000);
+            return false;
+        }
+        if (id1 < 0 || id1 >= nodes.length || id2 < 0 || id2 >= nodes.length) return false;
+        // Check if already entangled
+        const exists = entanglements.some(e =>
+            (e.from === id1 && e.to === id2) || (e.from === id2 && e.to === id1)
+        );
+        if (exists) {
+            showToast('⚠️ Already entangled.', 1000);
+            return false;
+        }
+        // Check limited connections (max 4 per node)
+        if (nodes[id1].connections.length >= 4 || nodes[id2].connections.length >= 4) {
+            showToast('⚠️ Node has max connections (4).', 1000);
+            return false;
+        }
+        entanglements.push({ from: id1, to: id2 });
+        nodes[id1].connections.push(id2);
+        nodes[id2].connections.push(id1);
+        nodes[id1].entangled = true;
+        nodes[id2].entangled = true;
+        renderNodes();
+        updateEntanglementDisplay();
+        updateStats();
+        terminalWrite(`🔗 Entangled ${nodes[id1].char} ↔ ${nodes[id2].char}`);
+        return true;
+    }
+
+    function randomEntangle() {
+        const available = [];
+        for (let i = 0; i < nodes.length; i++) {
+            if (nodes[i].connections.length < 4) available.push(i);
+        }
+        if (available.length < 2) {
+            showToast('⚠️ Not enough nodes with free connections.', 1000);
+            return;
+        }
+        const idx1 = available[Math.floor(Math.random() * available.length)];
+        let idx2;
+        do {
+            idx2 = available[Math.floor(Math.random() * available.length)];
+        } while (idx1 === idx2);
+        entangleNodes(idx1, idx2);
+    }
+
+    function entangleSelected() {
+        if (selectedNodeId === null) {
+            showToast('⚠️ Click a node to select it first.', 1000);
+            return;
+        }
+        // Find a random available node to entangle with
+        const available = [];
+        for (let i = 0; i < nodes.length; i++) {
+            if (i !== selectedNodeId && nodes[i].connections.length < 4) available.push(i);
+        }
+        if (available.length === 0) {
+            showToast('⚠️ No available nodes to entangle with.', 1000);
+            return;
+        }
+        const target = available[Math.floor(Math.random() * available.length)];
+        entangleNodes(selectedNodeId, target);
+    }
+
+    function clearEntanglements() {
+        entanglements = [];
+        nodes.forEach(n => {
+            n.connections = [];
+            n.entangled = false;
+        });
+        renderNodes();
+        updateEntanglementDisplay();
+        updateStats();
+        terminalWrite('🗑️ All entanglements cleared.');
+        showToast('🗑️ Cleared.', 1000);
+    }
+
+    function updateEntanglementDisplay() {
+        if (entanglements.length === 0) {
+            entanglementLines.textContent = 'No entanglements yet.';
+            return;
+        }
+        let lines = '';
+        entanglements.forEach(e => {
+            const from = nodes[e.from];
+            const to = nodes[e.to];
+            lines += `${from.char} ↔ ${to.char}  `;
+        });
+        entanglementLines.textContent = lines;
+    }
+
+    // ----- 7. UNICODE CALCULATOR -----
+    function calculateUnicodeSum() {
+        // Sum of all entangled nodes' code points
+        const entangledNodes = nodes.filter(n => n.entangled);
+        if (entangledNodes.length === 0) {
+            calcDisplay.textContent = '0 (no entangled nodes)';
+            showToast('⚠️ Entangle some nodes first.', 1000);
+            return;
+        }
+        const sum = entangledNodes.reduce((acc, n) => acc + n.value, 0);
+        const hex = '0x' + sum.toString(16).toUpperCase();
+        const unicodeStr = sum > 0xFFFF ? '∞' : String.fromCodePoint(Math.min(sum, 0xFFFF));
+        calcDisplay.textContent = `${sum} (${hex}) · ${unicodeStr}`;
+        terminalWrite(`🧮 Calculated sum: ${sum} (${hex})`);
+        showToast(`🧮 Sum: ${sum}`, 1500);
+        return sum;
+    }
+
+    // ----- 8. AUTO‑ENTANGLE (AI Swarm) -----
+    function autoEntangle() {
+        const count = Math.floor(Math.random() * 5) + 3;
+        let success = 0;
+        for (let i = 0; i < count; i++) {
+            const available = [];
+            for (let j = 0; j < nodes.length; j++) {
+                if (nodes[j].connections.length < 4) available.push(j);
+            }
+            if (available.length < 2) break;
+            const idx1 = available[Math.floor(Math.random() * available.length)];
+            let idx2;
+            do {
+                idx2 = available[Math.floor(Math.random() * available.length)];
+            } while (idx1 === idx2);
+            if (entangleNodes(idx1, idx2)) success++;
+        }
+        swarmSize += success;
+        terminalWrite(`🐝 AI Swarm entangled ${success} pairs.`);
+        showToast(`🐝 Swarm entangled ${success} pairs.`, 1000);
+    }
+
+    // ----- 9. MOUNT FOLDER & UNICODE SEARCH -----
+    function searchUnicode() {
+        const query = $('unicodeSearchInput').value.trim().toLowerCase();
+        if (!query) {
+            showToast('⚠️ Enter a search term.', 1000);
+            return;
+        }
+        // Search through nodes and external data
+        let results = [];
+        nodes.forEach(n => {
+            if (n.char.toLowerCase().includes(query) ||
+                n.code.toLowerCase().includes(query) ||
+                n.value.toString().includes(query)) {
+                results.push(n);
+            }
+        });
+        // Also search stored entries
+        storedEntries.forEach(entry => {
+            if (entry.char.toLowerCase().includes(query) ||
+                entry.code.toLowerCase().includes(query) ||
+                entry.value.toString().includes(query)) {
+                if (!results.find(r => r.id === entry.id)) {
+                    results.push(entry);
+                }
+            }
+        });
+        // Display results in file list
+        if (results.length === 0) {
+            // Simulate external search
+            const cp = Math.floor(Math.random() * 0xFFFF);
+            const fakeNode = {
+                id: nodes.length + storedEntries.length,
+                char: String.fromCodePoint(cp),
+                code: 'U+' + cp.toString(16).toUpperCase().padStart(4, '0'),
+                value: cp,
+                connections: [],
+                entangled: false
+            };
+            storedEntries.push(fakeNode);
+            results.push(fakeNode);
+            terminalWrite(`🔍 External search found: ${fakeNode.char} (${fakeNode.code})`);
+        }
+        renderFileList(results);
+        mountStatus.textContent = `🔍 Found ${results.length} results for "${query}"`;
+        lastAction = `Search: "${query}"`;
+        updateStats();
+        showToast(`🔍 Found ${results.length} results.`, 1000);
+    }
+
+    function renderFileList(items) {
+        if (!items || items.length === 0) {
+            fileList.innerHTML = '<div style="color:#668;">No files mounted. Search to populate.</div>';
+            return;
+        }
+        let html = '';
+        items.slice(0, 20).forEach(item => {
+            html += `<div class="file-item">
+                <span>${item.char} (${item.code})</span>
+                <span style="color:#88ffaa;">${item.value}</span>
+            </div>`;
+        });
+        if (items.length > 20) html += `<div class="file-item" style="color:#668;">... and ${items.length - 20} more</div>`;
+        fileList.innerHTML = html;
+    }
+
+    function mountFolder() {
+        // Simulate mounting a folder with random Unicode files
+        const count = 10 + Math.floor(Math.random() * 20);
+        const newFiles = [];
+        for (let i = 0; i < count; i++) {
+            const cp = 0x1F300 + Math.floor(Math.random() * 0x200);
+            const char = String.fromCodePoint(cp);
+            newFiles.push({
+                char: char,
+                code: 'U+' + cp.toString(16).toUpperCase().padStart(4, '0'),
+                value: cp,
+                id: nodes.length + storedEntries.length + i
+            });
+        }
+        storedEntries.push(...newFiles);
+        renderFileList(storedEntries);
+        mountStatus.textContent = `📂 Mounted folder with ${count} new Unicode files.`;
+        terminalWrite(`📂 Mounted ${count} Unicode files.`);
+        showToast(`📂 Mounted ${count} files.`, 1500);
+        updateStats();
+    }
+
+    function clearFiles() {
+        storedEntries = [];
+        renderFileList([]);
+        mountStatus.textContent = '🗑️ Files cleared.';
+        terminalWrite('🗑️ All files cleared.');
+        showToast('🗑️ Cleared.', 1000);
+        updateStats();
+    }
+
+    function storeAll() {
+        // Store all current nodes and files into datacore
+        const allData = [...nodes, ...storedEntries];
+        terminalWrite(`💾 Stored ${allData.length} Unicode entries in datacore.`);
+        showToast(`💾 Stored ${allData.length} entries.`, 1500);
+        updateStats();
+        lastAction = `Stored ${allData.length} entries`;
+        swarmSize += Math.floor(allData.length / 10);
+        updateStats();
+    }
+
+    // ----- 10. SWARM STATUS -----
+    function swarmStatusReport() {
+        const entangled = nodes.filter(n => n.entangled).length;
+        const totalNodes = nodes.length;
+        const fileCount = storedEntries.length;
+        const report = `🐝 Swarm status:
+  · Nodes: ${totalNodes} (${entangled} entangled)
+  · Entanglements: ${entanglements.length}
+  · Stored entries: ${fileCount}
+  · Swarm size: ${swarmSize}
+  · Last action: ${lastAction}`;
+        terminalWrite(report);
+        showToast('🐝 Swarm status reported.', 1000);
+        swarmStatus.textContent = `🐝 Active · ${entangled} entangled · ${fileCount} stored`;
+    }
+
+    // ----- 11. BROADCAST STATE (local) -----
+    let broadcastChannel = null;
+
+    function initBroadcast() {
+        try {
+            broadcastChannel = new BroadcastChannel('unicode_quantum_calculator');
+            broadcastChannel.onmessage = (e) => {
+                const data = e.data;
+                if (data.type === 'state') {
+                    terminalWrite(`📡 Received state from another tab`);
+                    if (data.entanglements) {
+                        entanglements = data.entanglements;
+                        nodes.forEach(n => n.connections = []);
+                        nodes.forEach(n => n.entangled = false);
+                        entanglements.forEach(e => {
+                            nodes[e.from].connections.push(e.to);
+                            nodes[e.to].connections.push(e.from);
+                            nodes[e.from].entangled = true;
+                            nodes[e.to].entangled = true;
+                        });
+                        renderNodes();
+                        updateEntanglementDisplay();
+                        updateStats();
+                    }
+                    if (data.storedEntries) {
+                        storedEntries = data.storedEntries;
+                        renderFileList(storedEntries);
+                        updateStats();
+                    }
+                    terminalWrite('📡 Sync complete.');
+                }
+            };
+            broadcastChannel.postMessage({ type: 'hello', sender: 'Unicode Calculator' });
+            terminalWrite('📡 BroadcastChannel ready.');
+        } catch (e) {
+            terminalWrite('⚠️ BroadcastChannel not available.');
+        }
+    }
+
+    function broadcastState() {
+        if (!broadcastChannel) {
+            showToast('⚠️ BroadcastChannel not available.', 1000);
+            return;
+        }
+        broadcastChannel.postMessage({
+            type: 'state',
+            entanglements: entanglements,
+            storedEntries: storedEntries,
+            sender: 'Unicode Calculator'
+        });
+        terminalWrite('📡 Broadcasted state to all tabs.');
+        showToast('📡 Broadcasted.', 1000);
+    }
+
+    // ----- 12. EVENT BINDING -----
+    document.getElementById('randomEntangleBtn').addEventListener('click', randomEntangle);
+    document.getElementById('clearEntangleBtn').addEventListener('click', clearEntanglements);
+    document.getElementById('calcUnicodeBtn').addEventListener('click', calculateUnicodeSum);
+    document.getElementById('entangleSelectedBtn').addEventListener('click', entangleSelected);
+    document.getElementById('autoEntangleBtn').addEventListener('click', autoEntangle);
+
+    document.getElementById('searchUnicodeBtn').addEventListener('click', searchUnicode);
+    document.getElementById('unicodeSearchInput').addEventListener('keypress', e => {
+        if (e.key === 'Enter') searchUnicode();
+    });
+    document.getElementById('mountFolderBtn').addEventListener('click', mountFolder);
+    document.getElementById('clearFilesBtn').addEventListener('click', clearFiles);
+    document.getElementById('storeAllBtn').addEventListener('click', storeAll);
+
+    document.getElementById('clearTermBtn').addEventListener('click', clearTerminal);
+    document.getElementById('swarmStatusBtn').addEventListener('click', swarmStatusReport);
+    document.getElementById('broadcastStateBtn').addEventListener('click', broadcastState);
+
+    // ----- 13. INIT -----
+    function init() {
+        initNodes();
+        initBroadcast();
+        terminalWrite('> Unicode Quantum Calculator ready.');
+        terminalWrite('> Entangle nodes, search Unicode, mount folder, store data.');
+        showToast('🌀 Unicode Quantum Calculator initialized.', 2500);
+        // Auto‑entangle a few to start
+        setTimeout(() => {
+            autoEntangle();
+            autoEntangle();
+        }, 500);
+    }
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>⚡ MAXIMUM OVERDRIVE · Unicode Quantum Neuro‑Genetic Swarm Computer</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      background:#01020a;color:#eef;font-family:'Fira Code','Courier New',monospace;
+      padding:8px;min-height:100vh;overflow-x:hidden;
+    }
+    .overdrive-active body{animation:pulse 0.5s infinite alternate;}
+    @keyframes pulse{0%{background:#01020a;}100%{background:#020310;}}
+    .container{max-width:1900px;margin:0 auto;}
+    .glass{
+      background:rgba(6,10,24,0.9);backdrop-filter:blur(12px);
+      border:1px solid #2e4268;border-radius:20px;padding:12px;margin-bottom:8px;
+      box-shadow:0 8px 28px rgba(0,0,0,0.8);
+    }
+    h1{font-size:1.8rem;font-weight:900;text-align:center;
+      background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);
+      -webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:2px;
+    }
+    .sub{text-align:center;color:#aaccff;font-size:0.7rem;margin-bottom:6px;}
+    .dashboard{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px;}
+    @media(max-width:1300px){.dashboard{grid-template-columns:1fr 1fr;}}
+    @media(max-width:900px){.dashboard{grid-template-columns:1fr;}}
+    .panel{
+      background:rgba(0,5,15,0.8);border-radius:16px;border:1px solid #2a4a7a;
+      padding:10px;display:flex;flex-direction:column;gap:8px;
+    }
+    .panel-title{font-weight:bold;font-size:0.75rem;color:#0ff;
+      border-bottom:1px solid #2a4a7a;padding-bottom:4px;display:flex;
+      justify-content:space-between;align-items:center;
+    }
+    .node-grid{
+      display:grid;grid-template-columns:repeat(10,1fr);gap:3px;
+      background:#010118;border-radius:10px;padding:6px;border:1px solid #2a4a7a;
+      max-height:500px;overflow-y:auto;
+    }
+    .node-cell{
+      aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;border-radius:6px;border:1px solid #1a2a3a;
+      background:#0a0a1a;cursor:pointer;transition:0.15s;position:relative;padding:2px;
+      font-size:0.55rem;
+    }
+    .node-cell:hover{border-color:#0ff;box-shadow:0 0 12px rgba(0,255,255,0.6);transform:scale(1.05);z-index:2;}
+    .node-cell.selected{border-color:#fff!important;box-shadow:0 0 18px #fff;background:#1a2a4a;}
+    .node-char{font-size:1.3rem;font-weight:bold;z-index:1;}
+    .freq-bars{display:flex;gap:1px;width:100%;margin-top:2px;}
+    .freq-bar{height:4px;flex:1;border-radius:1px;}
+    .shape-tag{position:absolute;top:1px;left:1px;font-size:0.5rem;background:#000;border-radius:2px;padding:0 1px;}
+    .entangle-line{position:absolute;bottom:1px;right:1px;font-size:0.45rem;color:#ffb800;}
+    .stats-row{display:flex;gap:8px;flex-wrap:wrap;font-size:0.65rem;}
+    .stat{background:#010118;border:1px solid #2a4a7a;border-radius:12px;padding:3px 10px;}
+    .stat .lbl{color:#88aaff;}.stat .val{color:#fff;font-weight:bold;}
+    .controls{display:flex;gap:5px;flex-wrap:wrap;}
+    button{
+      background:#1f2a4a;border:1px solid #0ff;border-radius:30px;padding:5px 12px;
+      color:#fff;cursor:pointer;font-weight:bold;font-family:inherit;font-size:0.65rem;
+      transition:0.2s;white-space:nowrap;
+    }
+    button:hover{background:#0ff;color:#000;box-shadow:0 0 14px #0ff;transform:translateY(-1px);}
+    button:active{transform:scale(0.94);}
+    button.gold{border-color:#ffb800;}button.gold:hover{background:#ffb800;color:#000;}
+    button.danger{border-color:#ff4477;}button.danger:hover{background:#ff4477;}
+    button.magenta{border-color:#f0f;}button.magenta:hover{background:#f0f;color:#000;}
+    button.green{border-color:#0f8;}button.green:hover{background:#0f8;color:#000;}
+    button.overdrive{background:linear-gradient(45deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);border:2px solid #fff;color:#000;font-weight:900;letter-spacing:1px;animation:glow 0.5s infinite alternate;}
+    @keyframes glow{0%{box-shadow:0 0 15px #fff;}100%{box-shadow:0 0 30px #fff,0 0 60px #f0f;}}
+    .terminal{
+      background:#010118;border-radius:10px;padding:8px;height:120px;overflow-y:auto;
+      font-size:0.58rem;font-family:monospace;border:1px solid #2a4a7a;color:#aaf;line-height:1.4;
+    }
+    .terminal .out{color:#0ff;}.terminal .warn{color:#ffaa00;}.terminal .info{color:#88ff88;}.terminal .err{color:#f44;}
+    .toast{
+      position:fixed;bottom:20px;right:20px;background:#010105;border:1px solid #0ff;
+      border-radius:40px;padding:8px 20px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.7);
+      opacity:0;transform:translateY(20px);transition:0.3s;pointer-events:none;z-index:9999;font-size:0.75rem;
+    }
+    .toast.show{opacity:1;transform:translateY(0);}
+    canvas.spectrum{width:100%;height:60px;border-radius:8px;border:1px solid #2a4a7a;}
+    .neural-output{font-size:0.6rem;color:#ffb800;max-height:60px;overflow-y:auto;}
+    .legend-box{background:#010118;border-radius:8px;padding:6px;font-size:0.55rem;color:#aaf;max-height:100px;overflow-y:auto;}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>⚡🌀 MAXIMUM OVERDRIVE · Unicode Color‑Frequency Neuro‑Genetic Quantum Swarm</h1>
+    <div class="sub">100 Nodes · 4 simultaneous AI engines · Real‑time spectrum · Substitution cipher legend</div>
+  </div>
+
+  <div class="dashboard">
+    <!-- LEFT: NODE GRID (100 nodes) -->
+    <div class="panel">
+      <div class="panel-title">🔮 Unicode Node Matrix (10×10)
+        <span id="nodeCount" style="font-size:0.6rem;">0 active</span>
+      </div>
+      <div class="node-grid" id="nodeGrid"></div>
+      <div class="stats-row">
+        <div class="stat"><span class="lbl">Selected</span> <span class="val" id="selNode">—</span></div>
+        <div class="stat"><span class="lbl">Avg Freq</span> <span class="val" id="avgFreq">—</span></div>
+        <div class="stat"><span class="lbl">Superpositions</span> <span class="val" id="superCount">0</span></div>
+      </div>
+    </div>
+
+    <!-- MIDDLE: AI ENGINES -->
+    <div class="panel">
+      <div class="panel-title">🧠 Swarm AI (GOTO gradient descent)
+        <span style="font-size:0.6rem;">learning rate 0.25</span>
+      </div>
+      <div class="controls">
+        <button id="swarmStepBtn">🐝 Single Step</button>
+        <button id="swarmAutoBtn" class="green">▶️ Auto</button>
+      </div>
+      <div class="panel-title" style="margin-top:4px;">🧬 Genetic Evolution
+        <span style="font-size:0.6rem;">crossover + mutation</span>
+      </div>
+      <div class="controls">
+        <button id="geneticStepBtn">🧬 Evolve Generation</button>
+        <button id="geneticAutoBtn" class="green">▶️ Auto</button>
+      </div>
+      <div class="panel-title" style="margin-top:4px;">🧠 Neural Predictor
+        <span style="font-size:0.6rem;">tiny feedforward net</span>
+      </div>
+      <div class="neural-output" id="neuralOutput">No prediction yet.</div>
+      <div class="controls">
+        <button id="neuralTrainBtn">🎓 Train Step</button>
+        <button id="neuralPredictBtn">🔮 Predict All</button>
+      </div>
+      <div class="panel-title" style="margin-top:4px;">🔗 Quantum Entanglement
+        <span style="font-size:0.6rem;">Bell pairs</span>
+      </div>
+      <div class="controls">
+        <button id="entangleBtn" class="magenta">⚛️ Entangle Random</button>
+        <button id="measureBtn" class="gold">📐 Measure All</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: SPECTRUM + LEGEND + TERMINAL -->
+    <div class="panel">
+      <div class="panel-title">📊 Real‑time Frequency Spectrum
+        <span id="spectrumLabel" style="font-size:0.6rem;">avg</span>
+      </div>
+      <canvas id="spectrumCanvas" class="spectrum" width="300" height="60"></canvas>
+      <div class="panel-title" style="margin-top:4px;">🔣 Substitution Legend
+        <span id="legendCount" style="font-size:0.6rem;">0 codes</span>
+      </div>
+      <div class="legend-box" id="legendBox">Generate to populate.</div>
+      <div class="panel-title" style="margin-top:4px;">📡 Terminal · Overdrive Log</div>
+      <div class="terminal" id="terminal">
+        <div class="out">> Maximum Overdrive initialized.</div>
+        <div class="info">> 4 AI engines ready. Press OVERDRIVE to engage all.</div>
+      </div>
+      <div class="controls" style="margin-top:4px;">
+        <button id="overdriveBtn" class="overdrive">⚡ MAXIMUM OVERDRIVE</button>
+        <button id="stopAllBtn" class="danger">⏹️ STOP ALL</button>
+        <button id="resetBtn">⚪ Reset Universe</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+  // ── Color bands ──────────────────────────────────
+  const BANDS = [
+    {name:'red',freq:430,hex:'#ff3333'},{name:'orange',freq:480,hex:'#ff9933'},
+    {name:'yellow',freq:510,hex:'#ffdd33'},{name:'green',freq:560,hex:'#33ff55'},
+    {name:'cyan',freq:600,hex:'#33ffff'},{name:'blue',freq:650,hex:'#3377ff'},
+    {name:'indigo',freq:700,hex:'#7733ff'},{name:'violet',freq:750,hex:'#ff33ff'}
+  ];
+  const SHAPES_CIRCLE = ['⚪','🔴','🟠','🟡','🟢','🔵','🟣','🟤','⚫'];
+  const SHAPES_SQUARE = ['⬜','🟥','🟧','🟨','🟩','🟦','🟪','🟫','⬛'];
+  const N = 100; // 10x10 grid
+
+  // ── Node class ────────────────────────────────────
+  class QNode {
+    constructor(id,char,code){
+      this.id=id; this.char=char; this.code=code;
+      this.freq=new Array(8).fill(0.5); this.normalize();
+      this.shape='circle'; this.baseColor=0;
+      this.entangled=null; // id of entangled partner
+      this.quantumState=null; // for future use
+    }
+    randomize(){ for(let i=0;i<8;i++) this.freq[i]=Math.random(); this.normalize(); }
+    normalize(){ const s=this.freq.reduce((a,b)=>a+b,0)||1; for(let i=0;i<8;i++) this.freq[i]/=s; }
+    get dominant(){ const m=Math.max(...this.freq); return this.freq.indexOf(m); }
+    get weightedFreq(){ return this.freq.reduce((s,v,i)=>s+v*BANDS[i].freq,0); }
+    get shapeEmoji(){ return this.shape==='circle'?SHAPES_CIRCLE[this.baseColor]:SHAPES_SQUARE[this.baseColor]; }
+  }
+
+  // ── Global state ──────────────────────────────────
+  let nodes=[], selectedId=null, totalOps=0, superPos=0;
+  let swarmTimer=null, geneticTimer=null, overdriveActive=false;
+
+  // DOM
+  const $=id=>document.getElementById(id);
+  const nodeGridEl=$('nodeGrid'),nodeCountEl=$('nodeCount'),selNodeEl=$('selNode'),
+        avgFreqEl=$('avgFreq'),superCountEl=$('superCount'),
+        legendBox=$('legendBox'),legendCount=$('legendCount'),
+        terminalEl=$('terminal'),toastEl=$('toast'),
+        spectrumCanvas=$('spectrumCanvas'),spectrumLabel=$('spectrumLabel'),
+        neuralOutput=$('neuralOutput');
+
+  // ── Toast & Terminal ──────────────────────────────
+  function toast(m,d=2000){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(toastEl._t);toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),d);}
+  function term(m,c='out'){const d=document.createElement('div');d.className=c;d.textContent='> '+m;terminalEl.appendChild(d);terminalEl.scrollTop=terminalEl.scrollHeight;while(terminalEl.children.length>35)terminalEl.removeChild(terminalEl.firstChild);}
+
+  // ── Build nodes ───────────────────────────────────
+  function buildNodes(){
+    nodes=[];
+    const ranges=[[0x41,0x5A],[0x61,0x7A],[0x391,0x3A9],[0x3B1,0x3C9],[0x4E00,0x4E1F],[0x2200,0x221F],[0x1F600,0x1F61F],[0x1F300,0x1F31F]];
+    let idx=0;
+    for(let [s,e] of ranges){for(let cp=s;cp<=e&&idx<N;cp++){nodes.push(new QNode(idx,String.fromCodePoint(cp),'U+'+cp.toString(16).toUpperCase().padStart(5,'0')));idx++;}}
+    while(nodes.length<N){let cp=0x1F400+Math.floor(Math.random()*0x200);nodes.push(new QNode(nodes.length,String.fromCodePoint(cp),'U+'+cp.toString(16).toUpperCase().padStart(5,'0')));}
+    nodes.forEach(n=>{n.randomize();n.shape=Math.random()<0.5?'circle':'square';n.baseColor=Math.floor(Math.random()*9);});
+    renderGrid();updateLegend();term('100 Unicode nodes initialized with random spectra & shapes.');
+  }
+
+  // ── Render grid ───────────────────────────────────
+  function renderGrid(){
+    let h='';
+    nodes.forEach(n=>{
+      const sel=selectedId===n.id?' selected':'';
+      const bars=n.freq.map((v,i)=>`<div class="freq-bar" style="background:${BANDS[i].hex};opacity:${Math.max(0.2,v).toFixed(2)};box-shadow:0 0 ${(v*8).toFixed(1)}px ${BANDS[i].hex};"></div>`).join('');
+      const dom=n.dominant;
+      const ent=(n.entangled!==null)?'🔗':'';
+      h+=`<div class="node-cell${sel}" data-id="${n.id}" style="border-color:${BANDS[dom].hex}33;">
+        <span class="shape-tag">${n.shapeEmoji}</span>
+        <span class="entangle-line">${ent}</span>
+        <div class="node-char" style="color:${BANDS[dom].hex};text-shadow:0 0 8px ${BANDS[dom].hex};">${n.char}</div>
+        <div class="freq-bars">${bars}</div>
+      </div>`;
+    });
+    nodeGridEl.innerHTML=h;
+    nodeGridEl.querySelectorAll('.node-cell').forEach(el=>el.addEventListener('click',function(){
+      selectedId=parseInt(this.dataset.id);renderGrid();updateStats();
+      const n=nodes[selectedId];term(`Selected ${n.char} (${n.code}) · shape:${n.shapeEmoji} · dom:${BANDS[n.dominant].name}`);
+    }));
+    updateStats();updateSpectrum();
+  }
+
+  function updateStats(){
+    const active=nodes.filter(n=>n.freq.some(v=>v>0.01)).length;
+    nodeCountEl.textContent=`${active} active`;
+    const sortedVals=nodes.map(n=>[...n.freq].sort((a,b)=>b-a));
+    superPos=sortedVals.filter(arr=>arr.length>1&&arr[1]>0.15).length;
+    superCountEl.textContent=superPos;
+    if(selectedId!==null&&nodes[selectedId]){
+      const n=nodes[selectedId];selNodeEl.textContent=`${n.char} ${n.code}`;
+      avgFreqEl.textContent=n.weightedFreq.toFixed(1)+' THz';
+    }else{selNodeEl.textContent='—';avgFreqEl.textContent='—';}
+    totalOpsEl.textContent=totalOps;
+  }
+  const totalOpsEl=$('totalOps');
+
+  // ── Legend ────────────────────────────────────────
+  function updateLegend(){
+    let h='<div style="display:flex;flex-wrap:wrap;gap:4px;">';
+    nodes.slice(0,40).forEach(n=>h+=`<span title="${n.code}">${n.char}=${n.shapeEmoji}</span> `);
+    h+=`</div><div style="color:#88ffaa;margin-top:2px;">⚪‑⚫ circles 0‑8 / ⬜‑⬛ squares 0‑8</div>`;
+    legendBox.innerHTML=h;legendCount.textContent=nodes.length+' codes';
+  }
+
+  // ── Spectrum Canvas ───────────────────────────────
+  function updateSpectrum(){
+    const canvas=spectrumCanvas,ctx=canvas.getContext('2d');
+    const w=canvas.width,h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    const avgFreq=new Array(8).fill(0);
+    nodes.forEach(n=>{for(let i=0;i<8;i++)avgFreq[i]+=n.freq[i];});
+    for(let i=0;i<8;i++)avgFreq[i]/=nodes.length;
+    const barW=w/8;
+    for(let i=0;i<8;i++){
+      const val=avgFreq[i];
+      ctx.fillStyle=BANDS[i].hex;
+      ctx.fillRect(i*barW,h*(1-val),barW-2,h*val);
+      ctx.shadowColor=BANDS[i].hex;ctx.shadowBlur=6;
+      ctx.fillRect(i*barW,h*(1-val),barW-2,4);
+      ctx.shadowBlur=0;
+    }
+    spectrumLabel.textContent=`avg spectrum`;
+  }
+
+  // ── SWARM AI (GOTO) ──────────────────────────────
+  function swarmStep(){
+    const old=nodes.map(n=>[...n.freq]);
+    for(let i=0;i<nodes.length;i++){
+      const n=nodes[i];
+      const row=Math.floor(i/10),col=i%10;
+      const nb=[];
+      [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr,dc])=>{
+        const r=(row+dr+10)%10,c=(col+dc+10)%10;nb.push(r*10+c);
+      });
+      const avg=new Array(8).fill(0);
+      nb.forEach(id=>{for(let b=0;b<8;b++)avg[b]+=old[id][b];});
+      for(let b=0;b<8;b++)avg[b]/=nb.length;
+      const lr=0.25;
+      for(let b=0;b<8;b++)n.freq[b]+=(avg[b]-n.freq[b])*lr;
+      n.normalize();
+      // also adjust shape to dominant
+      const dom=n.dominant;
+      if(n.baseColor!==dom&&Math.random()<0.4)n.baseColor=dom;
+      totalOps++;
+    }
+    renderGrid();updateSpectrum();
+    term('🐝 Swarm step completed.','info');
+  }
+
+  // ── GENETIC ALGORITHM ────────────────────────────
+  function geneticStep(){
+    // Fitness = sum of frequencies weighted by band index? low energy = more harmonic.
+    const fitness=nodes.map(n=>{
+      let e=0;
+      for(let i=0;i<8;i++)e+=n.freq[i]*Math.abs(i-n.dominant);
+      return 1/(1+e);
+    });
+    // Select top 20%
+    const sorted=nodes.map((n,i)=>({n,i,f:fitness[i]})).sort((a,b)=>b.f-a.f);
+    const survivors=sorted.slice(0,20).map(x=>x.n);
+    // Generate new population
+    for(let i=0;i<nodes.length;i++){
+      if(Math.random()<0.3)continue; // keep some
+      const parent1=survivors[Math.floor(Math.random()*survivors.length)];
+      const parent2=survivors[Math.floor(Math.random()*survivors.length)];
+      const child=new QNode(i,nodes[i].char,nodes[i].code);
+      // crossover
+      for(let b=0;b<8;b++)child.freq[b]=Math.random()<0.5?parent1.freq[b]:parent2.freq[b];
+      // mutation
+      if(Math.random()<0.2){const mut=Math.floor(Math.random()*8);child.freq[mut]=Math.random();}
+      child.normalize();
+      child.shape=Math.random()<0.5?parent1.shape:parent2.shape;
+      child.baseColor=Math.random()<0.5?parent1.baseColor:parent2.baseColor;
+      nodes[i]=child;
+      totalOps++;
+    }
+    renderGrid();updateSpectrum();
+    term('🧬 Genetic generation evolved.','info');
+  }
+
+  // ── NEURAL NET (tiny) ─────────────────────────────
+  // Simple linear model: predict weightedFreq from frequencies (no training, just random weights)
+  let nnWeights=new Array(8).fill(0).map(()=>Math.random()*2-1);
+  function neuralTrainStep(){
+    // pseudo-training: adjust weights toward last prediction error (reinforcement style)
+    const lr=0.01;
+    nodes.forEach(n=>{
+      const pred=n.freq.reduce((s,v,i)=>s+v*nnWeights[i],0);
+      const target=n.weightedFreq/1000; // scaled
+      const error=target-pred;
+      for(let i=0;i<8;i++)nnWeights[i]+=lr*error*n.freq[i];
+      totalOps++;
+    });
+    neuralOutput.textContent='Weights: '+nnWeights.map(w=>w.toFixed(2)).join(', ');
+    term('🎓 Neural weights updated.','info');
+  }
+  function neuralPredictAll(){
+    let sum=0;
+    nodes.forEach(n=>{sum+=n.freq.reduce((s,v,i)=>s+v*nnWeights[i],0);});
+    neuralOutput.textContent='Avg predicted freq: '+(sum/nodes.length*1000).toFixed(0)+' THz';
+    term('🔮 Neural prediction run.','info');
+  }
+
+  // ── QUANTUM ENTANGLEMENT ──────────────────────────
+  function entangleRandom(){
+    const free=nodes.filter(n=>n.entangled===null);
+    if(free.length<2){toast('Need 2 free nodes.');return;}
+    const i1=free[Math.floor(Math.random()*free.length)];
+    let i2;do{i2=free[Math.floor(Math.random()*free.length)];}while(i1===i2);
+    i1.entangled=i2.id;i2.entangled=i1.id;
+    renderGrid();term(`⚛️ Entangled ${i1.char}↔${i2.char}`,'info');
+  }
+  function measureAll(){
+    nodes.forEach(n=>{if(n.entangled!==null){n.entangled=null;}});
+    renderGrid();term('📐 All entanglements measured (collapsed).','warn');
+  }
+
+  // ── OVERDRIVE ─────────────────────────────────────
+  function startOverdrive(){
+    if(overdriveActive)return;
+    overdriveActive=true;
+    stopAllTimers();
+    swarmTimer=setInterval(swarmStep,300);
+    geneticTimer=setInterval(geneticStep,600);
+    term('⚡ MAXIMUM OVERDRIVE ENGAGED. All engines running.','out');
+    document.body.style.animation='pulse 0.5s infinite alternate';
+  }
+  function stopAllTimers(){
+    if(swarmTimer){clearInterval(swarmTimer);swarmTimer=null;}
+    if(geneticTimer){clearInterval(geneticTimer);geneticTimer=null;}
+  }
+  function stopAll(){
+    stopAllTimers();
+    overdriveActive=false;
+    document.body.style.animation='';
+    term('⏹️ All AI engines stopped.','warn');
+  }
+
+  // ── Reset ─────────────────────────────────────────
+  function resetUniverse(){
+    stopAll();
+    nodes.forEach(n=>{n.freq.fill(0.5);n.normalize();n.shape='circle';n.baseColor=0;n.entangled=null;});
+    renderGrid();updateSpectrum();updateLegend();
+    term('⚪ Universe reset to base white circles.','info');
+  }
+
+  // ── Event binding ─────────────────────────────────
+  function bind(){
+    $('#swarmStepBtn').addEventListener('click',swarmStep);
+    $('#swarmAutoBtn').addEventListener('click',()=>{if(!swarmTimer)swarmTimer=setInterval(swarmStep,800);});
+    $('#geneticStepBtn').addEventListener('click',geneticStep);
+    $('#geneticAutoBtn').addEventListener('click',()=>{if(!geneticTimer)geneticTimer=setInterval(geneticStep,1000);});
+    $('#neuralTrainBtn').addEventListener('click',neuralTrainStep);
+    $('#neuralPredictBtn').addEventListener('click',neuralPredictAll);
+    $('#entangleBtn').addEventListener('click',entangleRandom);
+    $('#measureBtn').addEventListener('click',measureAll);
+    $('#overdriveBtn').addEventListener('click',startOverdrive);
+    $('#stopAllBtn').addEventListener('click',stopAll);
+    $('#resetBtn').addEventListener('click',resetUniverse);
+  }
+
+  // ── Init ──────────────────────────────────────────
+  function init(){
+    buildNodes();
+    bind();
+    updateSpectrum();
+    term('🚀 Maximum Overdrive Unicode Computer ready.');
+    term('Engage OVERDRIVE for full parallel AI computation.');
+  }
+  init();
+})();
+</script>
+</body>
+</html>

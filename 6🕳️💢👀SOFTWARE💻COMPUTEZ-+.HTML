@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🌈 Unicode Color‑Frequency Quantum Computer · GOTO‑AI Swarm</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #03050a;
+      color: #eef;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      padding: 10px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1700px; margin:0 auto; }
+    .glass {
+      background: rgba(6,10,22,0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid #2e4268;
+      border-radius: 24px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.7);
+    }
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+    }
+    .sub { text-align:center; color:#aaccff; font-size:0.75rem; margin-bottom:10px; }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 1300px) { .main-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
+    .panel {
+      background: rgba(0,5,15,0.75);
+      border-radius: 18px;
+      border: 1px solid #2a4a7a;
+      padding: 14px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .panel-title {
+      font-weight:bold; font-size:0.8rem; color:#0ff;
+      border-bottom:1px solid #2a4a7a; padding-bottom:4px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .unicode-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 4px;
+      background:#010118; border-radius:10px; padding:6px;
+      border:1px solid #2a4a7a;
+      max-height: 300px; overflow-y: auto;
+    }
+    .node-cell {
+      aspect-ratio:1/1;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      border-radius: 8px; border:1px solid #1a2a3a;
+      background:#0a0a1a; cursor:pointer; transition:0.2s;
+      position:relative; padding:2px;
+    }
+    .node-cell:hover { border-color:#0ff; box-shadow:0 0 14px rgba(0,255,255,0.5); transform:scale(1.05); z-index:2; }
+    .node-cell.selected { border-color:#fff !important; box-shadow:0 0 20px #fff !important; background:#1a2a4a; }
+    .node-char { font-size:1.4rem; font-weight:bold; z-index:1; }
+    .freq-bars { display:flex; gap:1px; width:100%; margin-top:2px; }
+    .freq-bar { height:5px; flex:1; border-radius:1px; }
+    .shape-tag {
+      position:absolute; top:2px; left:2px;
+      font-size:0.55rem; background:#000; border-radius:4px; padding:0 2px;
+    }
+    .status-row { display:flex; gap:8px; flex-wrap:wrap; font-size:0.7rem; }
+    .stat { background:#010118; border:1px solid #2a4a7a; border-radius:12px; padding:3px 10px; }
+    .stat .lbl { color:#88aaff; } .stat .val { color:#fff; font-weight:bold; }
+    .controls { display:flex; gap:6px; flex-wrap:wrap; }
+    button {
+      background:#1f2a4a; border:1px solid #0ff; border-radius:30px;
+      padding:5px 14px; color:#fff; cursor:pointer; font-weight:bold;
+      font-family:inherit; font-size:0.7rem; transition:0.2s; white-space:nowrap;
+    }
+    button:hover { background:#0ff; color:#000; box-shadow:0 0 14px #0ff; transform:translateY(-1px); }
+    button:active { transform:scale(0.94); }
+    button.gold { border-color:#ffb800; } button.gold:hover { background:#ffb800; color:#000; }
+    button.danger { border-color:#ff4477; } button.danger:hover { background:#ff4477; }
+    button.magenta { border-color:#f0f; } button.magenta:hover { background:#f0f; color:#000; }
+    button.green { border-color:#0f8; } button.green:hover { background:#0f8; color:#000; }
+    .terminal {
+      background:#010118; border-radius:10px; padding:10px; height:140px;
+      overflow-y:auto; font-size:0.62rem; font-family:monospace;
+      border:1px solid #2a4a7a; color:#aaf; line-height:1.5;
+    }
+    .terminal .out { color:#0ff; } .terminal .warn { color:#ffaa00; }
+    .terminal .info { color:#88ff88; } .terminal .err { color:#f44; }
+    .toast {
+      position:fixed; bottom:25px; right:25px; background:#010105;
+      border:1px solid #0ff; border-radius:40px; padding:10px 24px;
+      color:#fff; box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      opacity:0; transform:translateY(20px); transition:0.3s;
+      pointer-events:none; z-index:9999; font-size:0.8rem; max-width:400px;
+    }
+    .toast.show { opacity:1; transform:translateY(0); }
+    .legend-box {
+      background:#010118; border-radius:8px; padding:6px;
+      font-size:0.58rem; color:#aaf; max-height:120px; overflow-y:auto;
+    }
+    .calc-display {
+      background:#010118; border-radius:8px; padding:8px;
+      font-size:0.75rem; color:#0ff; text-align:right; font-family:monospace;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>🌈⚛️ Unicode Color‑Frequency Quantum Computer</h1>
+    <div class="sub">Each symbol = 8 frequency bands · Shapes ⚪🔴🟥⬜ · GOTO‑AI swarm · Legend‑driven substitution</div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: UNICODE NODE GRID (64 nodes) -->
+    <div class="panel">
+      <div class="panel-title">🔮 Unicode Nodes (64) — each is a qubit-like unit
+        <span id="nodeCount" style="font-size:0.65rem;">0 active</span>
+      </div>
+      <div class="unicode-grid" id="nodeGrid"></div>
+      <div class="status-row">
+        <div class="stat"><span class="lbl">Selected</span> <span class="val" id="selNode">—</span></div>
+        <div class="stat"><span class="lbl">Dominant Hz</span> <span class="val" id="domFreq">—</span></div>
+        <div class="stat"><span class="lbl">Superpositions</span> <span class="val" id="superCount">0</span></div>
+      </div>
+      <div class="controls">
+        <button id="randomFreqBtn" class="gold">🎲 Randomize All</button>
+        <button id="swarmStepBtn" class="magenta">🐝 GOTO Step</button>
+        <button id="autoSwarmBtn" class="green">▶️ Auto Swarm</button>
+        <button id="stopSwarmBtn" class="danger">⏹️ Stop</button>
+      </div>
+    </div>
+
+    <!-- CENTER: COMPUTATION & LEGEND -->
+    <div class="panel">
+      <div class="panel-title">🧬 Legend: Unicode→Shape→Color Substitution
+        <span id="legendCount">0 codes</span>
+      </div>
+      <div class="legend-box" id="legendBox">Generate nodes to populate legend.</div>
+      <div class="panel-title" style="margin-top:6px;">⚡ Combinatorial Power Estimator</div>
+      <div class="calc-display" id="comboCalc">Compute to see state space.</div>
+      <div class="controls">
+        <button id="estimateBtn" class="gold">📊 Estimate Combinations</button>
+        <button id="computeSumBtn">🧮 Compute Weighted Sum</button>
+        <button id="normalizeBtn" class="green">✓ Normalize All</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: TERMINAL & CONTROL -->
+    <div class="panel">
+      <div class="panel-title">📡 Terminal · Swarm AI Log</div>
+      <div class="terminal" id="terminal">
+        <div class="out">> Unicode Color Computer ready.</div>
+        <div class="info">> Each node: Unicode + shape + 8 frequency bands.</div>
+        <div class="out">> GOTO‑AI adjusts colors toward target harmony.</div>
+      </div>
+      <div class="status-row">
+        <div class="stat"><span class="lbl">Total nodes</span> <span class="val" id="totalNodes">64</span></div>
+        <div class="stat"><span class="lbl">Combinations</span> <span class="val" id="comboVal">—</span></div>
+        <div class="stat"><span class="lbl">Ops</span> <span class="val" id="totalOps">0</span></div>
+      </div>
+      <div class="controls">
+        <button id="clearTermBtn" class="danger">🗑️ Clear</button>
+        <button id="exportStateBtn" class="gold">📤 Export State</button>
+        <button id="resetBaseBtn">⚪ Reset to Base</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  (() => {
+    // ── Color Frequency Bands (8) ─────────────────────────
+    const BANDS = [
+      { name:'red',    freq:430, hue:0,   hex:'#ff3333' },
+      { name:'orange', freq:480, hue:30,  hex:'#ff9933' },
+      { name:'yellow', freq:510, hue:60,  hex:'#ffdd33' },
+      { name:'green',  freq:560, hue:120, hex:'#33ff55' },
+      { name:'cyan',   freq:600, hue:180, hex:'#33ffff' },
+      { name:'blue',   freq:650, hue:240, hex:'#3377ff' },
+      { name:'indigo', freq:700, hue:270, hex:'#7733ff' },
+      { name:'violet', freq:750, hue:300, hex:'#ff33ff' }
+    ];
+    const SHAPES = ['⚪','🔴','🟠','🟡','🟢','🔵','🟣','🟤','⚫','⬜','🟥','🟧','🟨','🟩','🟦','🟪','🟫','⬛'];
+    // ── Node class ────────────────────────────────────────
+    class QNode {
+      constructor(id, char, code) {
+        this.id = id;
+        this.char = char;
+        this.code = code;
+        // 8 frequency intensities [0..1]
+        this.freq = new Array(8).fill(0.5);
+        this.shape = 'circle'; // or 'square'
+        this.baseColor = 0; // index 0-8 for white..black
+        this.targetFreq = null;
+      }
+      randomize() {
+        for(let i=0;i<8;i++) this.freq[i] = Math.random();
+        this.normalize();
+      }
+      normalize() {
+        const sum = this.freq.reduce((a,b)=>a+b,0) || 1;
+        for(let i=0;i<8;i++) this.freq[i] /= sum;
+      }
+      get dominantBand() {
+        let max=0, idx=0;
+        for(let i=0;i<8;i++) if(this.freq[i]>max) { max=this.freq[i]; idx=i; }
+        return BANDS[idx];
+      }
+      get weightedFreq() {
+        return this.freq.reduce((s,v,i)=> s + v*BANDS[i].freq, 0);
+      }
+      get shapeEmoji() {
+        if(this.shape==='circle') return SHAPES[this.baseColor];
+        else return SHAPES[9 + this.baseColor]; // squares start at index 9
+      }
+    }
+
+    // ── Global state ──────────────────────────────────────
+    const NODE_COUNT = 64;
+    let nodes = [];
+    let selectedId = null;
+    let swarmTimer = null;
+    let totalOps = 0;
+    let superpositions = 0; // nodes with multiple significant frequencies
+
+    // DOM
+    const $=id=>document.getElementById(id);
+    const nodeGridEl = $('#nodeGrid');
+    const nodeCountEl = $('#nodeCount');
+    const selNodeEl = $('#selNode');
+    const domFreqEl = $('#domFreq');
+    const superCountEl = $('#superCount');
+    const legendBox = $('#legendBox');
+    const legendCount = $('#legendCount');
+    const comboCalc = $('#comboCalc');
+    const totalNodesEl = $('#totalNodes');
+    const comboValEl = $('#comboVal');
+    const totalOpsEl = $('#totalOps');
+    const terminalEl = $('#terminal');
+    const toastEl = $('#toast');
+
+    function toast(msg,d=2000) {
+      toastEl.textContent=msg; toastEl.classList.add('show');
+      clearTimeout(toastEl._t); toastEl._t=setTimeout(()=>toastEl.classList.remove('show'),d);
+    }
+    function termWrite(msg,cls='out') {
+      const div=document.createElement('div'); div.className=cls; div.textContent='> '+msg;
+      terminalEl.appendChild(div); terminalEl.scrollTop=terminalEl.scrollHeight;
+      while(terminalEl.children.length>40) terminalEl.removeChild(terminalEl.firstChild);
+    }
+
+    // ── Initialize nodes with Unicode diversity ──────────
+    function buildNodes() {
+      nodes=[];
+      const ranges=[
+        [0x0041,0x005A],[0x0061,0x007A],[0x0391,0x03A9],[0x03B1,0x03C9],
+        [0x4E00,0x4E1F],[0x2200,0x221F],[0x1F600,0x1F61F],[0x1F300,0x1F31F]
+      ];
+      let idx=0;
+      for(let [s,e] of ranges) {
+        for(let cp=s; cp<=e && idx<NODE_COUNT; cp++) {
+          nodes.push(new QNode(idx, String.fromCodePoint(cp), 'U+'+cp.toString(16).toUpperCase().padStart(5,'0')));
+          idx++;
+        }
+      }
+      while(nodes.length<NODE_COUNT) {
+        let cp=0x1F400+Math.floor(Math.random()*0x200);
+        nodes.push(new QNode(nodes.length, String.fromCodePoint(cp), 'U+'+cp.toString(16).toUpperCase().padStart(5,'0')));
+      }
+      // Random initial states
+      nodes.forEach(n=>{ n.randomize(); n.shape=Math.random()<0.5?'circle':'square'; n.baseColor=Math.floor(Math.random()*9); });
+      renderAll();
+      termWrite('Initialized 64 Unicode nodes with random spectra & shapes.');
+      updateLegend();
+    }
+
+    // ── Render grid ───────────────────────────────────────
+    function renderGrid() {
+      let html='';
+      nodes.forEach(n=>{
+        const selClass = (selectedId===n.id)?' selected':'';
+        const bars = n.freq.map((v,i)=>{
+          const hex = BANDS[i].hex;
+          const alpha = Math.max(0.2, v).toFixed(2);
+          return `<div class="freq-bar" style="background:${hex};opacity:${alpha};box-shadow:0 0 ${(v*8).toFixed(1)}px ${hex};"></div>`;
+        }).join('');
+        const dom = n.dominantBand;
+        html+=`<div class="node-cell${selClass}" data-id="${n.id}" style="border-color:${dom.hex}33;">
+          <span class="shape-tag">${n.shapeEmoji}</span>
+          <div class="node-char" style="color:${dom.hex};text-shadow:0 0 8px ${dom.hex};">${n.char}</div>
+          <div class="freq-bars">${bars}</div>
+        </div>`;
+      });
+      nodeGridEl.innerHTML=html;
+      nodeGridEl.querySelectorAll('.node-cell').forEach(el=>{
+        el.addEventListener('click',function(){
+          selectedId=parseInt(this.dataset.id);
+          renderGrid();
+          updateStats();
+          const n=nodes[selectedId];
+          termWrite(`Selected ${n.char} (${n.code}) · shape:${n.shapeEmoji} · dom:${n.dominantBand.name}`);
+        });
+      });
+      updateStats();
+    }
+
+    function updateStats() {
+      const active = nodes.filter(n=>n.freq.some(v=>v>0.01)).length;
+      nodeCountEl.textContent = `${active} active`;
+      superpositions = nodes.filter(n=>{
+        const sorted=[...n.freq].sort((a,b)=>b-a);
+        return sorted.length>1 && sorted[1]>0.1; // more than one significant band
+      }).length;
+      superCountEl.textContent = superpositions;
+      if(selectedId!==null && nodes[selectedId]){
+        const n=nodes[selectedId];
+        selNodeEl.textContent = `${n.char} ${n.code}`;
+        domFreqEl.textContent = n.weightedFreq.toFixed(1)+' THz';
+      } else { selNodeEl.textContent='—'; domFreqEl.textContent='—'; }
+      totalNodesEl.textContent = nodes.length;
+      totalOpsEl.textContent = totalOps;
+    }
+
+    function renderAll() { renderGrid(); updateLegend(); }
+
+    function updateLegend() {
+      let html='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+      const sample = nodes.slice(0,30);
+      sample.forEach(n=>{
+        html+=`<span title="${n.code}">${n.char}=${n.shapeEmoji}</span> `;
+      });
+      html+=`</div><div style="color:#88ffaa;margin-top:4px;">Shape mapping: ⚪🔴🟠🟡🟢🔵🟣🟤⚫ (circles 0‑8) / ⬜🟥🟧🟨🟩🟦🟪🟫⬛ (squares 0‑8)</div>`;
+      legendBox.innerHTML=html;
+      legendCount.textContent = nodes.length+' codes';
+    }
+
+    // ── GOTO‑AI Swarm step ──────────────────────────────
+    function swarmStep() {
+      // Each node adjusts its frequencies towards a neighborhood average (like Ising model)
+      const oldFreqs = nodes.map(n=>[...n.freq]);
+      for(let i=0;i<nodes.length;i++){
+        const n = nodes[i];
+        // Find neighbors (wrap 8x8 grid)
+        const row=Math.floor(i/8), col=i%8;
+        const neighbors=[];
+        const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+        for(let [dr,dc] of dirs){
+          const r=(row+dr+8)%8, c=(col+dc+8)%8;
+          neighbors.push(r*8+c);
+        }
+        // Average neighbor frequencies
+        const avg = new Array(8).fill(0);
+        neighbors.forEach(nid=>{ for(let b=0;b<8;b++) avg[b]+=oldFreqs[nid][b]; });
+        for(let b=0;b<8;b++) avg[b]/=neighbors.length;
+        // Move towards average with learning rate
+        const lr=0.2;
+        for(let b=0;b<8;b++) n.freq[b] += (avg[b]-n.freq[b])*lr;
+        n.normalize();
+        // Also adjust base color toward dominant frequency band
+        const domIdx = n.freq.indexOf(Math.max(...n.freq));
+        if(n.baseColor!==domIdx && Math.random()<0.3) n.baseColor = domIdx;
+        totalOps++;
+      }
+      renderAll();
+      termWrite(`🐝 GOTO step completed. Superpositions: ${superpositions}`, 'info');
+    }
+
+    function startAutoSwarm(ms=1000){
+      if(swarmTimer) clearInterval(swarmTimer);
+      swarmTimer = setInterval(swarmStep, ms);
+      termWrite('▶️ Auto swarm started.');
+    }
+    function stopAutoSwarm(){
+      if(swarmTimer){ clearInterval(swarmTimer); swarmTimer=null; }
+      termWrite('⏹️ Swarm stopped.');
+    }
+
+    // ── Combinatorial Power Estimator ───────────────────
+    function estimateCombinations() {
+      // Each node has 8 continuous frequency values (quantized to 100 levels for estimate)
+      const levelsPerBand = 100; // 0.00 to 1.00
+      const statesPerNode = Math.pow(levelsPerBand, 8);
+      const totalStates = Math.pow(statesPerNode, nodes.length);
+      const log10 = nodes.length * 8 * Math.log10(levelsPerBand);
+      comboCalc.innerHTML = `Per node: ${statesPerNode.toExponential(2)} states<br>Total for ${nodes.length} nodes: 10^${log10.toFixed(1)} ≈ ∞ (practically)<br><span style="color:#88ffaa;">Unicode×Color×Shape = limitless combinations</span>`;
+      comboValEl.textContent = '10^'+log10.toFixed(0);
+      termWrite(`📊 Estimated state space: 10^${log10.toFixed(1)} combinations.`);
+    }
+
+    function computeWeightedSum() {
+      let total=0;
+      nodes.forEach(n=> total+=n.weightedFreq);
+      const avg = total/nodes.length;
+      termWrite(`🧮 Average weighted frequency: ${avg.toFixed(2)} THz`);
+      toast(`Avg freq: ${avg.toFixed(2)} THz`);
+    }
+
+    function normalizeAll() {
+      nodes.forEach(n=>n.normalize());
+      renderAll();
+      termWrite('✓ All frequency spectra normalized.');
+    }
+
+    function resetToBase() {
+      nodes.forEach(n=>{ n.freq.fill(0.5); n.normalize(); n.baseColor=0; n.shape='circle'; });
+      renderAll();
+      termWrite('⚪ All nodes reset to base white circle state.');
+    }
+
+    function exportState() {
+      const data = nodes.map(n=>({
+        id:n.id, char:n.char, code:n.code,
+        freq:n.freq, shape:n.shape, baseColor:n.baseColor
+      }));
+      const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='unicode_color_computer.json'; a.click();
+      URL.revokeObjectURL(url);
+      termWrite('📤 State exported as JSON.');
+    }
+
+    // ── Bind events ──────────────────────────────────────
+    function bindEvents() {
+      $('#randomFreqBtn').addEventListener('click',()=>{ nodes.forEach(n=>n.randomize()); renderAll(); termWrite('🎲 Randomized all nodes.'); });
+      $('#swarmStepBtn').addEventListener('click',swarmStep);
+      $('#autoSwarmBtn').addEventListener('click',()=>startAutoSwarm(900));
+      $('#stopSwarmBtn').addEventListener('click',stopAutoSwarm);
+      $('#estimateBtn').addEventListener('click',estimateCombinations);
+      $('#computeSumBtn').addEventListener('click',computeWeightedSum);
+      $('#normalizeBtn').addEventListener('click',normalizeAll);
+      $('#resetBaseBtn').addEventListener('click',resetToBase);
+      $('#exportStateBtn').addEventListener('click',exportState);
+      $('#clearTermBtn').addEventListener('click',()=>{ terminalEl.innerHTML=''; termWrite('Terminal cleared.'); });
+    }
+
+    // ── Init ─────────────────────────────────────────────
+    function init() {
+      buildNodes();
+      bindEvents();
+      estimateCombinations(); // initial display
+      termWrite('🌈 Unicode Color‑Frequency Quantum Computer online.');
+      termWrite('Each symbol holds 8 color bands + shape. GOTO‑AI swarm active.');
+    }
+    init();
+  })();
+</script>
+</body>
+</html>

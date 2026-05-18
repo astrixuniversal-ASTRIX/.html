@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🧮 Unicode Color‑Shape Abacus · Encoding the Universe</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #010312;
+      color: #eef;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      padding: 12px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1500px; margin:0 auto; }
+    .glass {
+      background: rgba(8,14,28,0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid #2e4268;
+      border-radius: 22px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 3px;
+    }
+    .sub { text-align:center; color:#aaccff; font-size:0.75rem; margin-bottom:8px; }
+    .main-grid { display:grid; grid-template-columns: 1fr 1fr; gap:14px; }
+    @media (max-width:900px){ .main-grid { grid-template-columns:1fr; } }
+    .panel {
+      background: rgba(0,5,15,0.8);
+      border-radius: 18px;
+      border: 1px solid #2a4a7a;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .panel-title {
+      font-weight: bold; font-size: 0.8rem; color: #0ff;
+      border-bottom: 1px solid #2a4a7a; padding-bottom: 4px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .bead-grid {
+      display: grid;
+      gap: 4px;
+      background: #010118;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid #2a4a7a;
+      justify-items: center;
+    }
+    .bead {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #0a0a1a;
+      border: 1px solid #1a2a3a;
+      cursor: pointer;
+      transition: 0.15s;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bead:hover { border-color:#0ff; box-shadow:0 0 12px rgba(0,255,255,0.6); transform:scale(1.05); z-index:2; }
+    .bead.on { background: #1a2a4a; }
+    .stats-row { display:flex; gap:10px; flex-wrap:wrap; font-size:0.7rem; }
+    .stat {
+      background:#010118; border:1px solid #2a4a7a; border-radius:12px;
+      padding:3px 10px; color:#fff;
+    }
+    .stat .lbl { color:#88aaff; } .stat .val { font-weight:bold; }
+    .controls { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    button {
+      background:#1f2a4a; border:1px solid #0ff; border-radius:30px;
+      padding:5px 14px; color:#fff; cursor:pointer; font-weight:bold;
+      font-family:inherit; font-size:0.7rem; transition:0.2s; white-space:nowrap;
+    }
+    button:hover { background:#0ff; color:#000; box-shadow:0 0 14px #0ff; transform:translateY(-1px); }
+    button:active { transform:scale(0.94); }
+    button.gold { border-color:#ffb800; } button.gold:hover { background:#ffb800; color:#000; }
+    button.danger { border-color:#ff4477; } button.danger:hover { background:#ff4477; }
+    .slider-group { display:flex; align-items:center; gap:8px; font-size:0.7rem; }
+    input[type="range"] { width:100px; }
+    .highlight-box {
+      background:#010118; border-radius:10px; padding:8px; font-size:0.7rem;
+      border:1px solid #2a4a7a; color:#ffb800;
+    }
+    .big-number {
+      font-size:1.2rem; font-weight:bold; color:#0ff;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>🧮⚛️ Unicode Color‑Shape Abacus</h1>
+    <div class="sub">Each bead carries a Unicode character, color, and shape · Click to change state · Encode the universe</div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: ABACUS GRID -->
+    <div class="panel">
+      <div class="panel-title">
+        🔮 Abacus Grid
+        <span id="gridInfo" style="font-size:0.65rem;">8×8 beads</span>
+      </div>
+      <div class="bead-grid" id="beadGrid" style="grid-template-columns: repeat(8, 40px);"></div>
+      <div class="stats-row">
+        <div class="stat"><span class="lbl">Decimal value</span> <span class="val" id="decimalValue">0</span></div>
+        <div class="stat"><span class="lbl">Bits</span> <span class="val" id="totalBits">64</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: INFORMATION PANEL -->
+    <div class="panel">
+      <div class="panel-title">🌌 Universe Information Capacity</div>
+      <div class="highlight-box">
+        <p>Observable universe ≈ <strong>10<sup>90</sup> bits</strong> (estimate)</p>
+        <p>Current grid: <span id="gridStates">—</span> possible states = <span id="gridBits">—</span> bits</p>
+        <p class="big-number" id="neededBeads">—</p>
+        <p>beads of this type needed to store the universe.</p>
+      </div>
+      <div class="controls">
+        <div class="slider-group">
+          <label>Grid size</label>
+          <input type="range" id="gridSizeSlider" min="4" max="12" value="8" step="1">
+          <span id="gridSizeVal">8×8</span>
+        </div>
+        <div class="slider-group">
+          <label>States per bead</label>
+          <input type="range" id="statesSlider" min="2" max="16" value="9" step="1">
+          <span id="statesVal">9</span>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="slider-group">
+          <label>Extra color bits (0‑24)</label>
+          <input type="range" id="colorBitsSlider" min="0" max="24" value="0" step="1">
+          <span id="colorBitsVal">0 (×1)</span>
+        </div>
+        <div class="slider-group">
+          <label>Shape varieties</label>
+          <input type="range" id="shapesSlider" min="1" max="100" value="1" step="1">
+          <span id="shapesVal">1</span>
+        </div>
+      </div>
+      <button id="resetBeadsBtn" class="gold">🎲 Randomize Beads</button>
+      <button id="zeroBeadsBtn">⚪ Zero All</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    // ── 16 distinct bead emojis (color circles + squares) ──
+    const BEAD_EMOJI = [
+      '⚪','🔴','🟠','🟡','🟢','🔵','🟣','🟤','⚫',
+      '⬜','🟥','🟧','🟨','🟩','🟦','🟪'
+    ];
+
+    // State
+    let gridSize = 8;           // rows = cols
+    let statesPerBead = 9;      // 2‑16
+    let extraColorBits = 0;     // 0‑24
+    let extraShapes = 1;        // 1‑100
+    let beads = [];             // array of current bead state (0..states-1)
+    const universeBits = 1e90; // approx observable universe info
+
+    // DOM
+    const $ = id => document.getElementById(id);
+    const beadGridEl = $('#beadGrid');
+    const gridInfoEl = $('#gridInfo');
+    const decimalValueEl = $('#decimalValue');
+    const totalBitsEl = $('#totalBits');
+    const gridStatesEl = $('#gridStates');
+    const gridBitsEl = $('#gridBits');
+    const neededBeadsEl = $('#neededBeads');
+
+    // Sliders
+    const gridSizeSlider = $('#gridSizeSlider');
+    const statesSlider = $('#statesSlider');
+    const colorBitsSlider = $('#colorBitsSlider');
+    const shapesSlider = $('#shapesSlider');
+    const gridSizeVal = $('#gridSizeVal');
+    const statesVal = $('#statesVal');
+    const colorBitsVal = $('#colorBitsVal');
+    const shapesVal = $('#shapesVal');
+
+    // ── compute effective states per bead ───────
+    function effectiveStates() {
+      const base = statesPerBead;
+      const colorMultiplier = Math.pow(2, extraColorBits);
+      return base * colorMultiplier * extraShapes;
+    }
+
+    // ── compute total distinct configurations of the grid ──
+    function totalConfigurations() {
+      const s = effectiveStates();
+      const totalBeads = gridSize * gridSize;
+      return Math.pow(s, totalBeads);
+    }
+
+    // ── bits of information in the grid ──
+    function gridInformationBits() {
+      return gridSize * gridSize * Math.log2(effectiveStates());
+    }
+
+    // ── needed beads to store universe ───────
+    function neededBeadsForUniverse() {
+      const bitsPerBead = Math.log2(effectiveStates());
+      if (bitsPerBead === 0) return Infinity;
+      return Math.ceil(universeBits / bitsPerBead);
+    }
+
+    // ── Update bead grid ──────────────────────
+    function buildBeadGrid() {
+      const total = gridSize * gridSize;
+      // reset beads if size changed
+      if (beads.length !== total) {
+        beads = new Array(total).fill(0);
+      } else {
+        // clamp existing beads to current states
+        beads = beads.map(v => Math.min(v, statesPerBead - 1));
+      }
+      beadGridEl.style.gridTemplateColumns = `repeat(${gridSize}, 40px)`;
+      let html = '';
+      for (let i = 0; i < total; i++) {
+        const state = beads[i];
+        const emoji = BEAD_EMOJI[state % BEAD_EMOJI.length];
+        html += `<div class="bead" data-index="${i}" style="font-size:1.8rem;">${emoji}</div>`;
+      }
+      beadGridEl.innerHTML = html;
+      // click events
+      beadGridEl.querySelectorAll('.bead').forEach(el => {
+        el.addEventListener('click', function() {
+          const idx = parseInt(this.dataset.index);
+          beads[idx] = (beads[idx] + 1) % statesPerBead;
+          renderAll();
+        });
+      });
+      gridInfoEl.textContent = `${gridSize}×${gridSize} beads`;
+      updateCalculations();
+    }
+
+    // ── Update all calculations and displays ──
+    function updateCalculations() {
+      const totalBeads = gridSize * gridSize;
+      const totalCombos = totalConfigurations();
+      const bits = gridInformationBits();
+      const needed = neededBeadsForUniverse();
+
+      // Decimal value of the binary string (treat as binary number with MSB first)
+      let binStr = '';
+      for (let i = 0; i < totalBeads; i++) {
+        binStr += (beads[i] > 0 ? '1' : '0');
+      }
+      const decimalVal = parseInt(binStr || '0', 2);
+      decimalValueEl.textContent = decimalVal.toLocaleString();
+      totalBitsEl.textContent = totalBeads;
+
+      gridStatesEl.textContent = totalCombos.toExponential(2);
+      gridBitsEl.textContent = bits.toFixed(2) + ' bits';
+      if (isFinite(needed) && needed > 0) {
+        neededBeadsEl.textContent = needed.toExponential(2) + ' beads required';
+      } else {
+        neededBeadsEl.textContent = 'Infinite (need >0 bits/bead)';
+      }
+    }
+
+    function renderAll() {
+      buildBeadGrid();
+      updateCalculations();
+    }
+
+    // ── Event listeners ────────────────────────
+    function bindEvents() {
+      gridSizeSlider.addEventListener('input', () => {
+        gridSize = parseInt(gridSizeSlider.value);
+        gridSizeVal.textContent = `${gridSize}×${gridSize}`;
+        beads = []; // force reinit
+        renderAll();
+      });
+      statesSlider.addEventListener('input', () => {
+        statesPerBead = parseInt(statesSlider.value);
+        statesVal.textContent = statesPerBead;
+        // ensure beads are within new limit
+        beads = beads.map(v => v >= statesPerBead ? 0 : v);
+        renderAll();
+      });
+      colorBitsSlider.addEventListener('input', () => {
+        extraColorBits = parseInt(colorBitsSlider.value);
+        colorBitsVal.textContent = `${extraColorBits} (×${Math.pow(2, extraColorBits).toLocaleString()})`;
+        renderAll();
+      });
+      shapesSlider.addEventListener('input', () => {
+        extraShapes = parseInt(shapesSlider.value);
+        shapesVal.textContent = extraShapes;
+        renderAll();
+      });
+      $('#resetBeadsBtn').addEventListener('click', () => {
+        beads = beads.map(() => Math.floor(Math.random() * statesPerBead));
+        renderAll();
+      });
+      $('#zeroBeadsBtn').addEventListener('click', () => {
+        beads.fill(0);
+        renderAll();
+      });
+    }
+
+    // ── Init ────────────────────────────────────
+    function init() {
+      bindEvents();
+      renderAll();
+    }
+    init();
+  })();
+</script>
+</body>
+</html>

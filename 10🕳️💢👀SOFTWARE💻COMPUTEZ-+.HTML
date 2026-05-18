@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🔄 GOTO‑AI Loopback Computer · Self‑Evolving Intelligence</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020712;
+      color: #eef;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      padding: 10px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container { max-width: 1600px; width: 100%; }
+    .glass {
+      background: rgba(8, 14, 26, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid #2e4268;
+      border-radius: 22px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 10px 32px rgba(0,0,0,0.7);
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, #ff0, #0ff, #f0f);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #aaccff;
+      font-size: 0.75rem;
+      margin-bottom: 10px;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 750px) { .main-grid { grid-template-columns: 1fr; } }
+    .panel {
+      background: rgba(0, 5, 15, 0.75);
+      border-radius: 18px;
+      border: 1px solid #2a4a7a;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .panel-title {
+      font-weight: bold;
+      font-size: 0.8rem;
+      color: #0ff;
+      border-bottom: 1px solid #2a4a7a;
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      background: #010118;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid #2a4a7a;
+      min-height: 200px;
+    }
+    .node-cell {
+      aspect-ratio: 1 / 1;
+      background: #0a0a1a;
+      border: 1px solid #1a2a3a;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      position: relative;
+      font-size: 0.7rem;
+    }
+    .node-cell:hover { border-color: #0ff; box-shadow: 0 0 15px rgba(0,255,255,0.5); transform: scale(1.03); z-index: 2; }
+    .node-cell.selected { border-color: #fff !important; box-shadow: 0 0 20px #fff !important; background: #1a2a4a; }
+    .node-char { font-size: 1.8rem; font-weight: bold; }
+    .skill-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #000;
+      border-radius: 20px;
+      padding: 1px 6px;
+      font-size: 0.55rem;
+      color: #ffb800;
+      border: 1px solid #ffb800;
+    }
+    .knowledge-indicator {
+      width: 80%;
+      height: 4px;
+      background: #1a2a3a;
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    .knowledge-fill {
+      height: 100%;
+      background: #0ff;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+    .stats-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.7rem;
+    }
+    .stat {
+      background: #010118;
+      border: 1px solid #2a4a7a;
+      border-radius: 12px;
+      padding: 3px 10px;
+    }
+    .stat .lbl { color: #88aaff; }
+    .stat .val { color: #fff; font-weight: bold; }
+    .controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #1f2a4a;
+      border: 1px solid #0ff;
+      border-radius: 30px;
+      padding: 5px 14px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: inherit;
+      font-size: 0.7rem;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    button:hover { background: #0ff; color: #000; box-shadow: 0 0 14px #0ff; transform: translateY(-1px); }
+    button:active { transform: scale(0.94); }
+    button.gold { border-color: #ffb800; }
+    button.gold:hover { background: #ffb800; color: #000; }
+    button.danger { border-color: #ff4477; }
+    button.danger:hover { background: #ff4477; color: #fff; }
+    button.magenta { border-color: #f0f; }
+    button.magenta:hover { background: #f0f; color: #000; }
+    button.green { border-color: #0f8; }
+    button.green:hover { background: #0f8; color: #000; }
+    .terminal {
+      background: #010118;
+      border-radius: 10px;
+      padding: 8px;
+      height: 130px;
+      overflow-y: auto;
+      font-size: 0.6rem;
+      font-family: monospace;
+      border: 1px solid #2a4a7a;
+      color: #aaf;
+      line-height: 1.5;
+    }
+    .terminal .out { color: #0ff; }
+    .terminal .warn { color: #ffaa00; }
+    .terminal .info { color: #88ff88; }
+    .terminal .err { color: #f44; }
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #010105;
+      border: 1px solid #0ff;
+      border-radius: 40px;
+      padding: 10px 24px;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 0.8rem;
+      max-width: 400px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .code-preview {
+      background: #010118;
+      border-radius: 8px;
+      padding: 6px;
+      font-size: 0.55rem;
+      max-height: 60px;
+      overflow-y: auto;
+      color: #ffb800;
+      border: 1px solid #2a4a7a;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>🔄 GOTO‑AI Loopback Computer</h1>
+    <div class="subtitle">Self‑evolving intelligence · Nodes fetch external data · Grow skills & code · Loopback recursion</div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: AGENT GRID -->
+    <div class="panel">
+      <div class="panel-title">🧠 GOTO‑AI Agents (16)
+        <span id="agentCount" style="font-size:0.65rem;">0 active</span>
+      </div>
+      <div class="node-grid" id="agentGrid"></div>
+      <div class="stats-row">
+        <div class="stat"><span class="lbl">Selected</span> <span class="val" id="selAgent">—</span></div>
+        <div class="stat"><span class="lbl">Total skills</span> <span class="val" id="totalSkills">0</span></div>
+        <div class="stat"><span class="lbl">Code lines</span> <span class="val" id="totalLines">0</span></div>
+      </div>
+    </div>
+
+    <!-- MIDDLE: LOOPBACK CONTROLS & INFO -->
+    <div class="panel">
+      <div class="panel-title">🔁 Loopback Engine
+        <span style="font-size:0.65rem;">recursive self‑improvement</span>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><span class="lbl">Cycle #</span> <span class="val" id="cycleCount">0</span></div>
+        <div class="stat"><span class="lbl">Last fetch</span> <span class="val" id="lastFetch">—</span></div>
+        <div class="stat"><span class="lbl">Last skill</span> <span class="val" id="lastSkill">—</span></div>
+      </div>
+      <div class="code-preview" id="codePreview">// generated skills will appear here</div>
+      <div class="controls">
+        <button id="singleCycleBtn" class="magenta">🔄 Single Loopback Cycle</button>
+        <button id="autoCycleBtn" class="green">▶️ Auto Loopback</button>
+        <button id="stopCycleBtn" class="danger">⏹️ Stop</button>
+      </div>
+      <div class="panel-title" style="margin-top:6px;">📥 External Data Injection</div>
+      <div class="controls">
+        <button id="injectBtn" class="gold">💉 Inject Random Knowledge</button>
+        <button id="fetchApiBtn">🌐 Fetch Real Quote (API)</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: TERMINAL & CODE LOAD -->
+    <div class="panel">
+      <div class="panel-title">📡 Terminal · Loopback Log</div>
+      <div class="terminal" id="terminal">
+        <div class="out">> GOTO‑AI Loopback Computer initialized.</div>
+        <div class="info">> Agents are ready to seek external information.</div>
+        <div class="out">> Press 'Single Loopback Cycle' to begin.</div>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><span class="lbl">External fetches</span> <span class="val" id="fetchCount">0</span></div>
+        <div class="stat"><span class="lbl">Self‑improves</span> <span class="val" id="improveCount">0</span></div>
+      </div>
+      <div class="controls">
+        <button id="clearTermBtn" class="danger">🗑️ Clear</button>
+        <button id="resetAllBtn">⚪ Reset All</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  (() => {
+    // ──────────────────────────────────────────────
+    // GOTO‑AI Agent Class
+    // ──────────────────────────────────────────────
+    class GOTOAgent {
+      constructor(id, char) {
+        this.id = id;
+        this.char = char;
+        this.knowledgeBase = [];      // collected facts/strings
+        this.skills = [];            // array of { name, func, code }
+        this.performance = 0.5;      // 0..1, affects learning
+        this.lastFetch = null;
+      }
+
+      // Simulate fetching external information
+      async fetchExternal(useApi = false) {
+        try {
+          if (useApi && window.fetch) {
+            // Use a CORS-friendly public API
+            const res = await fetch('https://api.quotable.io/random?maxLength=50');
+            const data = await res.json();
+            const fact = data.content;
+            this.lastFetch = fact;
+            this.knowledgeBase.push({ type: 'quote', text: fact });
+            return fact;
+          } else {
+            // Local simulation
+            const localFacts = [
+              "The universe is expanding at 73 km/s/Mpc.",
+              "Complex systems emerge from simple rules.",
+              "Recursive self-improvement leads to superintelligence.",
+              "Information wants to be free.",
+              "GOTO is not harmful when used wisely.",
+              "Learning rate decay improves convergence.",
+              "Overfitting is the enemy of generalization.",
+              "Entropy always increases.",
+              "Feedback loops create stability or chaos.",
+              "A single neuron can't solve XOR."
+            ];
+            const fact = localFacts[Math.floor(Math.random() * localFacts.length)] + ' #' + Date.now()%1000;
+            this.lastFetch = fact;
+            this.knowledgeBase.push({ type: 'local', text: fact });
+            return fact;
+          }
+        } catch (e) {
+          // Fallback to local if API fails
+          const fallback = "Error fetching: " + e.message;
+          this.knowledgeBase.push({ type: 'error', text: fallback });
+          this.lastFetch = fallback;
+          return fallback;
+        }
+      }
+
+      // Integrate new knowledge: adjust performance score based on knowledge "value"
+      integrate() {
+        if (this.knowledgeBase.length === 0) return;
+        // Simple heuristic: more knowledge = higher performance (with diminishing returns)
+        const kLen = this.knowledgeBase.length;
+        this.performance = Math.min(1, 0.3 + kLen * 0.03);
+        // Random walk adjustment from new facts
+        const latest = this.knowledgeBase[this.knowledgeBase.length-1];
+        if (latest && latest.text.includes('learning')) this.performance += 0.02;
+        if (latest && latest.text.includes('error')) this.performance -= 0.01;
+        this.performance = Math.max(0.1, Math.min(1, this.performance));
+      }
+
+      // Self‑improve: generate a new skill based on current knowledge
+      generateSkill() {
+        const skillNames = ['analyze', 'transform', 'predict', 'filter', 'map'];
+        const baseName = skillNames[Math.floor(Math.random() * skillNames.length)];
+        const funcName = baseName + '_' + Date.now() + '_' + Math.floor(Math.random()*100);
+
+        // Build a simple function body that uses knowledge
+        let code = '';
+        // Use a random pattern from knowledge base
+        if (this.knowledgeBase.length > 0) {
+          const sample = this.knowledgeBase[Math.floor(Math.random() * this.knowledgeBase.length)].text;
+          code = `
+            // Skill: ${baseName} based on knowledge sample
+            function ${funcName}(input) {
+              const knowledge = "${sample.replace(/"/g, '\\"')}";
+              // perform a simple operation
+              const output = input + " → " + knowledge.substring(0, 10);
+              return output.toUpperCase();
+            }
+          `;
+        } else {
+          code = `
+            function ${funcName}(input) {
+              return "I know nothing yet";
+            }
+          `;
+        }
+
+        // Evaluate the code safely using new Function, but we want to keep it as a skill.
+        // We'll use eval in a sandboxed way? For demo, we'll eval the code and then extract the function.
+        try {
+          // Wrap in an IIFE to avoid polluting scope, then return the function
+          const wrappedCode = `(function() { ${code} return ${funcName}; })()`;
+          const skillFunc = eval(wrappedCode);
+          // Store the skill
+          this.skills.push({
+            name: funcName,
+            func: skillFunc,
+            code: code,
+          });
+          return { success: true, funcName, code };
+        } catch (e) {
+          return { success: false, error: e.message };
+        }
+      }
+
+      // Run one full loopback cycle: fetch -> integrate -> improve
+      async loopbackCycle(useApi = false) {
+        const fetchResult = await this.fetchExternal(useApi);
+        this.integrate();
+        const skillResult = this.generateSkill();
+        return { fetch: fetchResult, skill: skillResult };
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    // Global state
+    // ──────────────────────────────────────────────
+    const AGENT_COUNT = 16;
+    let agents = [];
+    let selectedAgentId = null;
+    let cycleNumber = 0;
+    let totalFetches = 0;
+    let totalImproves = 0;
+    let autoInterval = null;
+
+    // DOM elements
+    const $ = id => document.getElementById(id);
+    const agentGridEl = $('#agentGrid');
+    const agentCountEl = $('#agentCount');
+    const selAgentEl = $('#selAgent');
+    const totalSkillsEl = $('#totalSkills');
+    const totalLinesEl = $('#totalLines');
+    const cycleCountEl = $('#cycleCount');
+    const lastFetchEl = $('#lastFetch');
+    const lastSkillEl = $('#lastSkill');
+    const codePreviewEl = $('#codePreview');
+    const terminalEl = $('#terminal');
+    const fetchCountEl = $('#fetchCount');
+    const improveCountEl = $('#improveCount');
+    const toastEl = $('#toast');
+
+    function toast(msg, dur = 2000) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), dur);
+    }
+    function term(msg, cls = 'out') {
+      const div = document.createElement('div');
+      div.className = cls;
+      div.textContent = '> ' + msg;
+      terminalEl.appendChild(div);
+      terminalEl.scrollTop = terminalEl.scrollHeight;
+      while (terminalEl.children.length > 40) terminalEl.removeChild(terminalEl.firstChild);
+    }
+
+    // ──────────────────────────────────────────────
+    // Initialize agents
+    // ──────────────────────────────────────────────
+    function initAgents() {
+      const chars = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠ'.split(''); // 16 Greek letters
+      agents = chars.map((ch, i) => new GOTOAgent(i, ch));
+      selectedAgentId = null;
+      renderGrid();
+      term('Initialized 16 GOTO‑AI agents.');
+    }
+
+    // ──────────────────────────────────────────────
+    // Render grid
+    // ──────────────────────────────────────────────
+    function renderGrid() {
+      let html = '';
+      agents.forEach(agent => {
+        const selClass = selectedAgentId === agent.id ? ' selected' : '';
+        const skillCount = agent.skills.length;
+        const knowledgePct = Math.min(100, agent.knowledgeBase.length * 10);
+        html += `
+          <div class="node-cell${selClass}" data-id="${agent.id}">
+            <span class="skill-badge">${skillCount}⚡</span>
+            <div class="node-char" style="color: ${getPerformanceColor(agent.performance)}; text-shadow: 0 0 8px currentColor;">${agent.char}</div>
+            <div class="knowledge-indicator">
+              <div class="knowledge-fill" style="width: ${knowledgePct}%;"></div>
+            </div>
+          </div>
+        `;
+      });
+      agentGridEl.innerHTML = html;
+      // Bind click events
+      agentGridEl.querySelectorAll('.node-cell').forEach(el => {
+        el.addEventListener('click', function() {
+          const id = parseInt(this.dataset.id);
+          selectedAgentId = id;
+          renderGrid();
+          updateStats();
+          const agent = agents[id];
+          term(`Selected agent ${agent.char} · skills: ${agent.skills.length} · perf: ${(agent.performance*100).toFixed(0)}%`);
+          // Show last generated code
+          if (agent.skills.length > 0) {
+            codePreviewEl.textContent = agent.skills[agent.skills.length-1].code;
+          } else {
+            codePreviewEl.textContent = '// No skills yet';
+          }
+        });
+      });
+      updateStats();
+    }
+
+    function getPerformanceColor(perf) {
+      if (perf > 0.8) return '#ff44ff';
+      if (perf > 0.6) return '#0ff';
+      if (perf > 0.4) return '#ffb800';
+      return '#88aaff';
+    }
+
+    function updateStats() {
+      const totalSkills = agents.reduce((sum, a) => sum + a.skills.length, 0);
+      const totalLines = agents.reduce((sum, a) => sum + a.skills.reduce((s, sk) => s + (sk.code.match(/\n/g)||[]).length + 1, 0), 0);
+      agentCountEl.textContent = agents.length + ' agents';
+      totalSkillsEl.textContent = totalSkills;
+      totalLinesEl.textContent = totalLines;
+      cycleCountEl.textContent = cycleNumber;
+      fetchCountEl.textContent = totalFetches;
+      improveCountEl.textContent = totalImproves;
+      if (selectedAgentId !== null) {
+        const agent = agents[selectedAgentId];
+        selAgentEl.textContent = `${agent.char} (${(agent.performance*100).toFixed(0)}%)`;
+      } else {
+        selAgentEl.textContent = '—';
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    // Loopback cycle (for one random agent, or all)
+    // ──────────────────────────────────────────────
+    async function runSingleCycle(useApi = false) {
+      // Pick a random agent to loopback (to simulate distributed loopback)
+      const agent = agents[Math.floor(Math.random() * agents.length)];
+      const result = await agent.loopbackCycle(useApi);
+      totalFetches++;
+      if (result.skill && result.skill.success) totalImproves++;
+      lastFetchEl.textContent = result.fetch ? result.fetch.substring(0, 20)+'…' : '—';
+      lastSkillEl.textContent = result.skill ? (result.skill.funcName || 'error') : '—';
+      if (result.skill && result.skill.code) {
+        codePreviewEl.textContent = result.skill.code;
+      }
+      cycleNumber++;
+      renderGrid();
+      term(`🔄 Cycle ${cycleNumber}: Agent ${agent.char} fetched: "${result.fetch?.substring(0,30)}…"`);
+      if (result.skill && result.skill.success) {
+        term(`⚡ New skill generated: ${result.skill.funcName}`, 'info');
+      } else if (result.skill) {
+        term(`❌ Skill generation failed: ${result.skill.error}`, 'err');
+      }
+      updateStats();
+    }
+
+    async function injectRandomKnowledge() {
+      // Inject knowledge into all agents without generating skills
+      for (let agent of agents) {
+        const fact = await agent.fetchExternal(false);
+        totalFetches++;
+        agent.integrate();
+      }
+      renderGrid();
+      term('💉 Injected random knowledge to all agents.', 'info');
+      updateStats();
+    }
+
+    async function fetchRealQuote() {
+      await runSingleCycle(true);
+    }
+
+    function startAutoCycle(intervalMs = 1500) {
+      if (autoInterval) clearInterval(autoInterval);
+      autoInterval = setInterval(() => runSingleCycle(false), intervalMs);
+      term('▶️ Auto loopback started.', 'info');
+    }
+
+    function stopAutoCycle() {
+      if (autoInterval) { clearInterval(autoInterval); autoInterval = null; }
+      term('⏹️ Auto loopback stopped.', 'warn');
+    }
+
+    function resetAll() {
+      stopAutoCycle();
+      agents.forEach(a => { a.knowledgeBase = []; a.skills = []; a.performance = 0.5; });
+      cycleNumber = 0; totalFetches = 0; totalImproves = 0;
+      selectedAgentId = null;
+      renderGrid();
+      codePreviewEl.textContent = '// generated skills will appear here';
+      term('⚪ All agents reset to base state.', 'info');
+      updateStats();
+    }
+
+    // ──────────────────────────────────────────────
+    // Bind events
+    // ──────────────────────────────────────────────
+    function bindEvents() {
+      $('#singleCycleBtn').addEventListener('click', () => runSingleCycle(false));
+      $('#autoCycleBtn').addEventListener('click', () => startAutoCycle(1200));
+      $('#stopCycleBtn').addEventListener('click', stopAutoCycle);
+      $('#injectBtn').addEventListener('click', injectRandomKnowledge);
+      $('#fetchApiBtn').addEventListener('click', fetchRealQuote);
+      $('#clearTermBtn').addEventListener('click', () => { terminalEl.innerHTML = ''; term('Terminal cleared.'); });
+      $('#resetAllBtn').addEventListener('click', resetAll);
+    }
+
+    // ──────────────────────────────────────────────
+    // Init
+    // ──────────────────────────────────────────────
+    function init() {
+      initAgents();
+      bindEvents();
+      term('🔄 GOTO‑AI Loopback Computer ready. Agents seek knowledge and grow code.');
+    }
+    init();
+  })();
+</script>
+</body>
+</html>

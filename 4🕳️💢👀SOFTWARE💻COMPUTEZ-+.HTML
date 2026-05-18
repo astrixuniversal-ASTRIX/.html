@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🌀 Unicode Color‑Frequency Computer · AI Swarm Backend</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #000108;
+      color: #eef;
+      font-family: 'Courier New', 'Fira Code', monospace;
+      padding: 12px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 1600px;
+      width: 100%;
+    }
+    .glass {
+      background: rgba(6, 8, 24, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid #2a3f6a;
+      border-radius: 24px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, #f0f, #0ff, #ff0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 2px;
+    }
+    .sub {
+      text-align: center;
+      color: #aaccff;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 1100px) {
+      .main-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 750px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .panel {
+      background: rgba(0, 5, 15, 0.7);
+      border-radius: 20px;
+      border: 1px solid #2a4a7a;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel-title {
+      font-weight: bold;
+      font-size: 0.8rem;
+      color: #0ff;
+      border-bottom: 1px solid #2a4a7a;
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+      background: #010118;
+      border-radius: 10px;
+      padding: 4px;
+      border: 1px solid #2a4a7a;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .node-cell {
+      aspect-ratio: 1 / 1;
+      background: #0a0a1a;
+      border: 1px solid #1a2a3a;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      position: relative;
+      padding: 1px;
+      overflow: hidden;
+    }
+    .node-cell:hover {
+      background: #1e2e4e;
+      border-color: #0ff;
+      z-index: 3;
+      transform: scale(1.08);
+      box-shadow: 0 0 15px rgba(0,255,255,0.4);
+    }
+    .node-cell.selected {
+      border-color: #fff !important;
+      box-shadow: 0 0 20px rgba(255,255,255,0.7) !important;
+      background: #1a2a4a !important;
+    }
+    .node-char {
+      font-size: 1.2rem;
+      font-weight: bold;
+      z-index: 1;
+      text-shadow: 0 0 6px currentColor;
+    }
+    .freq-bars {
+      display: flex;
+      gap: 1px;
+      width: 100%;
+      margin-top: 1px;
+      z-index: 1;
+    }
+    .freq-bar {
+      height: 6px;
+      flex: 1;
+      border-radius: 1px;
+      background: #333;
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .status-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.7rem;
+    }
+    .stat {
+      background: #010118;
+      border: 1px solid #2a4a7a;
+      border-radius: 12px;
+      padding: 3px 10px;
+    }
+    .stat .lbl { color: #88aaff; }
+    .stat .val { color: #fff; font-weight: bold; }
+    .controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #1f2a4a;
+      border: 1px solid #0ff;
+      border-radius: 30px;
+      padding: 5px 14px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: inherit;
+      font-size: 0.7rem;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    button:hover {
+      background: #0ff;
+      color: #000;
+      box-shadow: 0 0 14px #0ff;
+      transform: translateY(-1px);
+    }
+    button:active { transform: scale(0.94); }
+    button.gold { border-color: #ffb800; }
+    button.gold:hover { background: #ffb800; color: #000; }
+    button.danger { border-color: #ff4477; }
+    button.danger:hover { background: #ff4477; color: #fff; }
+    button.magenta { border-color: #f0f; }
+    button.magenta:hover { background: #f0f; color: #000; }
+    button.green { border-color: #0f8; }
+    button.green:hover { background: #0f8; color: #000; }
+    .terminal {
+      background: #010118;
+      border-radius: 10px;
+      padding: 10px;
+      height: 170px;
+      overflow-y: auto;
+      font-size: 0.65rem;
+      font-family: monospace;
+      border: 1px solid #2a4a7a;
+      color: #aaf;
+      line-height: 1.5;
+    }
+    .terminal .out { color: #0ff; }
+    .terminal .warn { color: #ffaa00; }
+    .terminal .info { color: #88ff88; }
+    .terminal .err { color: #f44; }
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #010105;
+      border: 1px solid #0ff;
+      border-radius: 40px;
+      padding: 10px 24px;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 0.8rem;
+      max-width: 400px;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .spectrum-legend {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      font-size: 0.55rem;
+      color: #aaa;
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>🌀 Unicode Color‑Frequency Computer</h1>
+    <div class="sub">Every character holds 8 color frequencies · AI Swarm optimizes the spectrum · Real‑time computation</div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: NODE GRID + CONTROLS -->
+    <div class="panel">
+      <div class="panel-title">
+        🔮 Unicode Node Array (64)
+        <span id="nodeCount" style="font-size:0.65rem;">0 active</span>
+      </div>
+      <div class="node-grid" id="nodeGrid"></div>
+      <div class="spectrum-legend" id="spectrumLegend"></div>
+      <div class="status-row">
+        <div class="stat"><span class="lbl">Selected</span> <span class="val" id="selChar">—</span></div>
+        <div class="stat"><span class="lbl">Avg Freq</span> <span class="val" id="avgFreq">—</span></div>
+        <div class="stat"><span class="lbl">Swarm Load</span> <span class="val" id="swarmLoad">0%</span></div>
+      </div>
+      <div class="controls">
+        <button id="randomizeBtn" class="gold">🎲 Randomize Frequencies</button>
+        <button id="optimizeBtn" class="magenta">🧠 AI Optimize (swarm)</button>
+        <button id="harmonizeBtn" class="green">🌈 Harmonize All</button>
+        <button id="computeBtn">⚡ Compute (weighted)</button>
+      </div>
+      <div style="font-size:0.7rem; color:#0ff;" id="computeResult"></div>
+    </div>
+
+    <!-- CENTER: SWARM BACKEND & FREQUENCY MAP -->
+    <div class="panel">
+      <div class="panel-title">
+        🧬 AI Swarm Backend · Goto Agents
+        <span style="font-size:0.65rem;">each node has an agent</span>
+      </div>
+      <div style="font-size:0.65rem; color:#88ffaa; max-height:80px; overflow-y:auto;" id="agentActivity">
+        Swarm initializing...
+      </div>
+      <div class="controls">
+        <button id="startSwarmBtn" class="green">▶️ Start Swarm</button>
+        <button id="stopSwarmBtn" class="danger">⏹️ Stop Swarm</button>
+        <button id="swarmStepBtn">🐝 Single Step</button>
+        <button id="swarmReportBtn" class="gold">📊 Swarm Report</button>
+      </div>
+      <div class="panel-title" style="margin-top:6px;">
+        📁 Color Frequency Memory (localStorage)
+        <span style="font-size:0.65rem;">persistent spectrum</span>
+      </div>
+      <div class="controls">
+        <button id="saveMemoryBtn">💾 Save Spectrum</button>
+        <button id="loadMemoryBtn" class="gold">📂 Load Spectrum</button>
+        <button id="clearMemoryBtn" class="danger">🗑️ Clear Memory</button>
+      </div>
+      <div style="font-size:0.65rem; color:#aaf;" id="memoryStatus">Memory idle.</div>
+    </div>
+
+    <!-- RIGHT: TERMINAL & GLOBAL STATE -->
+    <div class="panel">
+      <div class="panel-title">
+        📡 Terminal · Swarm Log
+        <span style="font-size:0.65rem;">live</span>
+      </div>
+      <div class="terminal" id="terminal">
+        <div class="out">> Unicode Color‑Frequency Computer ready.</div>
+        <div class="info">> Each node = 1 char + 8 color frequencies (red‑violet).</div>
+        <div class="out">> AI Swarm optimizes spectrum in real time.</div>
+      </div>
+      <div class="controls">
+        <button id="clearTermBtn" class="danger">🗑️ Clear</button>
+        <button id="exportStateBtn" class="gold">📤 Export State</button>
+        <button id="broadcastBtn" class="magenta">📡 Broadcast</button>
+      </div>
+      <div class="status-row">
+        <div class="stat"><span class="lbl">Swarm agents</span> <span class="val" id="agentCount">0</span></div>
+        <div class="stat"><span class="lbl">Total ops</span> <span class="val" id="totalOps">0</span></div>
+        <div class="stat"><span class="lbl">Last action</span> <span class="val" id="lastAction">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  (function() {
+    // ──────────────────────────────────────────────
+    // COLOR FREQUENCY DEFINITIONS (8 bands)
+    // ──────────────────────────────────────────────
+    const COLOR_BANDS = [
+      { name: 'red',    freq: 430, hue: 0,   hex: '#ff3333' },
+      { name: 'orange', freq: 480, hue: 30,  hex: '#ff9933' },
+      { name: 'yellow', freq: 510, hue: 60,  hex: '#ffdd33' },
+      { name: 'green',  freq: 560, hue: 120, hex: '#33ff55' },
+      { name: 'cyan',   freq: 600, hue: 180, hex: '#33ffff' },
+      { name: 'blue',   freq: 650, hue: 240, hex: '#3377ff' },
+      { name: 'indigo', freq: 700, hue: 270, hex: '#7733ff' },
+      { name: 'violet', freq: 750, hue: 300, hex: '#ff33ff' }
+    ];
+
+    // ──────────────────────────────────────────────
+    // NODE CLASS
+    // ──────────────────────────────────────────────
+    class ColorNode {
+      constructor(id, char, code) {
+        this.id = id;
+        this.char = char;
+        this.code = code;
+        // 8 frequency intensity values (0-1)
+        this.freq = new Array(8).fill(0.5);
+        // metadata for swarm
+        this.agentId = null;
+        this.lastUpdate = Date.now();
+      }
+      randomize() {
+        for(let i=0; i<8; i++) this.freq[i] = Math.random();
+      }
+      normalize() {
+        const sum = this.freq.reduce((a,b)=>a+b,0) || 1;
+        for(let i=0; i<8; i++) this.freq[i] /= sum;
+      }
+      get dominantBand() {
+        let maxIdx = 0, maxVal = this.freq[0];
+        for(let i=1; i<8; i++) if(this.freq[i] > maxVal) { maxVal = this.freq[i]; maxIdx = i; }
+        return { index: maxIdx, color: COLOR_BANDS[maxIdx], value: maxVal };
+      }
+      get weightedFrequency() {
+        let total = 0;
+        for(let i=0; i<8; i++) total += this.freq[i] * COLOR_BANDS[i].freq;
+        return total;
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    // GLOBAL STATE
+    // ──────────────────────────────────────────────
+    const GRID_SIZE = 64;
+    let nodes = [];
+    let selectedId = null;
+    let swarmInterval = null;
+    let swarmActive = false;
+    let totalOps = 0;
+    let lastAction = '—';
+    let swarmLoad = 0;
+
+    // ──────────────────────────────────────────────
+    // DOM ELEMENTS
+    // ──────────────────────────────────────────────
+    const $ = (id) => document.getElementById(id);
+    const nodeGridEl = $('#nodeGrid');
+    const nodeCountEl = $('#nodeCount');
+    const selCharEl = $('#selChar');
+    const avgFreqEl = $('#avgFreq');
+    const swarmLoadEl = $('#swarmLoad');
+    const computeResultEl = $('#computeResult');
+    const agentActivityEl = $('#agentActivity');
+    const memoryStatusEl = $('#memoryStatus');
+    const terminalEl = $('#terminal');
+    const agentCountEl = $('#agentCount');
+    const totalOpsEl = $('#totalOps');
+    const lastActionEl = $('#lastAction');
+    const toastEl = $('#toast');
+    const spectrumLegendEl = $('#spectrumLegend');
+
+    // ──────────────────────────────────────────────
+    // UTILS
+    // ──────────────────────────────────────────────
+    function toast(msg, dur=2000) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), dur);
+    }
+    function termWrite(msg, cls='out') {
+      const div = document.createElement('div');
+      div.className = cls;
+      div.textContent = `> ${msg}`;
+      terminalEl.appendChild(div);
+      terminalEl.scrollTop = terminalEl.scrollHeight;
+      while(terminalEl.children.length > 50) terminalEl.removeChild(terminalEl.firstChild);
+    }
+    function updateStats() {
+      const active = nodes.filter(n => n.freq.some(v => v > 0.01)).length;
+      nodeCountEl.textContent = `${active} active`;
+      agentCountEl.textContent = nodes.filter(n => n.agentId !== null).length;
+      totalOpsEl.textContent = totalOps;
+      lastActionEl.textContent = lastAction;
+      swarmLoadEl.textContent = swarmLoad + '%';
+      if (selectedId !== null && nodes[selectedId]) {
+        const n = nodes[selectedId];
+        selCharEl.textContent = n.char + ' ' + n.code;
+        const avg = n.weightedFrequency.toFixed(1);
+        avgFreqEl.textContent = avg + ' THz';
+      } else {
+        selCharEl.textContent = '—';
+        avgFreqEl.textContent = '—';
+      }
+    }
+    function setSwarmLoad(pct) {
+      swarmLoad = Math.min(100, Math.max(0, pct));
+      swarmLoadEl.textContent = swarmLoad + '%';
+    }
+
+    // ──────────────────────────────────────────────
+    // INIT NODES (Unicode characters)
+    // ──────────────────────────────────────────────
+    function buildNodes() {
+      nodes = [];
+      const ranges = [
+        [0x0041, 0x005A], [0x0061, 0x007A],
+        [0x0391, 0x03A9], [0x03B1, 0x03C9],
+        [0x4E00, 0x4E1F], [0x2200, 0x221F],
+        [0x1F600, 0x1F61F], [0x1F300, 0x1F31F]
+      ];
+      let idx = 0;
+      for(let [start, end] of ranges) {
+        for(let cp=start; cp<=end && idx<GRID_SIZE; cp++) {
+          nodes.push(new ColorNode(idx, String.fromCodePoint(cp), 'U+'+cp.toString(16).toUpperCase().padStart(5,'0')));
+          idx++;
+        }
+      }
+      while(nodes.length < GRID_SIZE) {
+        const cp = 0x1F400 + Math.floor(Math.random()*0x200);
+        nodes.push(new ColorNode(nodes.length, String.fromCodePoint(cp), 'U+'+cp.toString(16).toUpperCase().padStart(5,'0')));
+      }
+      // initial randomization
+      nodes.forEach(n => n.randomize());
+      renderGrid();
+      termWrite('Initialized 64 Unicode nodes with random color spectra.');
+    }
+
+    // ──────────────────────────────────────────────
+    // RENDER GRID
+    // ──────────────────────────────────────────────
+    function renderGrid() {
+      let html = '';
+      for(let n of nodes) {
+        const selClass = (selectedId === n.id) ? ' selected' : '';
+        const bars = n.freq.map((v,i) => {
+          const hex = COLOR_BANDS[i].hex;
+          const alpha = Math.max(0.2, v).toFixed(2);
+          return `<div class="freq-bar" style="background:${hex}; opacity:${alpha}; box-shadow: 0 0 ${(v*8).toFixed(1)}px ${hex};"></div>`;
+        }).join('');
+        const dominant = n.dominantBand;
+        const glowColor = dominant.color.hex;
+        html += `<div class="node-cell${selClass}" data-id="${n.id}" style="border-color: ${glowColor}33;">
+          <div class="node-char" style="color:${glowColor}; text-shadow: 0 0 8px ${glowColor};">${n.char}</div>
+          <div class="freq-bars">${bars}</div>
+        </div>`;
+      }
+      nodeGridEl.innerHTML = html;
+      // bind clicks
+      nodeGridEl.querySelectorAll('.node-cell').forEach(el => {
+        el.addEventListener('click', function(e) {
+          const id = parseInt(this.dataset.id);
+          selectedId = id;
+          renderGrid();
+          updateStats();
+          const n = nodes[id];
+          termWrite(`Selected ${n.char} (${n.code}) · dominant: ${n.dominantBand.color.name} (${(n.dominantBand.value*100).toFixed(0)}%)`);
+        });
+      });
+      // legend
+      let legendHtml = '';
+      COLOR_BANDS.forEach(b => {
+        legendHtml += `<span class="legend-swatch" style="background:${b.hex};" title="${b.name} ${b.freq}THz"></span>`;
+      });
+      spectrumLegendEl.innerHTML = legendHtml + ' <span style="margin-left:4px;">red → violet</span>';
+      updateStats();
+    }
+
+    // ──────────────────────────────────────────────
+    // SWARM AGENT (per node)
+    // ──────────────────────────────────────────────
+    function agentStep(node) {
+      // Agent tries to smooth frequencies toward harmonic ratios
+      const target = new Array(8).fill(0);
+      // base: ideal distribution (rainbow shaped)
+      for(let i=0; i<8; i++) {
+        target[i] = Math.sin((i/7)*Math.PI) * 0.8 + 0.2;
+      }
+      // pull toward target with learning rate
+      const lr = 0.15;
+      for(let i=0; i<8; i++) {
+        node.freq[i] += (target[i] - node.freq[i]) * lr;
+        if(node.freq[i] < 0) node.freq[i] = 0;
+        if(node.freq[i] > 1) node.freq[i] = 1;
+      }
+      node.normalize();
+      node.lastUpdate = Date.now();
+      totalOps++;
+    }
+
+    function allAgentsStep() {
+      setSwarmLoad(70);
+      const start = performance.now();
+      for(let n of nodes) {
+        if(!n.agentId) n.agentId = 'agent_'+n.id;
+        agentStep(n);
+      }
+      const elapsed = performance.now() - start;
+      setSwarmLoad(Math.min(50, Math.round(elapsed/2)));
+      renderGrid();
+      updateStats();
+      const actMsg = `Swarm step: ${nodes.length} agents updated in ${elapsed.toFixed(1)}ms`;
+      agentActivityEl.textContent = actMsg;
+      termWrite(actMsg, 'info');
+      lastAction = 'Swarm step';
+      updateStats();
+    }
+
+    function startSwarmLoop(intervalMs = 1500) {
+      if(swarmInterval) clearInterval(swarmInterval);
+      swarmActive = true;
+      swarmInterval = setInterval(() => {
+        allAgentsStep();
+      }, intervalMs);
+      termWrite('🐝 AI Swarm started (continuous optimization).', 'info');
+      toast('Swarm running');
+    }
+
+    function stopSwarmLoop() {
+      if(swarmInterval) { clearInterval(swarmInterval); swarmInterval = null; }
+      swarmActive = false;
+      termWrite('⏹️ Swarm paused.', 'warn');
+    }
+
+    // ──────────────────────────────────────────────
+    // ACTIONS
+    // ──────────────────────────────────────────────
+    function randomizeAll() {
+      nodes.forEach(n => { n.randomize(); n.normalize(); });
+      renderGrid();
+      termWrite('🎲 All spectra randomized.');
+      lastAction = 'Randomize';
+      updateStats();
+    }
+
+    function harmonizeAll() {
+      const template = new Array(8).fill(0).map((_,i) => Math.sin((i/7)*Math.PI)*0.7+0.3);
+      nodes.forEach(n => {
+        for(let i=0; i<8; i++) n.freq[i] = template[i] + (Math.random()-0.5)*0.15;
+        n.normalize();
+      });
+      renderGrid();
+      termWrite('🌈 Harmonized all nodes to ideal rainbow spectrum.');
+      lastAction = 'Harmonize';
+      updateStats();
+    }
+
+    function computeWeighted() {
+      let totalWeighted = 0, count = 0;
+      nodes.forEach(n => {
+        totalWeighted += n.weightedFrequency;
+        count++;
+      });
+      const avg = count>0 ? totalWeighted/count : 0;
+      computeResultEl.textContent = `Collective frequency: ${avg.toFixed(1)} THz (≈ ${(avg/430*100).toFixed(1)}% red)`;
+      termWrite(`⚡ Weighted average frequency: ${avg.toFixed(2)} THz`);
+      lastAction = `Compute avg freq`;
+      updateStats();
+    }
+
+    // ──────────────────────────────────────────────
+    // MEMORY (localStorage)
+    // ──────────────────────────────────────────────
+    const STORAGE_KEY = 'unicode_color_freq_computer';
+    function saveToMemory() {
+      const data = nodes.map(n => ({ id:n.id, freq:n.freq, char:n.char, code:n.code }));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        memoryStatusEl.textContent = '💾 Spectrum saved.';
+        termWrite('💾 Saved frequency state to localStorage.');
+      } catch(e) {
+        memoryStatusEl.textContent = '⚠️ Save failed.';
+        termWrite('❌ localStorage error: '+e.message, 'err');
+      }
+    }
+    function loadFromMemory() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) { toast('No saved spectrum found.'); memoryStatusEl.textContent = '📭 No data.'; return; }
+      try {
+        const data = JSON.parse(raw);
+        data.forEach(item => {
+          const node = nodes.find(n => n.id === item.id);
+          if(node) { node.freq = item.freq; node.normalize(); }
+        });
+        renderGrid();
+        memoryStatusEl.textContent = '📂 Spectrum loaded.';
+        termWrite('📂 Loaded frequency state from localStorage.');
+        lastAction = 'Load memory';
+        updateStats();
+      } catch(e) {
+        termWrite('❌ Parse error: '+e.message, 'err');
+      }
+    }
+    function clearMemory() {
+      localStorage.removeItem(STORAGE_KEY);
+      memoryStatusEl.textContent = '🗑️ Memory cleared.';
+      termWrite('🗑️ localStorage spectrum deleted.');
+    }
+
+    // ──────────────────────────────────────────────
+    // EXPORT & BROADCAST
+    // ──────────────────────────────────────────────
+    function exportState() {
+      const payload = {
+        nodes: nodes.map(n => ({ id:n.id, char:n.char, code:n.code, freq:n.freq })),
+        timestamp: Date.now()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'unicode_spectrum_'+Date.now()+'.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      termWrite('📤 Exported full spectrum state as JSON.');
+    }
+
+    let broadcastChannel = null;
+    function initBroadcast() {
+      try {
+        broadcastChannel = new BroadcastChannel('unicode_color_freq');
+        broadcastChannel.onmessage = (e) => {
+          if(e.data && e.data.type === 'spectrum_sync') {
+            const data = e.data.nodes;
+            if(data) {
+              data.forEach(item => {
+                const node = nodes.find(n => n.id === item.id);
+                if(node) { node.freq = item.freq; node.normalize(); }
+              });
+              renderGrid();
+              termWrite('📡 Received spectrum from another tab.', 'info');
+            }
+          }
+        };
+        termWrite('📡 BroadcastChannel open for cross-tab sync.');
+      } catch(e) {
+        termWrite('⚠️ BroadcastChannel not available.', 'warn');
+      }
+    }
+    function broadcastState() {
+      if(!broadcastChannel) { toast('Broadcast unavailable'); return; }
+      const payload = {
+        type: 'spectrum_sync',
+        nodes: nodes.map(n => ({ id:n.id, freq:n.freq })),
+        timestamp: Date.now()
+      };
+      broadcastChannel.postMessage(payload);
+      termWrite('📡 Broadcasted current spectrum to other tabs.');
+    }
+
+    // ──────────────────────────────────────────────
+    // EVENT BINDINGS
+    // ──────────────────────────────────────────────
+    function bindEvents() {
+      $('#randomizeBtn').addEventListener('click', randomizeAll);
+      $('#optimizeBtn').addEventListener('click', () => { allAgentsStep(); });
+      $('#harmonizeBtn').addEventListener('click', harmonizeAll);
+      $('#computeBtn').addEventListener('click', computeWeighted);
+      $('#startSwarmBtn').addEventListener('click', () => startSwarmLoop(1200));
+      $('#stopSwarmBtn').addEventListener('click', stopSwarmLoop);
+      $('#swarmStepBtn').addEventListener('click', () => { allAgentsStep(); });
+      $('#swarmReportBtn').addEventListener('click', () => {
+        const active = nodes.filter(n => n.agentId).length;
+        termWrite(`🐝 Swarm report: ${active} agents, ${totalOps} total operations.`, 'info');
+      });
+      $('#saveMemoryBtn').addEventListener('click', saveToMemory);
+      $('#loadMemoryBtn').addEventListener('click', loadFromMemory);
+      $('#clearMemoryBtn').addEventListener('click', clearMemory);
+      $('#clearTermBtn').addEventListener('click', () => { terminalEl.innerHTML = ''; termWrite('Terminal cleared.'); });
+      $('#exportStateBtn').addEventListener('click', exportState);
+      $('#broadcastBtn').addEventListener('click', broadcastState);
+    }
+
+    // ──────────────────────────────────────────────
+    // INIT
+    // ──────────────────────────────────────────────
+    function init() {
+      buildNodes();
+      initBroadcast();
+      bindEvents();
+      termWrite('🌀 Unicode Color‑Frequency Computer online.');
+      termWrite('Each of the 64 characters holds 8 color bands (red‑violet).');
+      termWrite('AI Swarm agents run per node, optimizing spectra.');
+      // start swarm by default
+      startSwarmLoop(1800);
+      toast('🌀 Computer ready — swarm active.');
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>

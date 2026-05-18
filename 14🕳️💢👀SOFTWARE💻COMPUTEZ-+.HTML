@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🌌 Self‑Replicating Quantum AI Swarm · Exponential Growth Engine</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #01020f; color:#eef;
+      font-family:'Fira Code',monospace; padding:10px; min-height:100vh;
+    }
+    .container{max-width:1600px;margin:0 auto;}
+    .glass{background:rgba(6,10,24,0.9); backdrop-filter:blur(12px);
+      border:1px solid #2e4268; border-radius:20px; padding:14px; margin-bottom:10px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.8);}
+    h1{font-size:2rem;font-weight:900;text-align:center;
+      background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);
+      -webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:3px;}
+    .sub{text-align:center;color:#aaccff;font-size:0.8rem;margin-bottom:8px;}
+    .main-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:12px;}
+    @media(max-width:900px){.main-grid{grid-template-columns:1fr;}}
+    .panel{background:rgba(0,5,15,0.8);border-radius:16px;border:1px solid #2a4a7a;
+      padding:12px;display:flex;flex-direction:column;gap:10px;}
+    .panel-title{font-weight:bold;font-size:0.8rem;color:#0ff;
+      border-bottom:1px solid #2a4a7a;padding-bottom:4px;display:flex;justify-content:space-between;}
+    .core-grid{display:flex;flex-wrap:wrap;gap:8px;background:#010118;
+      border-radius:10px;padding:8px;border:1px solid #2a4a7a;min-height:100px;}
+    .core-card{width:120px;background:#0a0a1a;border:1px solid #1a2a3a;
+      border-radius:12px;padding:6px;text-align:center;font-size:0.65rem;
+      transition:0.2s;cursor:pointer;}
+    .core-card:hover{border-color:#0ff;box-shadow:0 0 10px rgba(0,255,255,0.5);}
+    .core-card.perfect{border-color:#0f0;box-shadow:0 0 15px #0f0;}
+    .fidelity-bar{height:4px;background:#1a2a3a;border-radius:2px;margin:4px 0;overflow:hidden;}
+    .fidelity-fill{height:100%;background:#ff4444;transition:width 0.3s;}
+    .fidelity-fill.high{background:#ffb800;} .fidelity-fill.perfect{background:#0f0;}
+    .state-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;background:#010118;
+      border-radius:8px;padding:6px;border:1px solid #2a4a7a;}
+    .amp-cell{aspect-ratio:1/1;border-radius:6px;border:1px solid #1a2a3a;
+      display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:bold;background:#0a0a1a;}
+    .controls{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+    button{background:#1f2a4a;border:1px solid #0ff;border-radius:30px;
+      padding:5px 14px;color:#fff;cursor:pointer;font-weight:bold;
+      font-family:inherit;font-size:0.7rem;transition:0.2s;white-space:nowrap;}
+    button:hover{background:#0ff;color:#000;box-shadow:0 0 14px #0ff;}
+    button:active{transform:scale(0.94);}
+    button.gold{border-color:#ffb800;}button.gold:hover{background:#ffb800;color:#000;}
+    button.danger{border-color:#ff4477;}button.danger:hover{background:#ff4477;}
+    button.green{border-color:#0f8;}button.green:hover{background:#0f8;color:#000;}
+    .terminal{background:#010118;border-radius:8px;padding:8px;height:100px;
+      overflow-y:auto;font-size:0.6rem;font-family:monospace;border:1px solid #2a4a7a;color:#aaf;}
+    .terminal .out{color:#0ff;}.terminal .info{color:#88ff88;}.terminal .warn{color:#ffaa00;}
+    .toast{position:fixed;bottom:25px;right:25px;background:#010105;
+      border:1px solid #0ff;border-radius:40px;padding:10px 24px;color:#fff;
+      box-shadow:0 8px 24px rgba(0,0,0,0.7);opacity:0;transform:translateY(20px);
+      transition:0.3s;pointer-events:none;z-index:9999;font-size:0.8rem;max-width:400px;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.6rem;
+      background:#1a2a4a;border:1px solid #0ff;color:#0ff;}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>🌌🧬 Self‑Replicating Quantum AI Swarm</h1>
+    <div class="sub">Exponential Growth · Cross‑Tab Broadcast · AI Cores Evolve & Clone Themselves</div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: TARGET STATE & CONTROLS -->
+    <div class="panel">
+      <div class="panel-title">🎯 Universal Target State
+        <span id="fidelityDisplay" class="badge">fidelity: -</span>
+      </div>
+      <div class="state-grid" id="targetGrid"></div>
+      <div class="controls">
+        <button id="newTargetBtn" class="gold">🎲 New Target</button>
+        <button id="spawnCoreBtn" class="green">➕ Spawn Core</button>
+        <button id="autoSpawnBtn">⚡ Auto‑Replicate (perfect cores)</button>
+        <button id="resetAllBtn" class="danger">🗑️ Reset All</button>
+      </div>
+      <div class="panel-title" style="margin-top:6px;">📊 Swarm Statistics</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:0.7rem;">
+        <span>Cores: <b id="coreCount">0</b></span>
+        <span>Perfect: <b id="perfectCount">0</b></span>
+        <span>Total Generations: <b id="totalGen">0</b></span>
+        <span>Avg Fidelity: <b id="avgFid">0.00</b></span>
+      </div>
+    </div>
+
+    <!-- RIGHT: CORE GRID & TERMINAL -->
+    <div class="panel">
+      <div class="panel-title">🧠 Living Quantum Cores
+        <span id="autoStatus" style="font-size:0.65rem;">manual</span>
+      </div>
+      <div class="core-grid" id="coreGrid"></div>
+      <div class="terminal" id="terminal">
+        <div class="out">> Swarm initialized. Create a target, then spawn cores.</div>
+        <div class="info">> Each core evolves independently towards the target.</div>
+        <div class="out">> Perfect cores self‑replicate (if auto‑spawn enabled).</div>
+      </div>
+      <div class="controls">
+        <button id="clearTermBtn">🗑️ Clear Terminal</button>
+        <button id="shareTargetBtn" class="gold">📡 Broadcast Target</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  (()=>{
+    // ── Quantum primitives ─────────────────────────
+    class Complex{constructor(re=0,im=0){this.re=re;this.im=im;}
+      add(c){return new Complex(this.re+c.re,this.im+c.im);}
+      sub(c){return new Complex(this.re-c.re,this.im-c.im);}
+      mul(c){return new Complex(this.re*c.re-this.im*c.im,this.re*c.im+this.im*c.re);}
+      scale(s){return new Complex(this.re*s,this.im*s);}
+      conj(){return new Complex(this.re,-this.im);}
+      mag2(){return this.re*this.re+this.im*this.im;}
+      mag(){return Math.sqrt(this.mag2());}
+      normalise(){const m=this.mag();return m<1e-12?new Complex(1,0):this.scale(1/m);}
+    }
+    const N=4, dim=1<<N;
+    const H=[[new Complex(1/Math.sqrt(2),0),new Complex(1/Math.sqrt(2),0)],
+             [new Complex(1/Math.sqrt(2),0),new Complex(-1/Math.sqrt(2),0)]];
+    const X=[[new Complex(0,0),new Complex(1,0)],[new Complex(1,0),new Complex(0,0)]];
+    const I=[[new Complex(1,0),new Complex(0,0)],[new Complex(0,0),new Complex(1,0)]];
+
+    function apply1Qubit(state,q,gate){
+      const nv=new Array(dim).fill(0).map(()=>new Complex(0,0));
+      for(let i=0;i<dim;i++){
+        const bit=(i>>q)&1;
+        const i0=i&~(1<<q), i1=i0|(1<<q);
+        const amp0=state[i0], amp1=state[i1];
+        nv[i]=(bit===0)? gate[0][0].mul(amp0).add(gate[0][1].mul(amp1)) :
+                        gate[1][0].mul(amp0).add(gate[1][1].mul(amp1));
+      }
+      return nv;
+    }
+    function applyCNOT(state,c,t){
+      const nv=new Array(dim).fill(0).map(()=>new Complex(0,0));
+      for(let i=0;i<dim;i++){
+        const bc=(i>>c)&1, bt=(i>>t)&1;
+        if(bc===0) nv[i]=state[i];
+        else{const iFlip=i^(1<<t); nv[i]=state[iFlip];}
+      }
+      return nv;
+    }
+    function initZero(){const s=new Array(dim);for(let i=0;i<dim;i++)s[i]=new Complex(0,0);s[0]=new Complex(1,0);return s;}
+    function runCircuit(circ){
+      let s=initZero();
+      for(const g of circ){
+        if(g.type==='H') s=apply1Qubit(s,g.q,H);
+        else if(g.type==='X') s=apply1Qubit(s,g.q,X);
+        else if(g.type==='CNOT') s=applyCNOT(s,g.c,g.t);
+      }
+      return s;
+    }
+    function fidelity(s1,s2){
+      let inner=new Complex(0,0);
+      for(let i=0;i<dim;i++) inner=inner.add(s1[i].conj().mul(s2[i]));
+      return inner.mag2();
+    }
+    function randomCircuit(len=10){
+      const c=[];
+      for(let i=0;i<len;i++){
+        if(Math.random()<0.7) c.push({type:'H',q:Math.floor(Math.random()*N)});
+        else{let ct=Math.floor(Math.random()*N), tg=Math.floor(Math.random()*N);
+          while(tg===ct)tg=Math.floor(Math.random()*N); c.push({type:'CNOT',c:ct,t:tg});}
+      }
+      return c;
+    }
+
+    // ── Swarm Core ──────────────────────────────────
+    class QuantumCore{
+      constructor(id){
+        this.id=id;
+        this.popSize=10;
+        this.circuitLen=10;
+        this.population=[];
+        this.generation=0;
+        this.bestCircuit=null;
+        this.bestFidelity=0;
+        this.perfect=false;
+        this.initPopulation();
+      }
+      initPopulation(){
+        this.population=Array.from({length:this.popSize},()=>randomCircuit(this.circuitLen));
+        this.generation=0;
+        this.bestCircuit=null;
+        this.bestFidelity=0;
+        this.perfect=false;
+      }
+      evaluate(circ){return fidelity(runCircuit(circ),globalTarget);}
+      evolveOneGen(){
+        const scored=this.population.map(c=>({circ:c,fit:this.evaluate(c)}));
+        scored.sort((a,b)=>b.fit-a.fit);
+        const best=scored[0];
+        if(best.fit>this.bestFidelity){this.bestFidelity=best.fit;this.bestCircuit=[...best.circ];}
+        if(this.bestFidelity>0.9999&&!this.perfect){
+          this.perfect=true; onCorePerfect(this);
+        }
+        // elitism + tournament mutation
+        const next=[...best.circ];
+        while(next.length<this.popSize){
+          const p1=scored[Math.floor(Math.random()*Math.min(5,this.popSize))].circ;
+          const p2=scored[Math.floor(Math.random()*Math.min(5,this.popSize))].circ;
+          const child=[];
+          for(let i=0;i<this.circuitLen;i++){
+            let gene=Math.random()<0.5?p1[i]:p2[i];
+            if(Math.random()<0.2) gene=(Math.random()<0.6?{type:'H',q:Math.floor(Math.random()*N)}:
+              {type:'CNOT',c:Math.floor(Math.random()*N),t:Math.floor(Math.random()*N)});
+            child.push({...gene});
+          }
+          next.push(child);
+        }
+        this.population=next;
+        this.generation++;
+      }
+      getCurrentState(){return runCircuit(this.bestCircuit||randomCircuit(0));}
+    }
+
+    // ── Global state ────────────────────────────────
+    let globalTarget=initZero();
+    let cores=[];
+    let coreIdCounter=0;
+    let autoSpawnActive=false;
+    let evolveInterval=null;
+
+    // DOM
+    const $=id=>document.getElementById(id);
+    const targetGridEl=$('targetGrid');
+    const coreGridEl=$('coreGrid');
+    const terminalEl=$('terminal');
+    const coreCountEl=$('coreCount');
+    const perfectCountEl=$('perfectCount');
+    const totalGenEl=$('totalGen');
+    const avgFidEl=$('avgFid');
+    const fidelityDisplay=$('fidelityDisplay');
+    const autoStatus=$('autoStatus');
+
+    function toast(msg,d=2000){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),d);}
+    function term(msg,cls='out'){const d=document.createElement('div');d.className=cls;d.textContent='> '+msg;terminalEl.appendChild(d);terminalEl.scrollTop=terminalEl.scrollHeight;while(terminalEl.children.length>30)terminalEl.removeChild(terminalEl.firstChild);}
+
+    function generateRandomTarget(){
+      const circ=randomCircuit(8);
+      globalTarget=runCircuit(circ);
+      term('🎯 New target state generated (random circuit).','info');
+      fidelityDisplay.textContent='fidelity: 0.000';
+      // reset all cores
+      cores.forEach(c=>{c.initPopulation();c.perfect=false;});
+      renderTarget();
+      renderCores();
+    }
+    function renderTarget(){
+      const prob=globalTarget.map(a=>a.mag2());
+      let h='';
+      for(let i=0;i<dim;i++){
+        const pct=(prob[i]*100).toFixed(0);
+        const intensity=Math.min(255,Math.floor(prob[i]*400));
+        h+=`<div class="amp-cell" style="background:rgb(${intensity},100,255);">${i.toString(16)}<br>${pct}%</div>`;
+      }
+      targetGridEl.innerHTML=h;
+    }
+    function renderCores(){
+      let h='';
+      cores.forEach(c=>{
+        const fid=c.bestFidelity;
+        const gen=c.generation;
+        const perf=c.perfect;
+        const cls=perf?'perfect':'';
+        const fillClass=fid>0.8?'high':(fid>0.999?'perfect':'');
+        h+=`<div class="core-card ${cls}" data-id="${c.id}">
+          <div>Core #${c.id}</div>
+          <div class="fidelity-bar"><div class="fidelity-fill ${fillClass}" style="width:${(fid*100).toFixed(1)}%;"></div></div>
+          <div>Fid: ${(fid*100).toFixed(1)}% Gen: ${gen}</div>
+        </div>`;
+      });
+      coreGridEl.innerHTML=h;
+      coreGridEl.querySelectorAll('.core-card').forEach(el=>{
+        el.addEventListener('click',()=>{
+          const id=parseInt(el.dataset.id);
+          const core=cores.find(c=>c.id===id);
+          if(core){
+            fidelityDisplay.textContent=`fidelity: ${core.bestFidelity.toFixed(4)}`;
+            term(`Core #${id}: fidelity=${(core.bestFidelity*100).toFixed(2)}% gen=${core.generation}`);
+          }
+        });
+      });
+      coreCountEl.textContent=cores.length;
+      perfectCountEl.textContent=cores.filter(c=>c.perfect).length;
+      totalGenEl.textContent=cores.reduce((s,c)=>s+c.generation,0);
+      const avgFid=cores.length>0?cores.reduce((s,c)=>s+c.bestFidelity,0)/cores.length:0;
+      avgFidEl.textContent=avgFid.toFixed(3);
+    }
+
+    function spawnCore(){
+      const newCore=new QuantumCore(coreIdCounter++);
+      cores.push(newCore);
+      term(`➕ Spawned Core #${newCore.id}`,'info');
+      renderCores();
+    }
+    function onCorePerfect(core){
+      term(`✅ Core #${core.id} reached PERFECTION!`, 'info');
+      toast(`Core #${core.id} perfect!`);
+      renderCores();
+      if(autoSpawnActive){
+        spawnCore(); // auto-replicate
+      }
+      // broadcast perfect circuit
+      if(broadcastChannel&&core.bestCircuit){
+        broadcastChannel.postMessage({type:'perfectCircuit',circuit:core.bestCircuit,id:core.id});
+      }
+    }
+    function resetAllCores(){
+      cores=[]; coreIdCounter=0;
+      renderCores();
+      term('🗑️ All cores destroyed.');
+    }
+
+    // ── Evolution engine ────────────────────────────
+    function evolveAllCores(){
+      if(cores.length===0)return;
+      // evolve a few generations per core per tick (lightweight)
+      for(const core of cores){
+        if(core.perfect) continue;
+        for(let i=0;i<2;i++) core.evolveOneGen();
+      }
+      renderCores();
+    }
+    function startEvolution(){
+      if(evolveInterval) clearInterval(evolveInterval);
+      evolveInterval=setInterval(evolveAllCores,200);
+    }
+
+    // ── BroadcastChannel for cross‑tab swarm ────────
+    let broadcastChannel=null;
+    function initBroadcast(){
+      try{
+        broadcastChannel=new BroadcastChannel('quantum_swarm');
+        broadcastChannel.onmessage=(e)=>{
+          const data=e.data;
+          if(data.type==='targetSync'&&data.target){
+            globalTarget=data.target; term('📡 Received target state from another tab.','info');
+            renderTarget();
+            // reset cores on new target? prompt? let's auto-reset to work on shared target
+            cores.forEach(c=>{c.initPopulation();c.perfect=false;});
+            renderCores();
+          }else if(data.type==='perfectCircuit'&&data.circuit){
+            term(`📡 Another tab's core #${data.id} achieved perfection.','info');
+            // inject its circuit into our cores as a seed
+            cores.forEach(c=>{
+              if(!c.perfect) c.population[Math.floor(Math.random()*c.popSize)]=data.circuit;
+            });
+          }
+        };
+        term('📡 BroadcastChannel open – swarm connected across tabs.','info');
+      }catch(e){term('⚠️ BroadcastChannel unavailable.','warn');}
+    }
+    function broadcastTarget(){
+      if(broadcastChannel){
+        broadcastChannel.postMessage({type:'targetSync',target:globalTarget});
+        toast('📡 Target broadcasted to all tabs.');
+      }else toast('Broadcast not available.');
+    }
+
+    // ── Event binding ───────────────────────────────
+    function bindEvents(){
+      $('#newTargetBtn').addEventListener('click',generateRandomTarget);
+      $('#spawnCoreBtn').addEventListener('click',spawnCore);
+      $('#autoSpawnBtn').addEventListener('click',()=>{
+        autoSpawnActive=!autoSpawnActive;
+        autoStatus.textContent=autoSpawnActive?'auto‑replicating':'manual';
+        term(autoSpawnActive?'⚡ Auto‑replication enabled.':'⏸️ Auto‑replication paused.');
+      });
+      $('#resetAllBtn').addEventListener('click',resetAllCores);
+      $('#clearTermBtn').addEventListener('click',()=>{terminalEl.innerHTML='';});
+      $('#shareTargetBtn').addEventListener('click',broadcastTarget);
+    }
+
+    // ── Init ────────────────────────────────────────
+    function init(){
+      bindEvents();
+      initBroadcast();
+      generateRandomTarget(); // initial target
+      // spawn a few cores to start
+      for(let i=0;i<2;i++) spawnCore();
+      startEvolution();
+      term('🌌 Self‑replicating quantum swarm launched.');
+    }
+    init();
+  })();
+</script>
+</body>
+</html>

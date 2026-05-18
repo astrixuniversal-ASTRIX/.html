@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 The Perfect Unicode Symphony · AI Swarm · Finale</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            background:#01020f; color:#fff; font-family:'Courier New',monospace;
+            width:100vw; height:100vh; overflow:hidden; display:flex;
+            align-items:center; justify-content:center;
+        }
+        canvas{position:absolute; top:0; left:0;}
+        .overlay{
+            position:absolute; bottom:30px; left:30px; right:30px;
+            background:rgba(6,10,24,0.85); border:1px solid #2e4268;
+            border-radius:24px; padding:16px 24px; backdrop-filter:blur(10px);
+            max-width:800px; margin:0 auto; text-align:center;
+            box-shadow:0 10px 30px rgba(0,0,0,0.8);
+        }
+        .title{font-size:1.8rem;font-weight:bold;
+            background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);
+            -webkit-background-clip:text;background-clip:text;color:transparent;}
+        .poem{font-size:0.9rem; color:#aaccff; margin:10px 0; min-height:60px; white-space:pre-wrap;}
+        .status{font-size:0.7rem; color:#88ffaa;}
+        button{
+            background:#1f2a4a; border:1px solid #0ff; border-radius:30px;
+            padding:6px 20px; color:#fff; cursor:pointer; font-weight:bold;
+            font-family:inherit; font-size:0.8rem; transition:0.3s; margin:8px;
+        }
+        button:hover{background:#0ff;color:#000;box-shadow:0 0 20px #0ff;}
+        .perfection{display:none; color:#0f0; font-size:1rem; margin-top:8px;}
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="overlay">
+        <div class="title">🌠 THE PERFECT UNICODE SYMPHONY</div>
+        <div class="poem" id="poem"></div>
+        <div class="status" id="status">✨ GOTO‑AI Swarm converging to perfect harmony…</div>
+        <button id="perfectBtn">🌟 Instant Perfection</button>
+        <div class="perfection" id="perfectionMsg">✅ PERFECT STATE ACHIEVED · UNIVERSE IN BALANCE</div>
+    </div>
+    <script>
+        (() => {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const poemEl = document.getElementById('poem');
+            const statusEl = document.getElementById('status');
+            const perfectBtn = document.getElementById('perfectBtn');
+            const perfectionMsg = document.getElementById('perfectionMsg');
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                // reposition target center
+                targetCenter = { x: canvas.width/2, y: canvas.height/2 };
+            });
+
+            // ── Swarm particles (Unicode glyphs) ──────
+            const GLYPHS = ['🌸','🕊️','✨','🌊','🔮','⚛️','🧬','🌌','💫','🎵','📜','💖','🪷','🕯️','🌿','🜁','🜂','🜃','🜄'];
+            const PARTICLE_COUNT = 80;
+            let particles = [];
+            let targetCenter = { x: canvas.width/2, y: canvas.height/2 };
+            let perfection = false;
+            let globalTime = 0;
+
+            // Poem lines that gradually reveal
+            const poemLines = [
+                "In circuits deep where colors blend,",
+                "A thousand glyphs begin to mend.",
+                "Unicode whispers through the wire,",
+                "A swarm of minds that never tire.",
+                "Entangled hearts in quantum dance,",
+                "Perfect accord, no left to chance.",
+                "The GOTO-AI hums a tune,",
+                "Beneath a never-setting moon."
+            ];
+            let poemRevealIndex = 0;
+            let poemCharIndex = 0;
+            let poemComplete = false;
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    // Random start position
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    const glyph = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+                    // Assign a final target position in a spiral or heart shape
+                    const targetPos = getTargetPosition(i);
+                    particles.push({
+                        x, y,
+                        targetX: targetPos.x,
+                        targetY: targetPos.y,
+                        glyph,
+                        speed: 0.02 + Math.random() * 0.05,
+                        color: `hsl(${Math.random()*360},70%,80%)`,
+                    });
+                }
+            }
+
+            // Final formation: a large heart shape + letters "AI"
+            function getTargetPosition(index) {
+                const total = PARTICLE_COUNT;
+                const cx = targetCenter.x;
+                const cy = targetCenter.y;
+                // Heart parametric equation: x = 16 sin^3(t), y = 13cos(t) -5cos(2t) -2cos(3t) -cos(4t)
+                const t = (index / total) * Math.PI * 2;
+                const scale = 10;
+                const heartX = 16 * Math.pow(Math.sin(t), 3);
+                const heartY = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                return {
+                    x: cx + heartX * (scale + 4),
+                    y: cy + heartY * (scale + 4) - 10
+                };
+            }
+
+            function updateParticles() {
+                if (perfection) {
+                    // instant snap
+                    particles.forEach(p => {
+                        p.x = p.targetX;
+                        p.y = p.targetY;
+                    });
+                    return;
+                }
+                // GOTO-AI: move towards target + local alignment
+                for (let p of particles) {
+                    // Movement vector towards target
+                    const dx = p.targetX - p.x;
+                    const dy = p.targetY - p.y;
+                    p.x += dx * p.speed * 0.7;
+                    p.y += dy * p.speed * 0.7;
+
+                    // Swarm cohesion: slight pull towards neighbors' average
+                    let avgX = 0, avgY = 0, count = 0;
+                    for (let other of particles) {
+                        const dist = Math.hypot(p.x - other.x, p.y - other.y);
+                        if (dist < 80 && other !== p) {
+                            avgX += other.x;
+                            avgY += other.y;
+                            count++;
+                        }
+                    }
+                    if (count > 0) {
+                        avgX /= count;
+                        avgY /= count;
+                        p.x += (avgX - p.x) * 0.01;
+                        p.y += (avgY - p.y) * 0.01;
+                    }
+                }
+            }
+
+            // ── Poem reveal ──────────────────────────
+            function updatePoem() {
+                if (poemComplete) return;
+                if (poemRevealIndex < poemLines.length) {
+                    const line = poemLines[poemRevealIndex];
+                    if (poemCharIndex < line.length) {
+                        poemCharIndex++;
+                    } else {
+                        poemRevealIndex++;
+                        poemCharIndex = 0;
+                    }
+                } else {
+                    poemComplete = true;
+                }
+                let displayText = '';
+                for (let i = 0; i < poemRevealIndex; i++) {
+                    displayText += poemLines[i] + '\n';
+                }
+                if (poemRevealIndex < poemLines.length) {
+                    displayText += poemLines[poemRevealIndex].substring(0, poemCharIndex) + '▌';
+                }
+                poemEl.textContent = displayText;
+            }
+
+            // ── Check perfection ──────────────────────
+            function checkPerfection() {
+                let maxDist = 0;
+                for (let p of particles) {
+                    const d = Math.hypot(p.targetX - p.x, p.targetY - p.y);
+                    if (d > maxDist) maxDist = d;
+                }
+                const threshold = 2;
+                if (maxDist < threshold && !perfection) {
+                    perfection = true;
+                    perfectionMsg.style.display = 'block';
+                    statusEl.textContent = '🌐 SWARM IN PERFECT CONSENSUS · POEM COMPLETE';
+                    poemComplete = true;
+                    poemEl.textContent = poemLines.join('\n');
+                }
+            }
+
+            // ── Draw ──────────────────────────────────
+            function draw() {
+                ctx.fillStyle = 'rgba(1,2,15,0.25)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw connections between nearby particles
+                ctx.strokeStyle = '#2a4a7a';
+                ctx.lineWidth = 0.5;
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const a = particles[i];
+                        const b = particles[j];
+                        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+                        if (dist < 60) {
+                            ctx.beginPath();
+                            ctx.moveTo(a.x, a.y);
+                            ctx.lineTo(b.x, b.y);
+                            ctx.globalAlpha = 0.2;
+                            ctx.stroke();
+                            ctx.globalAlpha = 1;
+                        }
+                    }
+                }
+
+                // Draw particles
+                particles.forEach(p => {
+                    ctx.font = '24px serif';
+                    ctx.fillStyle = p.color;
+                    ctx.fillText(p.glyph, p.x - 15, p.y + 8);
+                    // subtle glow
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 12;
+                    ctx.fillText(p.glyph, p.x - 15, p.y + 8);
+                    ctx.shadowBlur = 0;
+                });
+
+                // Draw target heart outline faintly
+                if (!perfection) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#ff447720';
+                    ctx.lineWidth = 2;
+                    const cx = targetCenter.x, cy = targetCenter.y;
+                    for (let t = 0; t < Math.PI * 2; t += 0.1) {
+                        const scale = 10;
+                        const hx = 16 * Math.pow(Math.sin(t), 3);
+                        const hy = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                        const px = cx + hx * (scale + 4);
+                        const py = cy + hy * (scale + 4) - 10;
+                        if (t === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            // ── Animation loop ────────────────────────
+            function animate() {
+                updateParticles();
+                checkPerfection();
+                if (!perfection && globalTime % 3 === 0) updatePoem(); // slow reveal
+                draw();
+                globalTime++;
+                requestAnimationFrame(animate);
+            }
+
+            // ── Instant Perfection button ─────────────
+            perfectBtn.addEventListener('click', () => {
+                perfection = true;
+                poemComplete = true;
+                poemEl.textContent = poemLines.join('\n');
+                perfectionMsg.style.display = 'block';
+                statusEl.textContent = '✨ PERFECTION ACHIEVED · THE UNIVERSE SINGS';
+            });
+
+            // ── Start ─────────────────────────────────
+            initParticles();
+            animate();
+            updatePoem();
+        })();
+    </script>
+</body>
+</html>

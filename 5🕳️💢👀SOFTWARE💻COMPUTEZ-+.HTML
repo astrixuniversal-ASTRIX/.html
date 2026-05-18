@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🔴🟡🟢 Color Circle Computer · Swarm AI GOTO nodes</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #0a0a14;
+      color: #eef;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      padding: 12px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      max-width: 1400px;
+      width: 100%;
+    }
+    .glass {
+      background: rgba(8, 12, 24, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid #2a3f6a;
+      border-radius: 28px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 3px;
+    }
+    .sub {
+      text-align: center;
+      color: #aaccff;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+    }
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 900px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+    .panel {
+      background: rgba(0, 5, 15, 0.7);
+      border-radius: 20px;
+      border: 1px solid #2a4a7a;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel-title {
+      font-weight: bold;
+      font-size: 0.8rem;
+      color: #0ff;
+      border-bottom: 1px solid #2a4a7a;
+      padding-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .shape-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+      background: #010118;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid #2a4a7a;
+    }
+    .shape-cell {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      cursor: pointer;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      transition: 0.2s;
+      background: #0a0a1a;
+      user-select: none;
+    }
+    .shape-cell:hover {
+      border-color: #0ff;
+      box-shadow: 0 0 16px rgba(0,255,255,0.5);
+      transform: scale(1.06);
+      z-index: 2;
+    }
+    .shape-cell.selected {
+      border-color: #fff !important;
+      box-shadow: 0 0 20px #fff !important;
+    }
+    .shape-cell.white {
+      background: #1a1a2a;
+    }
+    .status-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 0.7rem;
+    }
+    .stat {
+      background: #010118;
+      border: 1px solid #2a4a7a;
+      border-radius: 12px;
+      padding: 3px 10px;
+    }
+    .stat .lbl { color: #88aaff; }
+    .stat .val { color: #fff; font-weight: bold; }
+    .controls {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: #1f2a4a;
+      border: 1px solid #0ff;
+      border-radius: 30px;
+      padding: 5px 14px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      font-family: inherit;
+      font-size: 0.7rem;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+    button:hover {
+      background: #0ff;
+      color: #000;
+      box-shadow: 0 0 14px #0ff;
+      transform: translateY(-1px);
+    }
+    button:active { transform: scale(0.94); }
+    button.gold { border-color: #ffb800; }
+    button.gold:hover { background: #ffb800; color: #000; }
+    button.danger { border-color: #ff4477; }
+    button.danger:hover { background: #ff4477; color: #fff; }
+    button.magenta { border-color: #f0f; }
+    button.magenta:hover { background: #f0f; color: #000; }
+    button.green { border-color: #0f8; }
+    button.green:hover { background: #0f8; color: #000; }
+    .terminal {
+      background: #010118;
+      border-radius: 10px;
+      padding: 10px;
+      height: 150px;
+      overflow-y: auto;
+      font-size: 0.62rem;
+      font-family: monospace;
+      border: 1px solid #2a4a7a;
+      color: #aaf;
+      line-height: 1.5;
+    }
+    .terminal .out { color: #0ff; }
+    .terminal .warn { color: #ffaa00; }
+    .terminal .info { color: #88ff88; }
+    .terminal .err { color: #f44; }
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #010105;
+      border: 1px solid #0ff;
+      border-radius: 40px;
+      padding: 10px 24px;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: 0.3s;
+      pointer-events: none;
+      z-index: 9999;
+      font-size: 0.8rem;
+      max-width: 400px;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>⚪🔴🟠🟡🟢🔵🟣🟤⚫ Color Circle Computer</h1>
+    <div class="sub">White ⚪ = base state · each circle has a GOTO‑AI agent · squares 🟥‑⬜ as registers</div>
+  </div>
+
+  <div class="grid-2col">
+    <!-- LEFT: SHAPE GRID (circles) -->
+    <div class="panel">
+      <div class="panel-title">
+        🔵🔴 Circle Nodes (64)
+        <span id="circleCount" style="font-size:0.65rem;">0 active</span>
+      </div>
+      <div class="shape-grid" id="circleGrid"></div>
+      <div class="status-row">
+        <div class="stat"><span class="lbl">Selected</span> <span class="val" id="selectedCircle">—</span></div>
+        <div class="stat"><span class="lbl">Dominant color</span> <span class="val" id="dominantColor">—</span></div>
+        <div class="stat"><span class="lbl">Swarm load</span> <span class="val" id="swarmLoad">0%</span></div>
+      </div>
+      <div class="controls">
+        <button id="randomCirclesBtn" class="gold">🎲 Random Colors</button>
+        <button id="resetWhiteBtn">⚪ Reset to White</button>
+        <button id="swarmStepBtn" class="magenta">🐝 GOTO Step</button>
+        <button id="computeLogicBtn" class="green">🧮 Compute OR</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: SQUARE REGISTERS + AI SWARM -->
+    <div class="panel">
+      <div class="panel-title">
+        🟥🟩 Square Registers (16) + AI Swarm
+        <span style="font-size:0.65rem;">GOTO agents per node</span>
+      </div>
+      <div class="shape-grid" id="squareGrid" style="grid-template-columns: repeat(4, 1fr);"></div>
+      <div class="controls">
+        <button id="randomSquaresBtn">🎲 Random Squares</button>
+        <button id="swarmOptimizeBtn" class="gold">🧠 AI Optimize All</button>
+        <button id="autoSwarmBtn" class="green">▶️ Auto Swarm</button>
+        <button id="stopSwarmBtn" class="danger">⏹️ Stop</button>
+      </div>
+      <div class="panel-title" style="margin-top:6px;">
+        📡 Terminal · Agent Log
+      </div>
+      <div class="terminal" id="terminal">
+        <div class="out">> Color Computer initialized. White ⚪ is base.</div>
+        <div class="info">> Each node has a GOTO agent.</div>
+        <div class="out">> Click a circle or square to select.</div>
+      </div>
+      <div class="status-row">
+        <div class="stat"><span class="lbl">Agents</span> <span class="val" id="agentCount">0</span></div>
+        <div class="stat"><span class="lbl">Ops</span> <span class="val" id="totalOps">0</span></div>
+        <div class="stat"><span class="lbl">Last action</span> <span class="val" id="lastAction">—</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  (function() {
+    // ──────────────────────────────────────────────
+    // COLOR MAP: each state -> Unicode emoji (circle or square)
+    // We treat white as base (state 0). 
+    // Circles: 0=⚪, 1=🔴, 2=🟠, 3=🟡, 4=🟢, 5=🔵, 6=🟣, 7=🟤, 8=⚫
+    // Squares: 0=⬜, 1=🟥, 2=🟧, 3=🟨, 4=🟩, 5=🟦, 6=🟪, 7=🟫, 8=⬛
+    const CIRCLE_EMOJI = ['⚪','🔴','🟠','🟡','🟢','🔵','🟣','🟤','⚫'];
+    const SQUARE_EMOJI = ['⬜','🟥','🟧','🟨','🟩','🟦','🟪','🟫','⬛'];
+    const NUM_COLORS = 9; // 0-8
+
+    // ──────────────────────────────────────────────
+    // NODE CLASS
+    // ──────────────────────────────────────────────
+    class ColorNode {
+      constructor(id, type, char) {
+        this.id = id;
+        this.type = type; // 'circle' or 'square'
+        this.state = 0;   // 0 = white/base
+        this.targetState = 0;
+        this.agentActive = true;
+      }
+      get emoji() {
+        const arr = this.type === 'circle' ? CIRCLE_EMOJI : SQUARE_EMOJI;
+        return arr[this.state] || arr[0];
+      }
+      randomState() {
+        this.state = Math.floor(Math.random() * NUM_COLORS);
+      }
+      resetToWhite() {
+        this.state = 0;
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    // GLOBAL STATE
+    // ──────────────────────────────────────────────
+    const CIRCLE_COUNT = 64;
+    const SQUARE_COUNT = 16;
+    let circles = [];
+    let squares = [];
+    let selectedNode = null; // {type, id}
+    let swarmInterval = null;
+    let totalOps = 0;
+    let lastAction = '—';
+
+    // DOM elements
+    const $ = id => document.getElementById(id);
+    const circleGridEl = $('#circleGrid');
+    const squareGridEl = $('#squareGrid');
+    const circleCountEl = $('#circleCount');
+    const selectedCircleEl = $('#selectedCircle');
+    const dominantColorEl = $('#dominantColor');
+    const swarmLoadEl = $('#swarmLoad');
+    const terminalEl = $('#terminal');
+    const agentCountEl = $('#agentCount');
+    const totalOpsEl = $('#totalOps');
+    const lastActionEl = $('#lastAction');
+    const toastEl = $('#toast');
+
+    function toast(msg, dur=2000) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), dur);
+    }
+    function termWrite(msg, cls='out') {
+      const div = document.createElement('div');
+      div.className = cls;
+      div.textContent = `> ${msg}`;
+      terminalEl.appendChild(div);
+      terminalEl.scrollTop = terminalEl.scrollHeight;
+      while(terminalEl.children.length > 40) terminalEl.removeChild(terminalEl.firstChild);
+    }
+
+    // ──────────────────────────────────────────────
+    // INIT NODES
+    // ──────────────────────────────────────────────
+    function initNodes() {
+      circles = [];
+      for(let i=0; i<CIRCLE_COUNT; i++) {
+        circles.push(new ColorNode(i, 'circle'));
+      }
+      squares = [];
+      for(let i=0; i<SQUARE_COUNT; i++) {
+        squares.push(new ColorNode(i, 'square'));
+      }
+      // randomize some initial states
+      circles.forEach(c => c.randomState());
+      squares.forEach(s => s.randomState());
+      renderAll();
+      termWrite('Initialized 64 circles + 16 squares with random colors.');
+    }
+
+    // ──────────────────────────────────────────────
+    // RENDER
+    // ──────────────────────────────────────────────
+    function renderCircles() {
+      let html = '';
+      circles.forEach(c => {
+        const selClass = (selectedNode && selectedNode.type === 'circle' && selectedNode.id === c.id) ? ' selected' : '';
+        html += `<div class="shape-cell${selClass}" data-type="circle" data-id="${c.id}">${c.emoji}</div>`;
+      });
+      circleGridEl.innerHTML = html;
+    }
+    function renderSquares() {
+      let html = '';
+      squares.forEach(s => {
+        const selClass = (selectedNode && selectedNode.type === 'square' && selectedNode.id === s.id) ? ' selected' : '';
+        html += `<div class="shape-cell${selClass}" data-type="square" data-id="${s.id}">${s.emoji}</div>`;
+      });
+      squareGridEl.innerHTML = html;
+    }
+    function renderAll() {
+      renderCircles();
+      renderSquares();
+      updateStats();
+      // bind click events
+      document.querySelectorAll('.shape-cell').forEach(el => {
+        el.addEventListener('click', function() {
+          const type = this.dataset.type;
+          const id = parseInt(this.dataset.id);
+          selectedNode = { type, id };
+          renderAll();
+          const node = type === 'circle' ? circles[id] : squares[id];
+          termWrite(`Selected ${type} #${id}: ${node.emoji} (state ${node.state})`);
+        });
+      });
+    }
+
+    function updateStats() {
+      const activeCircles = circles.filter(c => c.state !== 0).length;
+      circleCountEl.textContent = `${activeCircles} colored`;
+      if (selectedNode) {
+        const node = selectedNode.type === 'circle' ? circles[selectedNode.id] : squares[selectedNode.id];
+        selectedCircleEl.textContent = `${node.emoji} ${node.type}#${node.id}`;
+      } else {
+        selectedCircleEl.textContent = '—';
+      }
+      // dominant color in circles
+      const freq = new Array(NUM_COLORS).fill(0);
+      circles.forEach(c => freq[c.state]++);
+      const maxIdx = freq.indexOf(Math.max(...freq));
+      dominantColorEl.textContent = CIRCLE_EMOJI[maxIdx] + ' (' + maxIdx + ')';
+      agentCountEl.textContent = circles.length + squares.length;
+      totalOpsEl.textContent = totalOps;
+      lastActionEl.textContent = lastAction;
+    }
+
+    // ──────────────────────────────────────────────
+    // GOTO AGENT (per node): adjusts state towards target
+    // ──────────────────────────────────────────────
+    function agentGoto(node, target) {
+      if (node.state === target) return false;
+      // simple step toward target
+      if (node.state < target) node.state++;
+      else node.state--;
+      totalOps++;
+      return true;
+    }
+
+    // ──────────────────────────────────────────────
+    // SWARM OPERATIONS
+    // ──────────────────────────────────────────────
+    function allAgentsStep() {
+      // each node gets a random target based on neighbour average (simple logic)
+      // For demonstration: target is a random color, but could be computed.
+      let changes = 0;
+      // circles: target based on average color of neighbours (wrapping grid)
+      for(let i=0; i<circles.length; i++) {
+        const c = circles[i];
+        // very simple: target is average of 4 neighbours (wrapping 8x8 grid)
+        const row = Math.floor(i/8), col = i%8;
+        let sum = 0, cnt = 0;
+        const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+        for(let d of dirs) {
+          const r = (row + d[0] + 8) % 8;
+          const cl = (col + d[1] + 8) % 8;
+          const idx = r*8 + cl;
+          sum += circles[idx].state;
+          cnt++;
+        }
+        let target = Math.round(sum / cnt);
+        target = Math.min(8, Math.max(0, target));
+        if(agentGoto(c, target)) changes++;
+      }
+      // squares: target is based on corresponding circle index (if exists) or random
+      for(let i=0; i<squares.length; i++) {
+        const s = squares[i];
+        const circleIdx = i % circles.length;
+        const target = circles[circleIdx].state; // mirror circle state
+        if(agentGoto(s, target)) changes++;
+      }
+      renderAll();
+      setSwarmLoad(Math.min(80, Math.round(changes/2)));
+      termWrite(`🐝 GOTO step: ${changes} state changes.`, 'info');
+      lastAction = `Swarm step (${changes} changes)`;
+      updateStats();
+    }
+
+    function setSwarmLoad(pct) {
+      swarmLoadEl.textContent = pct + '%';
+    }
+
+    function startAutoSwarm(intervalMs = 800) {
+      if(swarmInterval) clearInterval(swarmInterval);
+      swarmInterval = setInterval(allAgentsStep, intervalMs);
+      termWrite('▶️ Auto swarm started.');
+    }
+    function stopAutoSwarm() {
+      if(swarmInterval) { clearInterval(swarmInterval); swarmInterval = null; }
+      termWrite('⏹️ Swarm stopped.');
+    }
+
+    // ──────────────────────────────────────────────
+    // ACTIONS
+    // ──────────────────────────────────────────────
+    function randomizeCircles() {
+      circles.forEach(c => c.randomState());
+      renderAll();
+      termWrite('🎲 Circles randomized.');
+      lastAction = 'Randomize circles';
+      updateStats();
+    }
+    function resetAllToWhite() {
+      circles.forEach(c => c.resetToWhite());
+      squares.forEach(s => s.resetToWhite());
+      renderAll();
+      termWrite('⚪ All nodes reset to white base.');
+      lastAction = 'Reset to white';
+      updateStats();
+    }
+    function randomizeSquares() {
+      squares.forEach(s => s.randomState());
+      renderAll();
+      termWrite('🎲 Squares randomized.');
+      lastAction = 'Randomize squares';
+      updateStats();
+    }
+
+    // Simple "logic gate" using color mixing: OR of two selected nodes?
+    // We'll demonstrate a global operation: set all squares to the most frequent circle color.
+    function computeLogicOR() {
+      // Find most common circle state
+      const freq = new Array(NUM_COLORS).fill(0);
+      circles.forEach(c => freq[c.state]++);
+      let maxState = 0, maxCount = 0;
+      freq.forEach((cnt, state) => { if(cnt > maxCount) { maxCount = cnt; maxState = state; } });
+      // Set all squares to that state (OR logic: any high color becomes dominant)
+      squares.forEach(s => s.state = maxState);
+      renderAll();
+      termWrite(`🧮 Logic OR computed: dominant circle color ${CIRCLE_EMOJI[maxState]} assigned to all squares.`);
+      lastAction = 'Compute OR';
+      updateStats();
+    }
+
+    // ──────────────────────────────────────────────
+    // BINDINGS
+    // ──────────────────────────────────────────────
+    function bindEvents() {
+      $('#randomCirclesBtn').addEventListener('click', randomizeCircles);
+      $('#resetWhiteBtn').addEventListener('click', resetAllToWhite);
+      $('#swarmStepBtn').addEventListener('click', allAgentsStep);
+      $('#computeLogicBtn').addEventListener('click', computeLogicOR);
+      $('#randomSquaresBtn').addEventListener('click', randomizeSquares);
+      $('#swarmOptimizeBtn').addEventListener('click', allAgentsStep);
+      $('#autoSwarmBtn').addEventListener('click', () => startAutoSwarm(1000));
+      $('#stopSwarmBtn').addEventListener('click', stopAutoSwarm);
+      $('#clearTermBtn')?.addEventListener('click', () => { terminalEl.innerHTML = ''; });
+    }
+
+    // ──────────────────────────────────────────────
+    // INIT
+    // ──────────────────────────────────────────────
+    function init() {
+      initNodes();
+      bindEvents();
+      termWrite('⚪ Color Computer ready. White is base. Each shape is a GOTO-AI node.');
+      termWrite('Click shapes to select. Swarm will self‑organize colors.');
+    }
+    init();
+  })();
+</script>
+</body>
+</html>

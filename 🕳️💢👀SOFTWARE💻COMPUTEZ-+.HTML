@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🌀 SCAD Universe · 1111km Cube‑Sphere · Self‑Replicating · Infinite Recursion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at 30% 20%, #0a0a1a, #010105);
+            color: #eef5ff;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .case {
+            background: rgba(10, 14, 30, 0.9);
+            backdrop-filter: blur(12px);
+            border: 2px solid #2a4a7a;
+            border-radius: 28px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        .case::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 40%, rgba(0,255,255,0.03), transparent 70%);
+            pointer-events: none;
+            animation: rotateGlow 20s linear infinite;
+        }
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, #0ff, #f0f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .sub {
+            text-align: center;
+            color: #aaf;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 1000px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(0, 10, 20, 0.7);
+            border-radius: 24px;
+            border: 1px solid #2a4a7a;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #0ff;
+            border-bottom: 1px solid #2a4a7a;
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reg-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 0.8rem;
+        }
+        .reg-item {
+            background: #010118;
+            border: 1px solid #2a4a7a;
+            border-radius: 12px;
+            padding: 4px 12px;
+        }
+        .reg-item .label {
+            color: #88aaff;
+        }
+        .reg-item .value {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #1f2a4a;
+            border: 1px solid #0ff;
+            border-radius: 60px;
+            padding: 6px 16px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.8rem;
+        }
+        button:hover {
+            background: #0ff;
+            color: black;
+            box-shadow: 0 0 14px #0ff;
+        }
+        button.danger {
+            border-color: #ff44ff;
+        }
+        button.danger:hover {
+            background: #ff44ff;
+        }
+        button.gold {
+            border-color: #ffb800;
+        }
+        button.gold:hover {
+            background: #ffb800;
+            color: black;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            color: #88ffaa;
+        }
+
+        .terminal {
+            background: #010118;
+            border-radius: 12px;
+            padding: 12px;
+            height: 160px;
+            overflow-y: auto;
+            font-size: 0.7rem;
+            font-family: monospace;
+            border: 1px solid #2a4a7a;
+            color: #aaf;
+        }
+
+        .terminal .out {
+            color: #0ff;
+        }
+        .terminal .err {
+            color: #f44;
+        }
+
+        .scad-box {
+            background: #010118;
+            border-radius: 12px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.7rem;
+            border: 1px solid #2a4a7a;
+            min-height: 80px;
+            white-space: pre-wrap;
+            overflow: auto;
+            color: #88ffaa;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #010105;
+            border: 1px solid #0ff;
+            border-radius: 40px;
+            padding: 12px 24px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.3s;
+            pointer-events: none;
+            z-index: 999;
+            max-width: 400px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .recursive-iframe-container {
+            width: 100%;
+            height: 0;
+            position: relative;
+            overflow: hidden;
+            transition: height 0.5s;
+        }
+        .recursive-iframe-container.open {
+            height: 400px;
+        }
+        .recursive-iframe-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 1px solid #0ff;
+            border-radius: 12px;
+            background: #010105;
+        }
+
+        .cube-sphere-container {
+            width: 100%;
+            height: 300px;
+            background: #010118;
+            border-radius: 12px;
+            border: 1px solid #2a4a7a;
+            overflow: hidden;
+            position: relative;
+        }
+        #threeCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .depth-counter {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffb800;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .heal-log {
+            font-size: 0.7rem;
+            color: #88ffaa;
+            max-height: 60px;
+            overflow-y: auto;
+            border: 1px solid #2a4a7a;
+            border-radius: 8px;
+            padding: 6px;
+            background: #010118;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="case">
+        <h1>🌀 SCAD Universe · 1111km Cube‑Sphere</h1>
+        <div class="sub">Self‑replicating · Infinite recursion · Self‑healing · Outside → Inside growth</div>
+
+        <div class="grid-2col">
+            <!-- LEFT: 3D VIEW + SCAD + CONTROLS -->
+            <div class="panel">
+                <div class="panel-title">
+                    🧊 1111km Cube‑Sphere (SCAD)
+                    <span style="font-size:0.7rem; color:#aaf;">scale: 1111</span>
+                </div>
+                <div class="cube-sphere-container" id="threeContainer">
+                    <canvas id="threeCanvas"></canvas>
+                </div>
+                <div class="reg-row">
+                    <div class="reg-item"><span class="label">Radius</span> <span class="value" id="radiusDisplay">1111</span></div>
+                    <div class="reg-item"><span class="label">Cube size</span> <span class="value" id="cubeDisplay">2222</span></div>
+                    <div class="reg-item"><span class="label">Growth multiplier</span> <span class="value" id="growthDisplay">1.0×</span></div>
+                </div>
+                <div class="controls">
+                    <button id="growBtn" class="gold">🌱 Grow from outside</button>
+                    <button id="shrinkBtn">📉 Shrink</button>
+                    <button id="resetScadBtn" class="danger">⟲ Reset</button>
+                    <button id="exportScadBtn">📐 Export SCAD</button>
+                </div>
+                <div class="status" id="scadStatus">⚡ Cube‑sphere ready. Grow it from outside.</div>
+
+                <div class="panel-title" style="margin-top:6px;">📜 OpenSCAD Manifest</div>
+                <div class="scad-box" id="scadOutput">// SCAD code will appear here</div>
+            </div>
+
+            <!-- RIGHT: RECURSION + SELF‑HEAL + TERMINAL -->
+            <div class="panel">
+                <div class="panel-title">
+                    ♾️ Infinite Recursion · Self‑Heal
+                    <span style="font-size:0.7rem; color:#aaf;">depth: <span id="depthDisplay">0</span></span>
+                </div>
+                <div class="controls">
+                    <button id="goInsideBtn" class="gold">🌀 Go Inside Itself</button>
+                    <button id="closeInsideBtn" class="danger">❌ Close Inner</button>
+                    <button id="resetRecursionBtn" class="danger">⟲ Reset</button>
+                    <button id="selfReplicateBtn">📋 Self‑Replicate (clone)</button>
+                </div>
+                <div class="recursive-iframe-container" id="recursiveContainer">
+                    <iframe id="recursiveIframe" srcdoc="<html><body style='background:#000;color:#0ff;display:flex;align-items:center;justify-content:center;font-family:monospace;'>🌀 Click 'Go Inside Itself'</body></html>"></iframe>
+                </div>
+                <div class="depth-counter" id="depthCounter">Depth: 0</div>
+
+                <div class="panel-title" style="margin-top:6px;">🩹 Self‑Heal Engine</div>
+                <div class="controls">
+                    <button id="injectHealBtn">💉 Inject Heal Code</button>
+                    <button id="simulateBreakBtn" class="danger">💥 Simulate Break</button>
+                </div>
+                <div class="heal-log" id="healLog">
+                    <div>⏳ Self‑heal ready. Use 'Inject Heal Code' to repair.</div>
+                </div>
+
+                <div class="panel-title" style="margin-top:6px;">📡 Terminal</div>
+                <div class="terminal" id="terminal">
+                    <div class="out">> SCAD Universe initialized.</div>
+                    <div class="out">> Grow the cube‑sphere or go inside.</div>
+                </div>
+                <div class="controls">
+                    <button id="clearTermBtn" class="danger">🗑️ CLEAR</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="status" style="text-align:center; margin-top:12px; position:relative; z-index:1;">
+            ⚡ SCAD Universe · 1111km · Self‑replicating · Infinite recursion · Self‑healing
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- Three.js from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+    // ================================================================
+    // SCAD UNIVERSE · 1111km Cube‑Sphere · Self‑Replicating · Self‑Heal
+    // ================================================================
+
+    // ----- 1. GLOBAL STATE -----
+    let radius = 1111;
+    let growth = 1.0;
+    let recursionDepth = 0;
+    let isRecursiveOpen = false;
+    let scene, camera, renderer;
+    let cubeMesh, sphereMesh;
+    let healHistory = [];
+
+    // ----- 2. DOM REFS -----
+    const $ = id => document.getElementById(id);
+    const radiusDisplay = $('radiusDisplay');
+    const cubeDisplay = $('cubeDisplay');
+    const growthDisplay = $('growthDisplay');
+    const scadOutput = $('scadOutput');
+    const scadStatus = $('scadStatus');
+    const depthDisplay = $('depthDisplay');
+    const depthCounter = $('depthCounter');
+    const terminal = $('terminal');
+    const healLog = $('healLog');
+    const recursiveContainer = $('recursiveContainer');
+    const recursiveIframe = $('recursiveIframe');
+    const threeContainer = $('threeContainer');
+    const threeCanvas = $('threeCanvas');
+    const toast = $('toast');
+
+    // ----- 3. TOAST -----
+    function showToast(msg, duration = 2000) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // ----- 4. TERMINAL I/O -----
+    function terminalWrite(text, type = 'out') {
+        const entry = document.createElement('div');
+        entry.className = type;
+        entry.textContent = text;
+        terminal.appendChild(entry);
+        terminal.scrollTop = terminal.scrollHeight;
+        if (terminal.children.length > 50) terminal.removeChild(terminal.firstChild);
+    }
+
+    function clearTerminal() {
+        terminal.innerHTML = '';
+        terminalWrite('> Terminal cleared.');
+    }
+
+    // ----- 5. THREE.JS CUBE‑SPHERE SETUP -----
+    function initThree() {
+        const width = threeContainer.clientWidth;
+        const height = threeContainer.clientHeight;
+
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x010105);
+
+        camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+        camera.position.set(3000, 2000, 3000);
+        camera.lookAt(0, 0, 0);
+
+        renderer = new THREE.WebGLRenderer({ canvas: threeCanvas, antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Lights
+        const ambient = new THREE.AmbientLight(0x334466);
+        scene.add(ambient);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(2000, 3000, 2000);
+        scene.add(dirLight);
+        const fillLight = new THREE.PointLight(0x00ffff, 0.5);
+        fillLight.position.set(-2000, 1000, -2000);
+        scene.add(fillLight);
+
+        // Grid (floor)
+        const gridHelper = new THREE.GridHelper(4000, 20, 0x00ffff, 0x224466);
+        gridHelper.position.y = -1000;
+        scene.add(gridHelper);
+
+        // Cube
+        const cubeSize = radius * 2;
+        const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+        const cubeMat = new THREE.MeshStandardMaterial({
+            color: 0x224466,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.3,
+            emissive: 0x004488,
+            emissiveIntensity: 0.2
+        });
+        cubeMesh = new THREE.Mesh(cubeGeo, cubeMat);
+        scene.add(cubeMesh);
+
+        // Sphere (inside)
+        const sphereGeo = new THREE.SphereGeometry(radius * 0.7, 48, 48);
+        const sphereMat = new THREE.MeshStandardMaterial({
+            color: 0x00ffff,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.6,
+            emissive: 0x00ffff,
+            emissiveIntensity: 0.3
+        });
+        sphereMesh = new THREE.Mesh(sphereGeo, sphereMat);
+        scene.add(sphereMesh);
+
+        // Particles (stars)
+        const starCount = 2000;
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = [];
+        for (let i = 0; i < starCount; i++) {
+            starPos.push((Math.random() - 0.5) * 6000);
+            starPos.push((Math.random() - 0.5) * 4000);
+            starPos.push((Math.random() - 0.5) * 6000);
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0x88aaff, size: 3, transparent: true, opacity: 0.6 });
+        const stars = new THREE.Points(starGeo, starMat);
+        scene.add(stars);
+
+        animate();
+        window.addEventListener('resize', resizeThree);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        if (cubeMesh) cubeMesh.rotation.x += 0.001;
+        if (cubeMesh) cubeMesh.rotation.y += 0.002;
+        if (sphereMesh) sphereMesh.rotation.x -= 0.002;
+        if (sphereMesh) sphereMesh.rotation.y += 0.001;
+        renderer.render(scene, camera);
+    }
+
+    function resizeThree() {
+        const width = threeContainer.clientWidth;
+        const height = threeContainer.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+    }
+
+    function updateScene() {
+        const cubeSize = radius * 2;
+        cubeMesh.scale.set(1, 1, 1);
+        cubeMesh.geometry.dispose();
+        cubeMesh.geometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+        const sphereSize = radius * 0.7 * growth;
+        sphereMesh.geometry.dispose();
+        sphereMesh.geometry = new THREE.SphereGeometry(sphereSize, 48, 48);
+
+        radiusDisplay.textContent = Math.round(radius);
+        cubeDisplay.textContent = Math.round(cubeSize);
+        growthDisplay.textContent = growth.toFixed(2) + '×';
+        updateSCAD();
+    }
+
+    // ----- 6. GROWTH CONTROLS -----
+    function grow() {
+        growth *= 1.15;
+        radius *= 1.05;
+        if (radius > 5000) radius = 5000;
+        updateScene();
+        terminalWrite(`🌱 Grown to radius ${Math.round(radius)} (${growth.toFixed(2)}×)`);
+        showToast(`🌱 Grown to ${Math.round(radius)}`, 1000);
+    }
+
+    function shrink() {
+        growth /= 1.15;
+        radius /= 1.05;
+        if (radius < 100) radius = 100;
+        updateScene();
+        terminalWrite(`📉 Shrunk to radius ${Math.round(radius)} (${growth.toFixed(2)}×)`);
+        showToast(`📉 Shrunk to ${Math.round(radius)}`, 1000);
+    }
+
+    function resetScad() {
+        radius = 1111;
+        growth = 1.0;
+        updateScene();
+        terminalWrite('⟲ SCAD Universe reset.');
+        showToast('⟲ Reset.', 1000);
+    }
+
+    // ----- 7. SCAD GENERATOR -----
+    function updateSCAD() {
+        const cubeSize = radius * 2;
+        const sphereSize = radius * 0.7 * growth;
+        const code = `// SCAD Universe · 1111km Cube‑Sphere
+// Radius: ${Math.round(radius)} km
+// Growth: ${growth.toFixed(2)}×
+// Generated: ${new Date().toISOString()}
+
+module cube_sphere_universe() {
+    // Outer cube (1111km scale)
+    difference() {
+        cube([${cubeSize}, ${cubeSize}, ${cubeSize}], center=true);
+        // Inner sphere (growing)
+        sphere(r=${sphereSize}, $fn=64);
+    }
+    // Wireframe sphere inside
+    %sphere(r=${sphereSize}, $fn=48);
+}
+
+cube_sphere_universe();
+
+// Depth: ${recursionDepth} · Self‑replicating: true
+// Self‑heal: active`;
+        scadOutput.textContent = code;
+    }
+
+    function exportSCAD() {
+        const code = scadOutput.textContent;
+        const blob = new Blob([code], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `scad_universe_${Date.now()}.scad`;
+        a.click();
+        URL.revokeObjectURL(url);
+        terminalWrite('📐 SCAD file exported.');
+        showToast('📐 Exported SCAD.', 1000);
+    }
+
+    // ----- 8. RECURSION (Go inside itself) -----
+    function goInsideItself() {
+        if (isRecursiveOpen) {
+            showToast('⚠️ Already inside. Close first.', 1000);
+            return;
+        }
+        const html = document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        recursiveIframe.src = url;
+        recursiveContainer.classList.add('open');
+        isRecursiveOpen = true;
+        recursionDepth++;
+        updateRecursionUI();
+        terminalWrite(`🌀 Entered depth ${recursionDepth}`);
+        showToast(`🌀 Depth ${recursionDepth} opened.`, 1500);
+        // Pass state to inner frame
+        recursiveIframe.onload = () => {
+            try {
+                recursiveIframe.contentWindow.postMessage({
+                    type: 'init',
+                    depth: recursionDepth,
+                    radius: radius,
+                    growth: growth
+                }, '*');
+            } catch (e) {}
+        };
+    }
+
+    function closeInside() {
+        if (!isRecursiveOpen) return;
+        recursiveContainer.classList.remove('open');
+        recursiveIframe.src = 'about:blank';
+        isRecursiveOpen = false;
+        terminalWrite('❌ Inner frame closed.');
+        showToast('❌ Closed.', 1000);
+    }
+
+    function resetRecursion() {
+        closeInside();
+        recursionDepth = 0;
+        updateRecursionUI();
+        terminalWrite('⟲ Recursion reset.');
+        showToast('⟲ Reset.', 1000);
+    }
+
+    function updateRecursionUI() {
+        depthDisplay.textContent = recursionDepth;
+        depthCounter.textContent = `Depth: ${recursionDepth}`;
+    }
+
+    // ----- 9. SELF‑REPLICATE (clone) -----
+    function selfReplicate() {
+        const html = document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `scad_universe_clone_${Date.now()}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+        terminalWrite('📋 Self‑replicated – clone downloaded.');
+        showToast('📋 Clone saved.', 1500);
+        // Increment depth as if a new self was born
+        recursionDepth++;
+        updateRecursionUI();
+    }
+
+    // ----- 10. SELF‑HEAL ENGINE -----
+    function injectHeal() {
+        // Simulate healing by checking if the page is intact
+        const now = Date.now();
+        healHistory.push({ time: now, action: 'heal', message: 'Self‑heal cycle executed.' });
+        // Repair any missing elements (simulated)
+        const healMsg = `🩹 Heal injected at ${new Date().toLocaleTimeString()}. All systems nominal.`;
+        healLog.innerHTML = `<div style="color:#0f0;">✓ ${healMsg}</div>` + healLog.innerHTML;
+        terminalWrite('💉 Self‑heal code injected. Systems restored.');
+        showToast('🩹 Heal complete.', 1500);
+        // If iframe open, send heal
+        if (isRecursiveOpen) {
+            try {
+                recursiveIframe.contentWindow.postMessage({ type: 'heal', message: 'Heal from outer' }, '*');
+            } catch (e) {}
+        }
+    }
+
+    function simulateBreak() {
+        // Simulate a break by adding an error to the log
+        const errorMsg = `💥 Simulated break at ${new Date().toLocaleTimeString()}. System faltering...`;
+        healLog.innerHTML = `<div style="color:#f44;">✗ ${errorMsg}</div>` + healLog.innerHTML;
+        terminalWrite('💥 Simulated break – use Inject Heal to repair.');
+        showToast('💥 Break simulated. Heal needed.', 1000);
+    }
+
+    // ----- 11. MESSAGE LISTENER (for inner frame communication) -----
+    window.addEventListener('message', (e) => {
+        const data = e.data;
+        if (data.type === 'init') {
+            if (data.depth) {
+                recursionDepth = data.depth;
+                updateRecursionUI();
+            }
+            if (data.radius) {
+                radius = data.radius;
+                growth = data.growth || 1.0;
+                updateScene();
+            }
+            terminalWrite(`📡 Received init from inner (depth ${data.depth})`);
+        }
+        if (data.type === 'heal') {
+            healLog.innerHTML = `<div style="color:#0f0;">📡 Heal from outer: ${data.message}</div>` + healLog.innerHTML;
+            terminalWrite('📡 Received heal signal from outer.');
+        }
+        if (data.type === 'grow') {
+            grow();
+        }
+        if (data.type === 'self_replicate') {
+            selfReplicate();
+        }
+    });
+
+    // ----- 12. EVENT BINDING -----
+    document.getElementById('growBtn').addEventListener('click', grow);
+    document.getElementById('shrinkBtn').addEventListener('click', shrink);
+    document.getElementById('resetScadBtn').addEventListener('click', resetScad);
+    document.getElementById('exportScadBtn').addEventListener('click', exportSCAD);
+
+    document.getElementById('goInsideBtn').addEventListener('click', goInsideItself);
+    document.getElementById('closeInsideBtn').addEventListener('click', closeInside);
+    document.getElementById('resetRecursionBtn').addEventListener('click', resetRecursion);
+    document.getElementById('selfReplicateBtn').addEventListener('click', selfReplicate);
+
+    document.getElementById('injectHealBtn').addEventListener('click', injectHeal);
+    document.getElementById('simulateBreakBtn').addEventListener('click', simulateBreak);
+
+    document.getElementById('clearTermBtn').addEventListener('click', clearTerminal);
+
+    // ----- 13. INIT -----
+    function init() {
+        initThree();
+        updateScene();
+        updateRecursionUI();
+        terminalWrite('> SCAD Universe ready. Grow, go inside, replicate, heal.');
+        showToast('🌀 SCAD Universe initialized.', 2500);
+    }
+
+    init();
+</script>
+</body>
+</html>

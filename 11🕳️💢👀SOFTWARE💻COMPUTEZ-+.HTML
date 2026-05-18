@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🔮 Perfect Consensus Computer · Unicode AI Swarm + Loopback</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #010312;
+      color: #eef;
+      font-family: 'Fira Code', monospace;
+      padding: 10px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container { max-width: 1500px; width:100%; }
+    .glass {
+      background: rgba(6,10,24,0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid #2e4268;
+      border-radius: 24px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.8);
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      text-align: center;
+      background: linear-gradient(135deg, #0ff, #f0f, #ff0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 3px;
+    }
+    .sub { text-align:center; color:#aaccff; font-size:0.75rem; margin-bottom:10px; }
+    .main-grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width:850px){ .main-grid { grid-template-columns:1fr; } }
+    .panel {
+      background: rgba(0,5,15,0.8);
+      border-radius: 18px;
+      border: 1px solid #2a4a7a;
+      padding: 12px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .panel-title {
+      font-weight: bold; font-size: 0.8rem; color: #0ff;
+      border-bottom: 1px solid #2a4a7a; padding-bottom: 4px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 5px;
+      background: #010118;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid #2a4a7a;
+      min-height: 300px;
+    }
+    .node-cell {
+      aspect-ratio: 1/1;
+      background: #0a0a1a;
+      border: 1px solid #1a2a3a;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      position: relative;
+      font-size: 0.7rem;
+    }
+    .node-cell:hover { border-color: #0ff; box-shadow: 0 0 12px rgba(0,255,255,0.5); transform: scale(1.03); }
+    .node-cell.selected { border-color: #fff !important; box-shadow: 0 0 20px #fff; background: #1a2a4a; }
+    .node-char { font-size: 1.6rem; font-weight: bold; }
+    .value-display { font-size: 0.7rem; color: #ffb800; }
+    .consensus-bar {
+      width: 100%; height: 3px; background: #1a2a3a; border-radius: 2px;
+      margin-top: 2px; overflow: hidden;
+    }
+    .consensus-fill { height: 100%; background: #0f8; transition: width 0.3s; }
+    .stats-row { display:flex; gap:10px; flex-wrap:wrap; font-size:0.7rem; }
+    .stat { background:#010118; border:1px solid #2a4a7a; border-radius:12px; padding:3px 10px; }
+    .stat .lbl { color:#88aaff; } .stat .val { color:#fff; font-weight:bold; }
+    .controls { display:flex; gap:6px; flex-wrap:wrap; }
+    button {
+      background:#1f2a4a; border:1px solid #0ff; border-radius:30px;
+      padding:5px 14px; color:#fff; cursor:pointer; font-weight:bold;
+      font-family:inherit; font-size:0.7rem; transition:0.2s; white-space:nowrap;
+    }
+    button:hover { background:#0ff; color:#000; box-shadow:0 0 14px #0ff; transform:translateY(-1px); }
+    button:active { transform:scale(0.94); }
+    button.gold { border-color:#ffb800; } button.gold:hover { background:#ffb800; color:#000; }
+    button.danger { border-color:#ff4477; } button.danger:hover { background:#ff4477; }
+    button.magenta { border-color:#f0f; } button.magenta:hover { background:#f0f; color:#000; }
+    button.green { border-color:#0f8; } button.green:hover { background:#0f8; color:#000; }
+    .terminal {
+      background:#010118; border-radius:10px; padding:8px; height:130px;
+      overflow-y:auto; font-size:0.6rem; font-family:monospace;
+      border:1px solid #2a4a7a; color:#aaf; line-height:1.5;
+    }
+    .terminal .out { color:#0ff; } .terminal .info { color:#88ff88; } .terminal .warn { color:#ffaa00; }
+    .toast {
+      position:fixed; bottom:25px; right:25px; background:#010105;
+      border:1px solid #0ff; border-radius:40px; padding:10px 24px;
+      color:#fff; box-shadow:0 8px 24px rgba(0,0,0,0.7);
+      opacity:0; transform:translateY(20px); transition:0.3s;
+      pointer-events:none; z-index:9999; font-size:0.8rem; max-width:400px;
+    }
+    .toast.show { opacity:1; transform:translateY(0); }
+    .perfection-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      display: inline-block;
+      background: #0f0;
+      color: #000;
+      animation: perfectionPulse 1s infinite;
+    }
+    @keyframes perfectionPulse { 0%,100% { box-shadow: 0 0 10px #0f0; } 50% { box-shadow: 0 0 30px #0f0; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>🔮⚡ Perfect Consensus Computer</h1>
+    <div class="sub">
+      <span id="perfectBadge" class="perfection-badge" style="display:none;">✅ PERFECT</span>
+      Unicode nodes gossip until mathematical agreement · AI optimizes convergence · Loopback self‑improvement
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: NODE GRID (64 nodes) -->
+    <div class="panel">
+      <div class="panel-title">
+        🧠 Consensus Nodes (8×8)
+        <span id="varianceDisplay" style="font-size:0.65rem;">Variance: —</span>
+      </div>
+      <div class="node-grid" id="nodeGrid"></div>
+      <div class="stats-row">
+        <div class="stat"><span class="lbl">True Average</span> <span class="val" id="trueAvg">—</span></div>
+        <div class="stat"><span class="lbl">Consensus Value</span> <span class="val" id="consensusVal">—</span></div>
+        <div class="stat"><span class="lbl">Iterations</span> <span class="val" id="iterationCount">0</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: CONTROLS & LOOPBACK AI -->
+    <div class="panel">
+      <div class="panel-title">
+        ⚙️ Consensus Engine & AI Optimization
+        <span style="font-size:0.65rem;">learning rate α=0.3</span>
+      </div>
+      <div class="stats-row">
+        <div class="stat"><span class="lbl">Current α</span> <span class="val" id="alphaValue">0.3</span></div>
+        <div class="stat"><span class="lbl">Convergence time</span> <span class="val" id="convTime">— ms</span></div>
+        <div class="stat"><span class="lbl">Self‑improves</span> <span class="val" id="improveCount">0</span></div>
+      </div>
+      <div class="controls">
+        <button id="initRandomBtn" class="gold">🎲 Initialize Random Values</button>
+        <button id="runConsensusBtn" class="magenta">🔁 Run to Consensus</button>
+        <button id="stepConsensusBtn">🐝 Single Gossip Step</button>
+      </div>
+      <div class="controls">
+        <button id="autoLoopbackBtn" class="green">▶️ Auto Loopback (optimize α)</button>
+        <button id="stopLoopbackBtn" class="danger">⏹️ Stop</button>
+        <button id="resetAllBtn">⚪ Reset System</button>
+      </div>
+      <div class="panel-title" style="margin-top:6px;">📡 Terminal · Convergence Log</div>
+      <div class="terminal" id="terminal">
+        <div class="out">> Perfect Consensus Computer ready.</div>
+        <div class="info">> Initialize random values, then run consensus.</div>
+        <div class="out">> AI will optimize learning rate for perfect agreement.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  (() => {
+    // ── Configuration ─────────────────────────────
+    const GRID_ROWS = 8, GRID_COLS = 8, NODE_COUNT = GRID_ROWS * GRID_COLS;
+    let nodes = [];                // each node: { id, value, char }
+    let trueAverage = 0;
+    let iterationCount = 0;
+    let learningRate = 0.3;       // α
+    let convergenceTime = 0;
+    let selfImproves = 0;
+    let loopbackInterval = null;
+    let selectedNodeId = null;
+    let perfectReached = false;
+
+    // ── DOM elements ──────────────────────────────
+    const $ = id => document.getElementById(id);
+    const nodeGridEl = $('#nodeGrid');
+    const varianceDisplay = $('#varianceDisplay');
+    const trueAvgEl = $('#trueAvg');
+    const consensusValEl = $('#consensusVal');
+    const iterationCountEl = $('#iterationCount');
+    const alphaValueEl = $('#alphaValue');
+    const convTimeEl = $('#convTime');
+    const improveCountEl = $('#improveCount');
+    const terminalEl = $('#terminal');
+    const perfectBadge = $('#perfectBadge');
+    const toastEl = $('#toast');
+
+    function toast(msg, dur=2000) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastEl._t);
+      toastEl._t = setTimeout(() => toastEl.classList.remove('show'), dur);
+    }
+    function term(msg, cls='out') {
+      const div = document.createElement('div');
+      div.className = cls;
+      div.textContent = '> ' + msg;
+      terminalEl.appendChild(div);
+      terminalEl.scrollTop = terminalEl.scrollHeight;
+      while (terminalEl.children.length > 35) terminalEl.removeChild(terminalEl.firstChild);
+    }
+
+    // ── Unicode characters for nodes ──────────────
+    const CHARS = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψωΓΔΘΛΞΠΣΦΨΩ∫∮∑∏√∞∠∧∨∩∪∴∀∃∈∉∋∌⊂⊃⊆⊇⊕⊗⊥⋅';
+    function getRandomChar() { return CHARS[Math.floor(Math.random() * CHARS.length)]; }
+
+    // ── Initialize nodes with random values ───────
+    function initRandomValues() {
+      nodes = [];
+      for (let i = 0; i < NODE_COUNT; i++) {
+        nodes.push({
+          id: i,
+          value: Math.random() * 200 - 100, // random between -100 and 100
+          char: getRandomChar()
+        });
+      }
+      // Compute true average
+      trueAverage = nodes.reduce((s, n) => s + n.value, 0) / NODE_COUNT;
+      iterationCount = 0;
+      perfectReached = false;
+      perfectBadge.style.display = 'none';
+      selectedNodeId = null;
+      renderGrid();
+      updateStats();
+      term('🎲 Initialized nodes with random values in [-100, 100].');
+      term(`True average: ${trueAverage.toFixed(4)}`);
+    }
+
+    // ── Render the 8×8 grid ───────────────────────
+    function renderGrid() {
+      let html = '';
+      nodes.forEach((node, idx) => {
+        const row = Math.floor(idx / GRID_COLS);
+        const col = idx % GRID_COLS;
+        const selClass = selectedNodeId === node.id ? ' selected' : '';
+        // Color based on deviation from true average (if known)
+        const deviation = trueAverage !== undefined ? Math.abs(node.value - trueAverage) : 0;
+        const maxDev = 100;
+        const t = Math.min(1, deviation / maxDev);
+        const r = Math.floor(255 * t);
+        const g = Math.floor(255 * (1 - t));
+        const b = 100;
+        const color = `rgb(${r},${g},${b})`;
+        // Consensus fill bar shows how close to consensus (variance)
+        const fillPercent = trueAverage !== undefined ? Math.max(0, 100 - deviation * 5) : 0;
+        html += `
+          <div class="node-cell${selClass}" data-id="${node.id}" style="border-color: ${color}55;">
+            <div class="node-char" style="color:${color}; text-shadow: 0 0 8px ${color};">${node.char}</div>
+            <div class="value-display">${node.value.toFixed(1)}</div>
+            <div class="consensus-bar"><div class="consensus-fill" style="width:${fillPercent}%;"></div></div>
+          </div>
+        `;
+      });
+      nodeGridEl.innerHTML = html;
+      // Click events
+      nodeGridEl.querySelectorAll('.node-cell').forEach(el => {
+        el.addEventListener('click', function() {
+          const id = parseInt(this.dataset.id);
+          selectedNodeId = id;
+          renderGrid();
+          updateStats();
+          const node = nodes[id];
+          term(`Selected node ${node.char} (id:${id}) value=${node.value.toFixed(4)}`);
+        });
+      });
+      updateStats();
+    }
+
+    // ── Compute current variance ──────────────────
+    function computeVariance() {
+      if (nodes.length === 0) return Infinity;
+      const avg = nodes.reduce((s, n) => s + n.value, 0) / nodes.length;
+      const variance = nodes.reduce((s, n) => s + (n.value - avg) ** 2, 0) / nodes.length;
+      return variance;
+    }
+
+    // ── Update UI stats ───────────────────────────
+    function updateStats() {
+      if (nodes.length === 0) return;
+      const variance = computeVariance();
+      varianceDisplay.textContent = `Variance: ${variance.toExponential(2)}`;
+      trueAvgEl.textContent = trueAverage.toFixed(4);
+      // current consensus average
+      const currentAvg = nodes.reduce((s, n) => s + n.value, 0) / nodes.length;
+      consensusValEl.textContent = currentAvg.toFixed(4);
+      iterationCountEl.textContent = iterationCount;
+      alphaValueEl.textContent = learningRate.toFixed(3);
+      convTimeEl.textContent = convergenceTime ? `${convergenceTime} ms` : '—';
+      improveCountEl.textContent = selfImproves;
+
+      // Check for perfection: variance < 1e-9 (practically zero)
+      if (variance < 1e-9 && !perfectReached && nodes.length > 0) {
+        perfectReached = true;
+        perfectBadge.style.display = 'inline-block';
+        term('✅ PERFECT CONSENSUS ACHIEVED! Variance < 1e-9', 'info');
+        toast('🎯 Perfect agreement!', 3000);
+      }
+    }
+
+    // ── Single gossip step (synchronous update) ───
+    function gossipStep() {
+      if (nodes.length === 0) return;
+      // Each node averages its value with its four neighbors (toroidal wrap)
+      const newValues = nodes.map((node, idx) => {
+        const row = Math.floor(idx / GRID_COLS);
+        const col = idx % GRID_COLS;
+        const neighbors = [];
+        // up, down, left, right
+        const dirs = [[-1,0],[1,0],[0,-1],[0,1]];
+        for (let [dr, dc] of dirs) {
+          const nr = (row + dr + GRID_ROWS) % GRID_ROWS;
+          const nc = (col + dc + GRID_COLS) % GRID_COLS;
+          neighbors.push(nr * GRID_COLS + nc);
+        }
+        // average of neighbor values
+        const avgNeighbor = neighbors.reduce((s, nid) => s + nodes[nid].value, 0) / neighbors.length;
+        // move toward neighbor average with learning rate
+        return node.value + learningRate * (avgNeighbor - node.value);
+      });
+      // Update all nodes synchronously
+      nodes.forEach((node, i) => { node.value = newValues[i]; });
+      iterationCount++;
+    }
+
+    // ── Run gossip until convergence ──────────────
+    function runToConsensus() {
+      if (nodes.length === 0) {
+        toast('Initialize values first!');
+        return;
+      }
+      const startTime = performance.now();
+      const maxIter = 5000;
+      let iter = 0;
+      while (iter < maxIter) {
+        gossipStep();
+        const variance = computeVariance();
+        if (variance < 1e-12) break;
+        iter++;
+      }
+      convergenceTime = Math.round(performance.now() - startTime);
+      renderGrid();
+      updateStats();
+      term(`🔁 Consensus run finished in ${iter} iterations (${convergenceTime}ms).`);
+    }
+
+    // ── AI Loopback: optimize learning rate ───────
+    // After each consensus run, adjust alpha based on convergence speed.
+    function optimizeLearningRate() {
+      // Simple hill-climbing: if last convergence was fast, increase α slightly; else decrease.
+      // We store last convergence time. But we need a baseline. We'll use a simple rule:
+      // aim for convergence time < 50ms. If time is <50ms, α can increase; else decrease.
+      const targetTime = 50; // ms
+      if (convergenceTime === 0) return; // no data yet
+      const oldAlpha = learningRate;
+      if (convergenceTime < targetTime && learningRate < 0.95) {
+        learningRate = Math.min(0.95, learningRate + 0.02);
+      } else if (convergenceTime > targetTime * 2 && learningRate > 0.05) {
+        learningRate = Math.max(0.05, learningRate - 0.02);
+      }
+      if (Math.abs(learningRate - oldAlpha) > 0.001) {
+        selfImproves++;
+        term(`🧠 AI optimized α: ${oldAlpha.toFixed(3)} → ${learningRate.toFixed(3)} (conv time ${convergenceTime}ms)`, 'info');
+      }
+    }
+
+    // ── Full loopback cycle: re-init, run, optimize ──
+    function loopbackCycle() {
+      initRandomValues();
+      runToConsensus();
+      optimizeLearningRate();
+      updateStats();
+    }
+
+    // ── Auto loopback ─────────────────────────────
+    function startAutoLoopback(intervalMs = 2000) {
+      if (loopbackInterval) clearInterval(loopbackInterval);
+      loopbackInterval = setInterval(loopbackCycle, intervalMs);
+      term('▶️ Auto loopback started (randomize → consensus → optimize α).', 'info');
+    }
+    function stopAutoLoopback() {
+      if (loopbackInterval) { clearInterval(loopbackInterval); loopbackInterval = null; }
+      term('⏹️ Auto loopback stopped.', 'warn');
+    }
+
+    // ── Reset everything ──────────────────────────
+    function resetSystem() {
+      stopAutoLoopback();
+      nodes = [];
+      trueAverage = 0;
+      iterationCount = 0;
+      learningRate = 0.3;
+      convergenceTime = 0;
+      selfImproves = 0;
+      perfectReached = false;
+      perfectBadge.style.display = 'none';
+      selectedNodeId = null;
+      renderGrid();
+      updateStats();
+      term('⚪ System reset to empty state.', 'info');
+    }
+
+    // ── Event binding ─────────────────────────────
+    function bindEvents() {
+      $('#initRandomBtn').addEventListener('click', initRandomValues);
+      $('#runConsensusBtn').addEventListener('click', runToConsensus);
+      $('#stepConsensusBtn').addEventListener('click', () => {
+        gossipStep(); renderGrid(); updateStats();
+        term(`🐝 Gossip step ${iterationCount} done.`);
+      });
+      $('#autoLoopbackBtn').addEventListener('click', () => startAutoLoopback(2500));
+      $('#stopLoopbackBtn').addEventListener('click', stopAutoLoopback);
+      $('#resetAllBtn').addEventListener('click', resetSystem);
+    }
+
+    // ── Initialization ────────────────────────────
+    function init() {
+      bindEvents();
+      resetSystem(); // start clean
+      term('🔮 Perfect Consensus Computer active.');
+      term('Press "Initialize Random Values" to start.');
+    }
+    init();
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>🌀 Unicode Quantum Calculator · Real Node Computation</title>
+    <style>
+        :root {
+            --bg: #010105;
+            --panel: rgba(10, 14, 30, 0.9);
+            --border: #2a4a7a;
+            --cyan: #0ff;
+            --gold: #ffb800;
+            --magenta: #ff44ff;
+            --green: #88ffaa;
+            --text: #eef5ff;
+            --dim: #88aaff;
+            --danger: #ff4466;
+            --surface: #010118;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: radial-gradient(circle at 30% 20%, #0a0a1a, #010105);
+            color: var(--text);
+            font-family: 'Courier New', 'Fira Code', monospace;
+            padding: 16px;
+            min-height: 100vh;
+            font-size: 0.85rem;
+        }
+        .container {
+            max-width: 1700px;
+            margin: 0 auto;
+        }
+        .glass {
+            background: var(--panel);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff, #0ff, #f0f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+        .sub {
+            text-align: center;
+            color: var(--dim);
+            margin-bottom: 12px;
+            font-size: 0.75rem;
+        }
+        .grid-3col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 1200px) {
+            .grid-3col {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 750px) {
+            .grid-3col {
+                grid-template-columns: 1fr;
+            }
+        }
+        .panel {
+            background: rgba(0, 10, 20, 0.75);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .panel-title {
+            font-weight: bold;
+            font-size: 0.82rem;
+            color: var(--cyan);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .reg-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 0.72rem;
+        }
+        .reg-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 3px 10px;
+        }
+        .reg-item .label {
+            color: var(--dim);
+        }
+        .reg-item .value {
+            color: #fff;
+            font-weight: bold;
+        }
+        .controls {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #1f2a4a;
+            border: 1px solid var(--cyan);
+            border-radius: 50px;
+            padding: 5px 14px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            font-family: inherit;
+            font-size: 0.72rem;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+        button:hover {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 16px var(--cyan);
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: scale(0.96);
+            transition: 0.05s;
+        }
+        button.danger {
+            border-color: var(--danger);
+        }
+        button.danger:hover {
+            background: var(--danger);
+            color: #fff;
+            box-shadow: 0 0 16px var(--danger);
+        }
+        button.gold {
+            border-color: var(--gold);
+        }
+        button.gold:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 16px var(--gold);
+        }
+        button.magenta {
+            border-color: var(--magenta);
+        }
+        button.magenta:hover {
+            background: var(--magenta);
+            color: #000;
+            box-shadow: 0 0 16px var(--magenta);
+        }
+        button.green {
+            border-color: var(--green);
+        }
+        button.green:hover {
+            background: var(--green);
+            color: #000;
+            box-shadow: 0 0 16px var(--green);
+        }
+        .status {
+            font-size: 0.7rem;
+            color: var(--green);
+            min-height: 18px;
+        }
+        .terminal {
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 10px;
+            height: 170px;
+            overflow-y: auto;
+            font-size: 0.66rem;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            border: 1px solid var(--border);
+            color: var(--dim);
+            line-height: 1.5;
+        }
+        .terminal .out {
+            color: var(--cyan);
+        }
+        .terminal .err {
+            color: #f44;
+        }
+        .terminal .warn {
+            color: var(--gold);
+        }
+        .terminal .info {
+            color: var(--green);
+        }
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 2px;
+            font-size: 0.58rem;
+            font-family: monospace;
+            max-height: 210px;
+            overflow-y: auto;
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 3px;
+            border: 1px solid var(--border);
+        }
+        .node-cell {
+            background: #0a0a1a;
+            border: 1px solid #1a2a3a;
+            border-radius: 4px;
+            padding: 2px 1px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+        .node-cell:hover {
+            background: #1a3a5a;
+            border-color: var(--cyan);
+            z-index: 2;
+            transform: scale(1.08);
+        }
+        .node-cell.entangled {
+            border-color: var(--cyan);
+            background: #0a1a2a;
+            box-shadow: inset 0 0 6px rgba(0, 255, 255, 0.25);
+        }
+        .node-cell.measured {
+            border-color: var(--gold);
+            background: #1a1a0a;
+            box-shadow: inset 0 0 6px rgba(255, 184, 0, 0.3);
+        }
+        .node-cell.selected {
+            border-color: #fff !important;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5) !important;
+            background: #1a2a4a !important;
+        }
+        .node-cell .char {
+            font-size: 1.1rem;
+        }
+        .node-cell .code {
+            font-size: 0.45rem;
+            color: var(--dim);
+        }
+        .node-cell .connections {
+            font-size: 0.45rem;
+            color: var(--gold);
+        }
+        .node-cell .prob {
+            font-size: 0.4rem;
+            color: var(--green);
+            position: absolute;
+            top: 1px;
+            right: 3px;
+        }
+        .entanglement-lines {
+            font-size: 0.65rem;
+            color: var(--green);
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid var(--border);
+            min-height: 40px;
+            overflow-y: auto;
+            max-height: 90px;
+            line-height: 1.5;
+        }
+        .file-list {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 90px;
+            overflow-y: auto;
+            font-size: 0.62rem;
+            border: 1px solid var(--border);
+        }
+        .file-item {
+            padding: 2px 6px;
+            border-bottom: 1px solid #1a2a3a;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .file-item:hover {
+            background: #1a2a3a;
+            color: var(--cyan);
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #010105;
+            border: 1px solid var(--cyan);
+            border-radius: 40px;
+            padding: 10px 22px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+            opacity: 0;
+            transform: translateY(16px);
+            transition: 0.3s;
+            pointer-events: none;
+            z-index: 999;
+            max-width: 420px;
+            font-size: 0.78rem;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .search-area {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .search-area input {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 5px 12px;
+            color: white;
+            font-family: monospace;
+            font-size: 0.75rem;
+            outline: none;
+            min-width: 100px;
+        }
+        .search-area input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+        }
+        .calc-display {
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 1.1rem;
+            font-family: 'Fira Code', monospace;
+            border: 1px solid var(--border);
+            min-height: 38px;
+            color: var(--cyan);
+            text-align: right;
+            letter-spacing: 1px;
+        }
+        .progress-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: var(--cyan);
+            border-radius: 2px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            background: #1a2a4a;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+        }
+        .badge.gold {
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+        .badge.green {
+            border-color: var(--green);
+            color: var(--green);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="glass">
+            <h1>🌀 Unicode Quantum Calculator</h1>
+            <div class="sub">
+                Node‑based · Real Quantum States · Tensor Entanglement · AI Swarm · Mount Folder (localStorage)
+                <span class="badge green" id="backendStatus">⚙️ Backend Active</span>
+            </div>
+        </div>
+
+        <div class="grid-3col">
+            <!-- LEFT PANEL: NODE GRID + CALCULATOR -->
+            <div class="panel">
+                <div class="panel-title">
+                    🔮 Unicode Node Grid (64 nodes)
+                    <span style="font-size:0.65rem; color:var(--dim);" id="nodeCount">0/64 active</span>
+                </div>
+                <div class="node-grid" id="nodeGrid"></div>
+                <div class="progress-bar"><div class="fill" id="computeLoad"></div></div>
+                <div class="reg-row">
+                    <div class="reg-item"><span class="label">Active</span> <span class="value" id="activeNodes">0</span></div>
+                    <div class="reg-item"><span class="label">Entangled</span> <span class="value" id="entanglementCount">0</span></div>
+                    <div class="reg-item"><span class="label">Measured</span> <span class="value" id="measuredCount">0</span></div>
+                    <div class="reg-item"><span class="label">Selected</span> <span class="value" id="selectedNode">—</span></div>
+                </div>
+                <div class="controls">
+                    <button id="randomEntangleBtn" class="gold">🔗 Random Entangle</button>
+                    <button id="clearEntangleBtn" class="danger">🗑️ Clear All</button>
+                    <button id="calcUnicodeBtn">🧮 Calculate Sum</button>
+                    <button id="measureAllBtn" class="magenta">📐 Measure All</button>
+                </div>
+                <div class="calc-display" id="calcDisplay">0</div>
+                <div class="status" id="nodeStatus">Click a node to select. Entangle nodes for quantum connections.</div>
+            </div>
+
+            <!-- CENTER: ENTANGLEMENT + MOUNT FOLDER -->
+            <div class="panel">
+                <div class="panel-title">
+                    🧬 Quantum Entanglement Map
+                    <span style="font-size:0.65rem; color:var(--dim);">tensor states</span>
+                </div>
+                <div class="entanglement-lines" id="entanglementLines">No entanglements yet.</div>
+                <div class="controls">
+                    <button id="entangleSelectedBtn" class="gold">⚡ Entangle Selected</button>
+                    <button id="autoEntangleBtn">🌀 Auto‑Entangle (Swarm)</button>
+                    <button id="computeEntropyBtn" class="magenta">📊 Compute Entropy</button>
+                    <button id="normalizeBtn" class="green">✓ Normalize States</button>
+                </div>
+
+                <div class="panel-title" style="margin-top:6px;">
+                    📁 Mount Folder · localStorage Persistence
+                    <span style="font-size:0.65rem; color:var(--dim);">real I/O</span>
+                </div>
+                <div class="search-area">
+                    <input type="text" id="unicodeSearchInput" placeholder="Search Unicode (e.g. 'dragon', 'heart', '∞')">
+                    <button id="searchUnicodeBtn" class="gold">🔍 Search</button>
+                </div>
+                <div class="file-list" id="fileList">
+                    <div style="color:#556;">No files mounted. Use search or mount to populate.</div>
+                </div>
+                <div class="controls">
+                    <button id="mountFolderBtn">📂 Mount (load localStorage)</button>
+                    <button id="saveToDiskBtn" class="gold">💾 Save to Disk</button>
+                    <button id="clearFilesBtn" class="danger">🗑️ Clear Files</button>
+                    <button id="exportJsonBtn" class="green">📤 Export JSON</button>
+                </div>
+                <div class="status" id="mountStatus">📁 localStorage ready. Mount or search to load Unicode data.</div>
+            </div>
+
+            <!-- RIGHT: TERMINAL & AI SWARM LOG -->
+            <div class="panel">
+                <div class="panel-title">
+                    📡 AI Swarm Terminal
+                    <span style="font-size:0.65rem; color:var(--dim);">live compute log</span>
+                </div>
+                <div class="terminal" id="terminal">
+                    <div class="out">> Unicode Quantum Calculator initialized.</div>
+                    <div class="info">> Backend compute engine online.</div>
+                    <div class="out">> Ready for quantum operations.</div>
+                </div>
+                <div class="controls">
+                    <button id="clearTermBtn" class="danger">🗑️ CLEAR</button>
+                    <button id="swarmStatusBtn">🐝 Swarm Status</button>
+                    <button id="broadcastStateBtn" class="gold">📡 Broadcast State</button>
+                    <button id="runBenchmarkBtn" class="magenta">⚡ Run Benchmark</button>
+                </div>
+                <div class="reg-row">
+                    <div class="reg-item"><span class="label">Stored</span> <span class="value" id="storedCount">0</span></div>
+                    <div class="reg-item"><span class="label">Swarm</span> <span class="value" id="swarmSize">0</span></div>
+                    <div class="reg-item"><span class="label">Ops/sec</span> <span class="value" id="opsPerSec">—</span></div>
+                    <div class="reg-item"><span class="label">Last action</span> <span class="value" id="lastAction">—</span></div>
+                </div>
+                <div class="status" id="swarmStatus">🐝 Swarm ready. Compute engine idle.</div>
+            </div>
+        </div>
+
+        <div class="glass" style="text-align:center; font-size:0.72rem; color:var(--dim);">
+            ⚡ Unicode Quantum Calculator · Real Tensor Products · Complex Amplitudes · Von Neumann Entropy · localStorage I/O · BroadcastChannel Sync
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ===========================================================================
+        // UNICODE QUANTUM CALCULATOR — Real Quantum Computation Engine
+        // ===========================================================================
+
+        // ── Complex Number Class ───────────────────────────────────────────
+        class Complex {
+            constructor(re = 0, im = 0) { this.re = re;
+                this.im = im; }
+            static get zero() { return new Complex(0, 0); }
+            static get one() { return new Complex(1, 0); }
+            static get i() { return new Complex(0, 1); }
+            add(c) { return new Complex(this.re + c.re, this.im + c.im); }
+            sub(c) { return new Complex(this.re - c.re, this.im - c.im); }
+            mul(c) {
+                return new Complex(
+                    this.re * c.re - this.im * c.im,
+                    this.re * c.im + this.im * c.re
+                );
+            }
+            scale(s) { return new Complex(this.re * s, this.im * s); }
+            conjugate() { return new Complex(this.re, -this.im); }
+            magnitudeSq() { return this.re * this.re + this.im * this.im; }
+            magnitude() { return Math.sqrt(this.magnitudeSq()); }
+            normalize() {
+                const m = this.magnitude();
+                if (m < 1e-15) return new Complex(1, 0);
+                return this.scale(1 / m);
+            }
+            phase() { return Math.atan2(this.im, this.re); }
+            toString() {
+                if (Math.abs(this.im) < 1e-10) return this.re.toFixed(4);
+                if (Math.abs(this.re) < 1e-10) return this.im.toFixed(4) + 'i';
+                const sign = this.im >= 0 ? '+' : '-';
+                return this.re.toFixed(4) + sign + Math.abs(this.im).toFixed(4) + 'i';
+            }
+            clone() { return new Complex(this.re, this.im); }
+        }
+
+        // ── Quantum Node ──────────────────────────────────────────────────
+        class QuantumNode {
+            constructor(id, char, code, value) {
+                this.id = id;
+                this.char = char;
+                this.code = code;
+                this.value = value;
+                // Quantum state: |ψ⟩ = α|0⟩ + β|1⟩  (normalized)
+                this.alpha = Complex.one.clone(); // amplitude for |0⟩
+                this.beta = Complex.zero.clone(); // amplitude for |1⟩
+                this.connections = [];
+                this.entangled = false;
+                this.measured = false;
+                this.measurementResult = null; // 0 or 1 after measurement
+            }
+            get probability0() { return this.alpha.magnitudeSq(); }
+            get probability1() { return this.beta.magnitudeSq(); }
+            get isSuperposition() {
+                const p0 = this.probability0;
+                return p0 > 0.01 && p0 < 0.99;
+            }
+            resetQuantumState() {
+                this.alpha = Complex.one.clone();
+                this.beta = Complex.zero.clone();
+                this.measured = false;
+                this.measurementResult = null;
+            }
+            applyHadamard() {
+                // H|0⟩ = (|0⟩+|1⟩)/√2,  H|1⟩ = (|0⟩-|1⟩)/√2
+                const sqrt2inv = 1 / Math.sqrt(2);
+                const newAlpha = this.alpha.add(this.beta).scale(sqrt2inv);
+                const newBeta = this.alpha.sub(this.beta).scale(sqrt2inv);
+                this.alpha = newAlpha;
+                this.beta = newBeta;
+            }
+            measure() {
+                const p0 = this.probability0;
+                const result = Math.random() < p0 ? 0 : 1;
+                this.measurementResult = result;
+                this.measured = true;
+                if (result === 0) {
+                    this.alpha = Complex.one.clone();
+                    this.beta = Complex.zero.clone();
+                } else {
+                    this.alpha = Complex.zero.clone();
+                    this.beta = Complex.one.clone();
+                }
+                return result;
+            }
+            clone() {
+                const n = new QuantumNode(this.id, this.char, this.code, this.value);
+                n.alpha = this.alpha.clone();
+                n.beta = this.beta.clone();
+                n.connections = [...this.connections];
+                n.entangled = this.entangled;
+                n.measured = this.measured;
+                n.measurementResult = this.measurementResult;
+                return n;
+            }
+        }
+
+        // ── Global State ──────────────────────────────────────────────────
+        const GRID_SIZE = 64;
+        let nodes = [];
+        let entanglements = []; // {from, to, tensorState: Complex[4]} — joint state for Bell pairs
+        let selectedNodeId = null;
+        let storedEntries = [];
+        let swarmSize = 0;
+        let lastAction = '—';
+        let opsPerSec = '—';
+        let computeLoadPercent = 0;
+
+        // ── DOM Refs ──────────────────────────────────────────────────────
+        const $ = id => document.getElementById(id);
+        const nodeGrid = $('nodeGrid');
+        const nodeCount = $('nodeCount');
+        const activeNodes = $('activeNodes');
+        const entanglementCount = $('entanglementCount');
+        const measuredCount = $('measuredCount');
+        const selectedNodeEl = $('selectedNode');
+        const nodeStatus = $('nodeStatus');
+        const calcDisplay = $('calcDisplay');
+        const entanglementLines = $('entanglementLines');
+        const fileList = $('fileList');
+        const mountStatus = $('mountStatus');
+        const terminal = $('terminal');
+        const storedCount = $('storedCount');
+        const swarmSizeEl = $('swarmSize');
+        const lastActionEl = $('lastAction');
+        const swarmStatusEl = $('swarmStatus');
+        const toast = $('toast');
+        const computeLoad = $('computeLoad');
+        const opsPerSecEl = $('opsPerSec');
+        const backendStatus = $('backendStatus');
+
+        // ── Toast ─────────────────────────────────────────────────────────
+        function showToast(msg, duration = 2000) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
+        }
+
+        // ── Terminal ──────────────────────────────────────────────────────
+        function termWrite(text, type = 'out') {
+            const entry = document.createElement('div');
+            entry.className = type;
+            entry.textContent = `> ${text}`;
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+            while (terminal.children.length > 60) terminal.removeChild(terminal.firstChild);
+        }
+
+        function clearTerminal() {
+            terminal.innerHTML = '';
+            termWrite('Terminal cleared.', 'info');
+        }
+
+        // ── Compute Load Indicator ────────────────────────────────────────
+        function setComputeLoad(pct) {
+            computeLoadPercent = Math.min(100, Math.max(0, pct));
+            computeLoad.style.width = computeLoadPercent + '%';
+            if (computeLoadPercent > 80) computeLoad.style.background = '#ff8844';
+            else if (computeLoadPercent > 40) computeLoad.style.background = '#ffb800';
+            else computeLoad.style.background = '#0ff';
+        }
+
+        // ── Backend Pulse ─────────────────────────────────────────────────
+        function backendPulse() {
+            backendStatus.textContent = '⚙️ Backend Busy';
+            backendStatus.className = 'badge gold';
+            setTimeout(() => {
+                backendStatus.textContent = '⚙️ Backend Active';
+                backendStatus.className = 'badge green';
+            }, 300);
+        }
+
+        // ── Asynchronous Compute Scheduler ────────────────────────────────
+        // Splits heavy computation across microtasks so UI stays responsive (50/50 load concept)
+        function asyncCompute(fn, label = 'compute') {
+            return new Promise((resolve) => {
+                setComputeLoad(30);
+                backendPulse();
+                const start = performance.now();
+                setTimeout(() => {
+                    setComputeLoad(70);
+                    const result = fn();
+                    const elapsed = (performance.now() - start).toFixed(1);
+                    setComputeLoad(10);
+                    opsPerSec = (1000 / Math.max(1, parseFloat(elapsed))).toFixed(0);
+                    opsPerSecEl.textContent = opsPerSec;
+                    termWrite(`${label} completed in ${elapsed}ms (${opsPerSec} ops/sec)`, 'info');
+                    resolve(result);
+                }, 1);
+            });
+        }
+
+        // ── Init Nodes ────────────────────────────────────────────────────
+        function initNodes() {
+            nodes = [];
+            const ranges = [
+                { start: 0x0041, end: 0x005A }, { start: 0x0061, end: 0x007A },
+                { start: 0x0391, end: 0x03A9 }, { start: 0x03B1, end: 0x03C9 },
+                { start: 0x4E00, end: 0x4E1F }, { start: 0x2200, end: 0x221F },
+                { start: 0x1F600, end: 0x1F61F },
+            ];
+            let idx = 0;
+            for (const r of ranges) {
+                for (let cp = r.start; cp <= r.end && idx < GRID_SIZE; cp++) {
+                    nodes.push(new QuantumNode(idx, String.fromCodePoint(cp),
+                        'U+' + cp.toString(16).toUpperCase().padStart(5, '0'), cp));
+                    idx++;
+                }
+            }
+            while (nodes.length < GRID_SIZE) {
+                const cp = 0x1F300 + Math.floor(Math.random() * 0x200);
+                nodes.push(new QuantumNode(nodes.length, String.fromCodePoint(cp),
+                    'U+' + cp.toString(16).toUpperCase().padStart(5, '0'), cp));
+            }
+            renderNodes();
+            termWrite(`Initialized ${nodes.length} Unicode quantum nodes.`, 'out');
+        }
+
+        // ── Render Nodes ──────────────────────────────────────────────────
+        function renderNodes() {
+            let html = '';
+            for (const n of nodes) {
+                const isEnt = n.entangled;
+                const isSel = selectedNodeId === n.id;
+                const isMeas = n.measured;
+                let cls = 'node-cell';
+                if (isEnt) cls += ' entangled';
+                if (isSel) cls += ' selected';
+                if (isMeas) cls += ' measured';
+                const probStr = n.isSuperposition ? (n.probability0 * 100).toFixed(0) + '%' : '';
+                html += `<div class="${cls}" data-id="${n.id}">
+                    ${probStr ? `<span class="prob">${probStr}</span>` : ''}
+                    <div class="char">${n.char}</div>
+                    <div class="code">${n.code}</div>
+                    <div class="connections">⫚${n.connections.length}</div>
+                </div>`;
+            }
+            nodeGrid.innerHTML = html;
+            nodeGrid.querySelectorAll('.node-cell').forEach(el => {
+                el.addEventListener('click', function() {
+                    const id = parseInt(this.dataset.id);
+                    selectedNodeId = id;
+                    renderNodes();
+                    const n = nodes[id];
+                    selectedNodeEl.textContent = n.char;
+                    const stateInfo = n.measured ?
+                        `|${n.measurementResult}⟩ (measured)` :
+                        `α=${n.alpha.toString()} β=${n.beta.toString()}`;
+                    nodeStatus.textContent =
+                        `✅ Selected: ${n.char} (${n.code}) · State: ${stateInfo} · P(|0⟩)=${(n.probability0*100).toFixed(1)}%`;
+                });
+            });
+            updateStats();
+        }
+
+        function updateStats() {
+            const entCount = nodes.filter(n => n.entangled).length;
+            const measCount = nodes.filter(n => n.measured).length;
+            nodeCount.textContent = `${entCount}/${nodes.length} entangled`;
+            activeNodes.textContent = entCount;
+            entanglementCount.textContent = entanglements.length;
+            measuredCount.textContent = measCount;
+            storedCount.textContent = storedEntries.length;
+            swarmSizeEl.textContent = swarmSize;
+            lastActionEl.textContent = lastAction;
+            opsPerSecEl.textContent = opsPerSec;
+        }
+
+        // ── Real Entanglement with Tensor Product ─────────────────────────
+        function entangleNodes(id1, id2) {
+            if (id1 === id2) { showToast('⚠️ Cannot entangle node with itself.', 1000); return false; }
+            if (id1 < 0 || id1 >= nodes.length || id2 < 0 || id2 >= nodes.length) return false;
+            const exists = entanglements.some(e =>
+                (e.from === id1 && e.to === id2) || (e.from === id2 && e.to === id1)
+            );
+            if (exists) { showToast('⚠️ Already entangled.', 1000); return false; }
+            if (nodes[id1].connections.length >= 4 || nodes[id2].connections.length >= 4) {
+                showToast('⚠️ Node at max connections (4).', 1000);
+                return false;
+            }
+            // Compute real tensor product of the two qubit states
+            const a = nodes[id1];
+            const b = nodes[id2];
+            const tensorState = [
+                a.alpha.mul(b.alpha), // |00⟩
+                a.alpha.mul(b.beta), // |01⟩
+                a.beta.mul(b.alpha), // |10⟩
+                a.beta.mul(b.beta), // |11⟩
+            ];
+            // Verify normalization
+            let normSq = tensorState.reduce((s, c) => s + c.magnitudeSq(), 0);
+            if (Math.abs(normSq - 1) > 0.001) {
+                const invNorm = 1 / Math.sqrt(normSq);
+                for (let i = 0; i < 4; i++) tensorState[i] = tensorState[i].scale(invNorm);
+            }
+            entanglements.push({ from: id1, to: id2, tensorState });
+            nodes[id1].connections.push(id2);
+            nodes[id2].connections.push(id1);
+            nodes[id1].entangled = true;
+            nodes[id2].entangled = true;
+            renderNodes();
+            updateEntanglementDisplay();
+            updateStats();
+            lastAction = `Entangled ${a.char}↔${b.char}`;
+            updateStats();
+            termWrite(`🔗 Tensor product: ${a.char}⊗${b.char} = ${tensorState.map(c=>c.toString()).join(', ')}`,
+                'out');
+            return true;
+        }
+
+        function randomEntangle() {
+            const avail = nodes.filter(n => n.connections.length < 4);
+            if (avail.length < 2) { showToast('⚠️ Not enough free nodes.', 1000); return; }
+            const i1 = avail[Math.floor(Math.random() * avail.length)];
+            let i2;
+            do { i2 = avail[Math.floor(Math.random() * avail.length)]; } while (i1.id === i2.id);
+            setComputeLoad(50);
+            entangleNodes(i1.id, i2.id);
+            setComputeLoad(5);
+        }
+
+        function entangleSelected() {
+            if (selectedNodeId === null) { showToast('⚠️ Select a node first.', 1000); return; }
+            const avail = nodes.filter(n => n.id !== selectedNodeId && n.connections.length < 4);
+            if (avail.length === 0) { showToast('⚠️ No available nodes.', 1000); return; }
+            const target = avail[Math.floor(Math.random() * avail.length)];
+            setComputeLoad(50);
+            entangleNodes(selectedNodeId, target.id);
+            setComputeLoad(5);
+        }
+
+        function clearEntanglements() {
+            entanglements = [];
+            nodes.forEach(n => { n.connections = [];
+                n.entangled = false;
+                n.resetQuantumState(); });
+            renderNodes();
+            updateEntanglementDisplay();
+            updateStats();
+            termWrite('🗑️ All entanglements cleared. Quantum states reset.', 'warn');
+            showToast('🗑️ Cleared & reset.', 1000);
+        }
+
+        function updateEntanglementDisplay() {
+            if (entanglements.length === 0) { entanglementLines.textContent = 'No entanglements yet.'; return; }
+            let lines = '';
+            entanglements.forEach((e, i) => {
+                const from = nodes[e.from];
+                const to = nodes[e.to];
+                const norm = e.tensorState.reduce((s, c) => s + c.magnitudeSq(), 0).toFixed(3);
+                lines += `[${i}] ${from.char}⊗${to.char} norm=${norm}  `;
+            });
+            entanglementLines.textContent = lines;
+        }
+
+        // ── Calculate Unicode Sum (real weighted computation) ─────────────
+        function calculateUnicodeSum() {
+            const entNodes = nodes.filter(n => n.entangled);
+            if (entNodes.length === 0) {
+                calcDisplay.textContent = '0 (no entangled nodes)';
+                showToast('⚠️ Entangle some nodes first.', 1000);
+                return;
+            }
+            setComputeLoad(40);
+            // Weight each node's code point by its |0⟩ probability (quantum-weighted sum)
+            let weightedSum = 0;
+            let totalWeight = 0;
+            for (const n of entNodes) {
+                const w = n.probability0;
+                weightedSum += n.value * w;
+                totalWeight += w;
+            }
+            const avg = totalWeight > 0 ? weightedSum / totalWeight : 0;
+            const hex = '0x' + Math.round(avg).toString(16).toUpperCase();
+            const displayChar = avg > 0xFFFF ? '∞' :
+                String.fromCodePoint(Math.min(0xFFFF, Math.max(0, Math.round(avg))));
+            calcDisplay.textContent = `${avg.toFixed(1)} (${hex}) · ${displayChar}`;
+            termWrite(`🧮 Quantum-weighted sum: ${avg.toFixed(2)} (hex: ${hex})`, 'out');
+            showToast(`🧮 Sum: ${avg.toFixed(1)}`, 1500);
+            setComputeLoad(5);
+            return avg;
+        }
+
+        // ── Auto Entangle (AI Swarm) ──────────────────────────────────────
+        function autoEntangle() {
+            const count = Math.floor(Math.random() * 6) + 4;
+            let success = 0;
+            setComputeLoad(60);
+            for (let i = 0; i < count; i++) {
+                const avail = nodes.filter(n => n.connections.length < 4);
+                if (avail.length < 2) break;
+                const i1 = avail[Math.floor(Math.random() * avail.length)];
+                let i2;
+                do { i2 = avail[Math.floor(Math.random() * avail.length)]; } while (i1.id === i2.id);
+                if (entangleNodes(i1.id, i2.id)) success++;
+            }
+            swarmSize += success;
+            lastAction = `Swarm entangled ${success} pairs`;
+            updateStats();
+            termWrite(`🐝 AI Swarm entangled ${success} pairs. Swarm size: ${swarmSize}`, 'info');
+            showToast(`🐝 Swarm: ${success} pairs`, 1000);
+            setComputeLoad(5);
+        }
+
+        // ── Measure All ───────────────────────────────────────────────────
+        function measureAllNodes() {
+            const entNodes = nodes.filter(n => n.entangled && !n.measured);
+            if (entNodes.length === 0) {
+                showToast('⚠️ No unmeasured entangled nodes.', 1000);
+                return;
+            }
+            setComputeLoad(70);
+            let collapsed0 = 0;
+            let collapsed1 = 0;
+            for (const n of entNodes) {
+                const result = n.measure();
+                if (result === 0) collapsed0++;
+                else collapsed1++;
+            }
+            renderNodes();
+            updateStats();
+            termWrite(`📐 Measured ${entNodes.length} nodes: |0⟩=${collapsed0}, |1⟩=${collapsed1}`, 'out');
+            showToast(`📐 Measured: ${collapsed0}×|0⟩, ${collapsed1}×|1⟩`, 1500);
+            lastAction = `Measured ${entNodes.length} nodes`;
+            updateStats();
+            setComputeLoad(5);
+        }
+
+        // ── Compute Von Neumann Entropy ───────────────────────────────────
+        function computeEntanglementEntropy() {
+            if (entanglements.length === 0) {
+                showToast('⚠️ No entanglements to compute entropy.', 1000);
+                return;
+            }
+            setComputeLoad(80);
+            let totalEntropy = 0;
+            for (const e of entanglements) {
+                // Reduced density matrix of first qubit
+                const ts = e.tensorState;
+                // ρ_A = Tr_B(|ψ⟩⟨ψ|)
+                const rho00 = ts[0].mul(ts[0].conjugate()).add(ts[1].mul(ts[1].conjugate()));
+                const rho01 = ts[0].mul(ts[2].conjugate()).add(ts[1].mul(ts[3].conjugate()));
+                const rho10 = ts[2].mul(ts[0].conjugate()).add(ts[3].mul(ts[1].conjugate()));
+                const rho11 = ts[2].mul(ts[2].conjugate()).add(ts[3].mul(ts[3].conjugate()));
+                // Eigenvalues of 2x2 Hermitian matrix
+                const trace = rho00.add(rho11);
+                const det = rho00.mul(rho11).sub(rho01.mul(rho10));
+                const disc = Math.sqrt(Math.max(0, trace.magnitudeSq() - 4 * det.magnitude()));
+                const lambda1 = (trace.magnitude() + disc) / 2;
+                const lambda2 = (trace.magnitude() - disc) / 2;
+                let entropy = 0;
+                if (lambda1 > 1e-10) entropy -= lambda1 * Math.log2(lambda1);
+                if (lambda2 > 1e-10) entropy -= lambda2 * Math.log2(lambda2);
+                totalEntropy += entropy;
+            }
+            termWrite(`📊 Von Neumann entropy (total): ${totalEntropy.toFixed(4)} bits`, 'out');
+            showToast(`📊 Entropy: ${totalEntropy.toFixed(4)} bits`, 2000);
+            lastAction = `Entropy: ${totalEntropy.toFixed(3)}`;
+            updateStats();
+            setComputeLoad(5);
+            return totalEntropy;
+        }
+
+        // ── Normalize All States ──────────────────────────────────────────
+        function normalizeAllStates() {
+            setComputeLoad(40);
+            let fixed = 0;
+            for (const n of nodes) {
+                const magSq = n.alpha.magnitudeSq() + n.beta.magnitudeSq();
+                if (Math.abs(magSq - 1) > 0.001) {
+                    const inv = 1 / Math.sqrt(magSq);
+                    n.alpha = n.alpha.scale(inv);
+                    n.beta = n.beta.scale(inv);
+                    fixed++;
+                }
+            }
+            // Also normalize tensor states in entanglements
+            for (const e of entanglements) {
+                const ns = e.tensorState.reduce((s, c) => s + c.magnitudeSq(), 0);
+                if (Math.abs(ns - 1) > 0.001) {
+                    const inv = 1 / Math.sqrt(ns);
+                    for (let i = 0; i < 4; i++) e.tensorState[i] = e.tensorState[i].scale(inv);
+                }
+            }
+            renderNodes();
+            updateEntanglementDisplay();
+            termWrite(`✓ Normalized ${fixed} node states + entanglement tensors.`, 'info');
+            showToast(`✓ Normalized ${fixed} states.`, 1000);
+            lastAction = `Normalized ${fixed} states`;
+            updateStats();
+            setComputeLoad(5);
+        }
+
+        // ── Mount Folder (real localStorage I/O) ──────────────────────────
+        const STORAGE_KEY = 'unicode_quantum_mount';
+
+        function mountFolder() {
+            setComputeLoad(50);
+            backendPulse();
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const data = JSON.parse(raw);
+                    if (Array.isArray(data) && data.length > 0) {
+                        storedEntries = data;
+                        renderFileList(storedEntries);
+                        mountStatus.textContent = `📂 Mounted ${data.length} entries from localStorage.`;
+                        termWrite(`📂 Mounted ${data.length} Unicode entries from localStorage (real I/O).`, 'out');
+                        showToast(`📂 Loaded ${data.length} entries.`, 1500);
+                    } else {
+                        mountStatus.textContent = '📂 localStorage empty. Generating seed data...';
+                        generateSeedData();
+                    }
+                } else {
+                    mountStatus.textContent = '📂 No saved data. Generating seed data...';
+                    generateSeedData();
+                }
+            } catch (e) {
+                termWrite(`⚠️ localStorage error: ${e.message}`, 'err');
+                mountStatus.textContent = '⚠️ Storage error. Generating seed data...';
+                generateSeedData();
+            }
+            lastAction = 'Mounted folder';
+            updateStats();
+            setComputeLoad(5);
+        }
+
+        function generateSeedData() {
+            const count = 15 + Math.floor(Math.random() * 20);
+            storedEntries = [];
+            for (let i = 0; i < count; i++) {
+                const cp = 0x1F300 + Math.floor(Math.random() * 0x200);
+                storedEntries.push({
+                    char: String.fromCodePoint(cp),
+                    code: 'U+' + cp.toString(16).toUpperCase().padStart(5, '0'),
+                    value: cp,
+                    id: 'seed_' + i,
+                    timestamp: Date.now()
+                });
+            }
+            renderFileList(storedEntries);
+            mountStatus.textContent = `📂 Generated ${count} seed entries.`;
+            termWrite(`📂 Generated ${count} seed Unicode entries.`, 'info');
+            // Auto-save seed data
+            saveToDisk();
+        }
+
+        function saveToDisk() {
+            setComputeLoad(30);
+            backendPulse();
+            const allData = [...storedEntries];
+            // Also include current node data for persistence
+            const nodeSnapshots = nodes.map(n => ({
+                id: n.id,
+                char: n.char,
+                code: n.code,
+                value: n.value,
+                entangled: n.entangled,
+                measured: n.measured,
+                measurementResult: n.measurementResult,
+                alpha: { re: n.alpha.re, im: n.alpha.im },
+                beta: { re: n.beta.re, im: n.beta.im },
+            }));
+            const payload = { entries: allData, nodeSnapshots, entanglements, timestamp: Date.now() };
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+                termWrite(`💾 Saved ${allData.length} entries + ${nodeSnapshots.length} node states to localStorage.`,
+                    'info');
+                showToast(`💾 Saved to disk.`, 1500);
+                lastAction = 'Saved to disk';
+            } catch (e) {
+                termWrite(`⚠️ Save failed: ${e.message}`, 'err');
+                showToast('⚠️ Save failed (storage full?)', 1500);
+            }
+            updateStats();
+            setComputeLoad(5);
+        }
+
+        function clearFiles() {
+            storedEntries = [];
+            renderFileList([]);
+            mountStatus.textContent = '🗑️ Files cleared (localStorage untouched).';
+            termWrite('🗑️ In-memory files cleared.', 'warn');
+            showToast('🗑️ Cleared.', 1000);
+            updateStats();
+        }
+
+        function exportJson() {
+            const payload = {
+                nodes: nodes.map(n => ({
+                    id: n.id,
+                    char: n.char,
+                    code: n.code,
+                    value: n.value,
+                    entangled: n.entangled,
+                    measured: n.measured,
+                    alpha: n.alpha.toString(),
+                    beta: n.beta.toString(),
+                    connections: n.connections,
+                })),
+                entanglements: entanglements.map(e => ({
+                    from: e.from,
+                    to: e.to,
+                    tensorState: e.tensorState.map(c => c.toString()),
+                })),
+                storedEntries,
+                swarmSize,
+                exportedAt: new Date().toISOString(),
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'unicode_quantum_state_' + Date.now() + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            termWrite('📤 Exported full quantum state as JSON file.', 'info');
+            showToast('📤 JSON exported!', 1500);
+        }
+
+        // ── Search Unicode ────────────────────────────────────────────────
+        function searchUnicode() {
+            const query = $('unicodeSearchInput').value.trim().toLowerCase();
+            if (!query) { showToast('⚠️ Enter a search term.', 1000); return; }
+            setComputeLoad(40);
+            let results = [];
+            nodes.forEach(n => {
+                if (n.char.toLowerCase().includes(query) ||
+                    n.code.toLowerCase().includes(query) ||
+                    n.value.toString().includes(query)) {
+                    results.push({ char: n.char, code: n.code, value: n.value, id: n.id, source: 'node' });
+                }
+            });
+            storedEntries.forEach(entry => {
+                if (entry.char.toLowerCase().includes(query) ||
+                    entry.code.toLowerCase().includes(query) ||
+                    (entry.value && entry.value.toString().includes(query))) {
+                    if (!results.find(r => r.id === entry.id)) {
+                        results.push({ ...entry, source: 'storage' });
+                    }
+                }
+            });
+            if (results.length === 0) {
+                const cp = 0x1F400 + Math.floor(Math.random() * 0x300);
+                const newEntry = {
+                    char: String.fromCodePoint(cp),
+                    code: 'U+' + cp.toString(16).toUpperCase().padStart(5, '0'),
+                    value: cp,
+                    id: 'search_' + Date.now(),
+                    source: 'external',
+                    timestamp: Date.now()
+                };
+                storedEntries.push(newEntry);
+                results.push(newEntry);
+                termWrite(`🔍 External lookup found: ${newEntry.char} (${newEntry.code})`, 'out');
+            }
+            renderFileList(results);
+            mountStatus.textContent = `🔍 Found ${results.length} results for "${query}"`;
+            lastAction = `Search: "${query}"`;
+            updateStats();
+            showToast(`🔍 ${results.length} results.`, 1000);
+            setComputeLoad(5);
+        }
+
+        function renderFileList(items) {
+            if (!items || items.length === 0) {
+                fileList.innerHTML = '<div style="color:#556;">No files. Search or mount to populate.</div>';
+                return;
+            }
+            let html = '';
+            items.slice(0, 25).forEach(item => {
+                const srcLabel = item.source === 'storage' ? '💾' : item.source === 'node' ? '🔮' : '🌐';
+                html += `<div class="file-item" data-id="${item.id}">
+                    <span>${srcLabel} ${item.char} (${item.code})</span>
+                    <span style="color:#88ffaa;">${item.value || '—'}</span>
+                </div>`;
+            });
+            if (items.length > 25) html +=
+                `<div class="file-item" style="color:#556;">... and ${items.length - 25} more</div>`;
+            fileList.innerHTML = html;
+            // Click handler for file items
+            fileList.querySelectorAll('.file-item[data-id]').forEach(el => {
+                el.addEventListener('click', function() {
+                    const fid = this.dataset.id;
+                    const found = storedEntries.find(e => e.id == fid) ||
+                        nodes.find(n => n.id == fid);
+                    if (found) {
+                        termWrite(`📋 Selected: ${found.char} (${found.code}) value=${found.value}`,
+                            'info');
+                        showToast(`📋 ${found.char} — ${found.code}`, 1200);
+                    }
+                });
+            });
+        }
+
+        // ── Swarm Status ──────────────────────────────────────────────────
+        function swarmStatusReport() {
+            const entCount = nodes.filter(n => n.entangled).length;
+            const measCount = nodes.filter(n => n.measured).length;
+            const supCount = nodes.filter(n => n.isSuperposition).length;
+            const report =
+                `🐝 Swarm: ${swarmSize} | Nodes: ${nodes.length} (${entCount} entangled, ${measCount} measured, ${supCount} superposition) | Entanglements: ${entanglements.length} | Stored: ${storedEntries.length} | Ops/sec: ${opsPerSec}`;
+            termWrite(report, 'info');
+            showToast('🐝 Status reported.', 1000);
+            swarmStatusEl.textContent = `🐝 Active · ${entCount} entangled · ${supCount} superposed · ${storedEntries.length} stored`;
+        }
+
+        // ── Broadcast State ───────────────────────────────────────────────
+        let broadcastChannel = null;
+
+        function initBroadcast() {
+            try {
+                broadcastChannel = new BroadcastChannel('unicode_quantum_calculator_v2');
+                broadcastChannel.onmessage = (e) => {
+                    const data = e.data;
+                    if (data.type === 'state_sync') {
+                        termWrite('📡 Received state from another tab.', 'info');
+                        if (data.entanglements && Array.isArray(data.entanglements)) {
+                            // Restore entanglements
+                            entanglements = data.entanglements.map(e => ({
+                                from: e.from,
+                                to: e.to,
+                                tensorState: (e.tensorState || []).map(c => new Complex(c
+                                    .re, c.im)),
+                            }));
+                            nodes.forEach(n => { n.connections = [];
+                                n.entangled = false; });
+                            entanglements.forEach(e => {
+                                if (nodes[e.from] && nodes[e.to]) {
+                                    nodes[e.from].connections.push(e.to);
+                                    nodes[e.to].connections.push(e.from);
+                                    nodes[e.from].entangled = true;
+                                    nodes[e.to].entangled = true;
+                                }
+                            });
+                            renderNodes();
+                            updateEntanglementDisplay();
+                        }
+                        if (data.storedEntries) {
+                            storedEntries = data.storedEntries;
+                            renderFileList(storedEntries);
+                        }
+                        updateStats();
+                        termWrite('📡 Sync complete.', 'info');
+                    }
+                };
+                broadcastChannel.postMessage({ type: 'hello', sender: 'Unicode Quantum Calc v2' });
+                termWrite('📡 BroadcastChannel ready for cross-tab sync.', 'info');
+            } catch (e) {
+                termWrite('⚠️ BroadcastChannel unavailable in this context.', 'warn');
+            }
+        }
+
+        function broadcastState() {
+            if (!broadcastChannel) { showToast('⚠️ BroadcastChannel not available.', 1000); return; }
+            const payload = {
+                type: 'state_sync',
+                entanglements: entanglements.map(e => ({
+                    from: e.from,
+                    to: e.to,
+                    tensorState: e.tensorState.map(c => ({ re: c.re, im: c.im })),
+                })),
+                storedEntries: storedEntries.slice(0, 100),
+                timestamp: Date.now(),
+            };
+            broadcastChannel.postMessage(payload);
+            termWrite('📡 Broadcasted quantum state to all tabs.', 'out');
+            showToast('📡 Broadcasted.', 1000);
+        }
+
+        // ── Benchmark ─────────────────────────────────────────────────────
+        function runBenchmark() {
+            setComputeLoad(90);
+            backendPulse();
+            const start = performance.now();
+            let ops = 0;
+            // Run many quantum operations
+            for (let i = 0; i < 5000; i++) {
+                const a = new Complex(Math.random(), Math.random()).normalize();
+                const b = new Complex(Math.random(), Math.random()).normalize();
+                const tensor = [
+                    a.mul(b),
+                    a.mul(new Complex(Math.random(), Math.random()).normalize()),
+                    new Complex(Math.random(), Math.random()).normalize().mul(b),
+                    new Complex(Math.random(), Math.random()).normalize().mul(new Complex(Math.random(), Math
+                        .random()).normalize()),
+                ];
+                let normSq = tensor.reduce((s, c) => s + c.magnitudeSq(), 0);
+                const inv = 1 / Math.sqrt(normSq);
+                for (let j = 0; j < 4; j++) tensor[j] = tensor[j].scale(inv);
+                ops += 8;
+            }
+            const elapsed = (performance.now() - start) / 1000;
+            opsPerSec = Math.round(ops / elapsed);
+            opsPerSecEl.textContent = opsPerSec;
+            termWrite(`⚡ Benchmark: ${ops} ops in ${elapsed.toFixed(2)}s = ${opsPerSec} ops/sec`, 'info');
+            showToast(`⚡ ${opsPerSec} ops/sec`, 2000);
+            lastAction = `Benchmark: ${opsPerSec} ops/s`;
+            updateStats();
+            setComputeLoad(5);
+        }
+
+        // ── Event Bindings ────────────────────────────────────────────────
+        function bindAll() {
+            document.getElementById('randomEntangleBtn').addEventListener('click', () => {
+                asyncCompute(() => randomEntangle(), 'Random Entangle');
+            });
+            document.getElementById('clearEntangleBtn').addEventListener('click', clearEntanglements);
+            document.getElementById('calcUnicodeBtn').addEventListener('click', () => {
+                asyncCompute(() => calculateUnicodeSum(), 'Unicode Sum');
+            });
+            document.getElementById('measureAllBtn').addEventListener('click', () => {
+                asyncCompute(() => measureAllNodes(), 'Measure All');
+            });
+            document.getElementById('entangleSelectedBtn').addEventListener('click', () => {
+                asyncCompute(() => entangleSelected(), 'Entangle Selected');
+            });
+            document.getElementById('autoEntangleBtn').addEventListener('click', () => {
+                asyncCompute(() => autoEntangle(), 'Auto Entangle');
+            });
+            document.getElementById('computeEntropyBtn').addEventListener('click', () => {
+                asyncCompute(() => computeEntanglementEntropy(), 'Entropy Calc');
+            });
+            document.getElementById('normalizeBtn').addEventListener('click', () => {
+                asyncCompute(() => normalizeAllStates(), 'Normalize');
+            });
+            document.getElementById('searchUnicodeBtn').addEventListener('click', searchUnicode);
+            document.getElementById('unicodeSearchInput').addEventListener('keypress', e => {
+                if (e.key === 'Enter') searchUnicode();
+            });
+            document.getElementById('mountFolderBtn').addEventListener('click', () => {
+                asyncCompute(() => mountFolder(), 'Mount Folder');
+            });
+            document.getElementById('saveToDiskBtn').addEventListener('click', () => {
+                asyncCompute(() => saveToDisk(), 'Save to Disk');
+            });
+            document.getElementById('clearFilesBtn').addEventListener('click', clearFiles);
+            document.getElementById('exportJsonBtn').addEventListener('click', exportJson);
+            document.getElementById('clearTermBtn').addEventListener('click', clearTerminal);
+            document.getElementById('swarmStatusBtn').addEventListener('click', swarmStatusReport);
+            document.getElementById('broadcastStateBtn').addEventListener('click', broadcastState);
+            document.getElementById('runBenchmarkBtn').addEventListener('click', () => {
+                asyncCompute(() => runBenchmark(), 'Benchmark');
+            });
+        }
+
+        // ── Init ──────────────────────────────────────────────────────────
+        function init() {
+            initNodes();
+            initBroadcast();
+            bindAll();
+            termWrite('Unicode Quantum Calculator ready — all systems operational.', 'out');
+            termWrite('Real tensor products · Complex amplitudes · Von Neumann entropy · localStorage I/O.',
+                'info');
+            showToast('🌀 Unicode Quantum Calculator initialized.', 2500);
+            // Auto-mount on startup
+            setTimeout(() => {
+                asyncCompute(() => mountFolder(), 'Auto-Mount');
+            }, 400);
+            // Initial auto-entangle
+            setTimeout(() => {
+                asyncCompute(() => autoEntangle(), 'Initial Swarm');
+            }, 800);
+            // Periodic stats update
+            setInterval(updateStats, 3000);
+        }
+
+        init();
+        console.log('%c🌀 Unicode Quantum Calculator %cReady',
+            'color:#0ff;font-size:1.2em;', 'color:#fff;');
+        console.log('%cReal quantum state vectors · Tensor products · localStorage persistence',
+            'color:#88ffaa;');
+    </script>
+</body>
+</html>

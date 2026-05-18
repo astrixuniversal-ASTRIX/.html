@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>🔮 Unicode Quantum Circuit Computer · AI Swarm Compiler</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #02050f; color: #eef;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      padding: 10px; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .container { max-width: 1400px; width: 100%; }
+    .glass {
+      background: rgba(6,10,24,0.9); backdrop-filter: blur(12px);
+      border: 1px solid #2e4268; border-radius: 22px;
+      padding: 14px; margin-bottom: 10px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.8);
+    }
+    h1 {
+      font-size: 1.8rem; font-weight: 900; text-align: center;
+      background: linear-gradient(135deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: 2px;
+    }
+    .sub { text-align: center; color: #aaccff; font-size: 0.75rem; margin-bottom: 8px; }
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 850px) { .main-grid { grid-template-columns: 1fr; } }
+    .panel {
+      background: rgba(0,5,15,0.8); border-radius: 16px;
+      border: 1px solid #2a4a7a; padding: 12px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .panel-title {
+      font-weight: bold; font-size: 0.8rem; color: #0ff;
+      border-bottom: 1px solid #2a4a7a; padding-bottom: 4px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .qubit-row { display: flex; align-items: center; gap: 12px; margin: 4px 0; }
+    .qubit-label {
+      font-size: 1.5rem; font-weight: bold; width: 40px; text-align: center;
+      border-radius: 50%; border: 2px solid #fff;
+      padding: 6px; background: #0a0a2a; color: #0ff;
+    }
+    .prob-bar {
+      flex: 1; height: 20px; background: #1a2a3a; border-radius: 10px;
+      overflow: hidden; display: flex;
+    }
+    .prob-fill0 {
+      height: 100%; background: #ff4444; transition: width 0.3s;
+    }
+    .prob-fill1 {
+      height: 100%; background: #4444ff; transition: width 0.3s;
+    }
+    .circuit-area {
+      background: #010118; border-radius: 10px; padding: 8px;
+      border: 1px solid #2a4a7a; max-height: 140px; overflow-y: auto;
+      font-size: 0.65rem; color: #ffb800; white-space: pre-wrap;
+    }
+    .state-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+      background: #010118; border-radius: 10px; padding: 8px;
+      border: 1px solid #2a4a7a;
+    }
+    .amp-cell {
+      aspect-ratio: 1 / 1; border-radius: 8px; border: 1px solid #1a2a3a;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: bold; background: #0a0a1a;
+      transition: 0.2s;
+    }
+    .amp-symbol { font-size: 1.2rem; }
+    .amp-prob { font-size: 0.55rem; color: #88ffaa; }
+    .controls { display: flex; gap: 6px; flex-wrap: wrap; }
+    button {
+      background: #1f2a4a; border: 1px solid #0ff; border-radius: 30px;
+      padding: 5px 14px; color: #fff; cursor: pointer; font-weight: bold;
+      font-family: inherit; font-size: 0.7rem; transition: 0.2s; white-space: nowrap;
+    }
+    button:hover { background: #0ff; color: #000; box-shadow: 0 0 14px #0ff; }
+    button:active { transform: scale(0.94); }
+    button.gold { border-color: #ffb800; } button.gold:hover { background: #ffb800; color: #000; }
+    button.danger { border-color: #ff4477; } button.danger:hover { background: #ff4477; }
+    button.green { border-color: #0f8; } button.green:hover { background: #0f8; color: #000; }
+    .toast {
+      position: fixed; bottom: 25px; right: 25px; background: #010105;
+      border: 1px solid #0ff; border-radius: 40px; padding: 10px 24px;
+      color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      opacity: 0; transform: translateY(20px); transition: 0.3s;
+      pointer-events: none; z-index: 9999; font-size: 0.8rem; max-width: 400px;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="glass">
+    <h1>🔮⚛️ Unicode Quantum Circuit Computer</h1>
+    <div class="sub">4‑Qubit Simulator · AI Swarm Compiler Discovers Perfect Gates · State Vector Visualization</div>
+  </div>
+
+  <div class="main-grid">
+    <!-- LEFT: QUBIT DISPLAY & CIRCUIT -->
+    <div class="panel">
+      <div class="panel-title">🧠 Qubit States (α, β, γ, δ)
+        <span id="fidelityDisplay" style="font-size:0.65rem;">Fidelity: 1.000</span>
+      </div>
+      <div id="qubitContainer"></div>
+      <div class="controls">
+        <button id="resetCircuitBtn">⚪ Reset to |0000⟩</button>
+        <button id="runCircuitBtn" class="gold">▶️ Run Circuit</button>
+      </div>
+      <div class="panel-title" style="margin-top:6px;">⚙️ Circuit (gate list)</div>
+      <div class="circuit-area" id="circuitDisplay">(empty)</div>
+      <div class="controls">
+        <button id="addH0Btn">H on α</button>
+        <button id="addH1Btn">H on β</button>
+        <button id="addH2Btn">H on γ</button>
+        <button id="addH3Btn">H on δ</button>
+        <button id="addCNOT01Btn">CNOT α→β</button>
+        <button id="addCNOT12Btn">CNOT β→γ</button>
+        <button id="addCNOT23Btn">CNOT γ→δ</button>
+        <button id="addX0Btn">X on α</button>
+        <button id="addZ0Btn">Z on α</button>
+        <button id="clearCircuitBtn" class="danger">Clear Circuit</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: STATE VECTOR & AI COMPILER -->
+    <div class="panel">
+      <div class="panel-title">📊 State Vector (|basis⟩ → probability)
+        <span style="font-size:0.65rem;">16 basis states</span>
+      </div>
+      <div class="state-grid" id="stateGrid"></div>
+      <div class="panel-title" style="margin-top:6px;">🤖 AI Swarm Compiler
+        <span id="genInfo" style="font-size:0.65rem;">Gen: 0</span>
+      </div>
+      <div class="circuit-area" id="aiCircuitPreview" style="max-height:60px;">Best circuit so far...</div>
+      <div class="controls">
+        <button id="setTargetBtn" class="gold">🎯 Set Random Target State</button>
+        <button id="evolveBtn" class="green">🧬 Evolve (1 gen)</button>
+        <button id="autoEvolveBtn">▶️ Auto Evolve</button>
+        <button id="stopEvolveBtn" class="danger">⏹️ Stop</button>
+      </div>
+      <div class="stats" style="font-size:0.7rem; color:#aaf;" id="evolveStats">Fitness: 0.000</div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+  (() => {
+    // ── Complex number class ───────────────────────
+    class Complex {
+      constructor(re = 0, im = 0) { this.re = re; this.im = im; }
+      add(c) { return new Complex(this.re + c.re, this.im + c.im); }
+      sub(c) { return new Complex(this.re - c.re, this.im - c.im); }
+      mul(c) { return new Complex(this.re * c.re - this.im * c.im, this.re * c.im + this.im * c.re); }
+      scale(s) { return new Complex(this.re * s, this.im * s); }
+      conj() { return new Complex(this.re, -this.im); }
+      mag2() { return this.re * this.re + this.im * this.im; }
+      mag() { return Math.sqrt(this.mag2()); }
+      normalise() {
+        const m = this.mag();
+        if (m < 1e-12) return new Complex(1, 0);
+        return this.scale(1 / m);
+      }
+      toString() {
+        if (Math.abs(this.im) < 1e-10) return this.re.toFixed(4);
+        if (Math.abs(this.re) < 1e-10) return this.im.toFixed(4) + 'i';
+        return this.re.toFixed(4) + (this.im >= 0 ? '+' : '-') + Math.abs(this.im).toFixed(4) + 'i';
+      }
+    }
+
+    // ── Quantum state for 4 qubits (16 amplitudes) ─
+    const N = 4;
+    const dim = 1 << N;
+    let stateVec = new Array(dim).fill(null).map(() => new Complex(0, 0));
+    let circuit = [];       // list of gate objects
+    let targetState = null; // target state vector for AI compiler
+
+    // Qubit symbols
+    const qubitChars = ['α', 'β', 'γ', 'δ'];
+    const basisSymbols = '0123456789ABCDEF'.split('');
+
+    // ── Quantum gates (4‑qubit matrices) ──────────
+    // Single qubit gate on qubit q (applied to stateVec)
+    function applySingleQubitGate(q, gate2x2) {
+      const newVec = new Array(dim).fill(null).map(() => new Complex(0, 0));
+      for (let i = 0; i < dim; i++) {
+        const bit = (i >> q) & 1;
+        const i0 = i & ~(1 << q); // index with 0 at position q
+        const i1 = i0 | (1 << q);
+        const amp0 = stateVec[i0];
+        const amp1 = stateVec[i1];
+        if (bit === 0) {
+          newVec[i] = gate2x2[0][0].mul(amp0).add(gate2x2[0][1].mul(amp1));
+        } else {
+          newVec[i] = gate2x2[1][0].mul(amp0).add(gate2x2[1][1].mul(amp1));
+        }
+      }
+      stateVec = newVec;
+    }
+
+    // Two‑qubit gate (CNOT): control c, target t
+    function applyCNOT(c, t) {
+      const newVec = new Array(dim).fill(null).map(() => new Complex(0, 0));
+      for (let i = 0; i < dim; i++) {
+        const bitC = (i >> c) & 1;
+        const bitT = (i >> t) & 1;
+        if (bitC === 0) {
+          newVec[i] = stateVec[i];
+        } else {
+          const iFlipped = i ^ (1 << t);
+          newVec[i] = stateVec[iFlipped];
+        }
+      }
+      stateVec = newVec;
+    }
+
+    // Gate definitions
+    const I = [[new Complex(1,0), new Complex(0,0)], [new Complex(0,0), new Complex(1,0)]];
+    const H = [[new Complex(1/Math.sqrt(2),0), new Complex(1/Math.sqrt(2),0)],
+               [new Complex(1/Math.sqrt(2),0), new Complex(-1/Math.sqrt(2),0)]];
+    const X = [[new Complex(0,0), new Complex(1,0)], [new Complex(1,0), new Complex(0,0)]];
+    const Z = [[new Complex(1,0), new Complex(0,0)], [new Complex(0,0), new Complex(-1,0)]];
+
+    // ── Initialize state to |0000⟩ ────────────────
+    function resetState() {
+      stateVec.fill(new Complex(0,0));
+      stateVec[0] = new Complex(1, 0);
+    }
+
+    // ── Execute a circuit ─────────────────────────
+    function runCircuit(circ) {
+      resetState();
+      for (const gate of circ) {
+        if (gate.type === 'H') {
+          applySingleQubitGate(gate.qubit, H);
+        } else if (gate.type === 'X') {
+          applySingleQubitGate(gate.qubit, X);
+        } else if (gate.type === 'Z') {
+          applySingleQubitGate(gate.qubit, Z);
+        } else if (gate.type === 'CNOT') {
+          applyCNOT(gate.control, gate.target);
+        }
+      }
+      renderAll();
+    }
+
+    // ── Fidelity between current state and target ─
+    function fidelity(target) {
+      let inner = new Complex(0, 0);
+      for (let i = 0; i < dim; i++) {
+        inner = inner.add(stateVec[i].conj().mul(target[i]));
+      }
+      return inner.mag2();
+    }
+
+    // ── Random unitary target state ───────────────
+    function generateRandomTarget() {
+      const randomCircuit = [];
+      for (let i = 0; i < 8; i++) {
+        const q = Math.floor(Math.random() * N);
+        randomCircuit.push({ type: 'H', qubit: q });
+        if (Math.random() < 0.5 && i < 7) {
+          const c = Math.floor(Math.random() * N);
+          let t = Math.floor(Math.random() * N);
+          while (t === c) t = Math.floor(Math.random() * N);
+          randomCircuit.push({ type: 'CNOT', control: c, target: t });
+        }
+      }
+      // apply to temporary state to obtain target
+      const orig = stateVec.slice();
+      resetState();
+      for (const g of randomCircuit) {
+        if (g.type === 'H') applySingleQubitGate(g.qubit, H);
+        else if (g.type === 'CNOT') applyCNOT(g.control, g.target);
+      }
+      targetState = stateVec.slice();
+      stateVec = orig; // restore original
+      renderAll();
+    }
+
+    // ── AI Swarm: genetic algorithm to find circuit ─
+    let aiGeneration = 0;
+    let aiPopulation = [];
+    const popSize = 30;
+    const circuitLength = 10;
+
+    function randomCircuit(length) {
+      const circ = [];
+      for (let i = 0; i < length; i++) {
+        const r = Math.random();
+        if (r < 0.6) {
+          circ.push({ type: 'H', qubit: Math.floor(Math.random() * N) });
+        } else {
+          const c = Math.floor(Math.random() * N);
+          let t = Math.floor(Math.random() * N);
+          while (t === c) t = Math.floor(Math.random() * N);
+          circ.push({ type: 'CNOT', control: c, target: t });
+        }
+      }
+      return circ;
+    }
+
+    function evaluateCircuit(circ) {
+      runCircuit(circ);
+      return targetState ? fidelity(targetState) : 0;
+    }
+
+    function evolveOneGeneration() {
+      if (!targetState) {
+        alert('Set a target state first!');
+        return;
+      }
+      // Evaluate population
+      const scored = aiPopulation.map(circ => ({ circ, fit: evaluateCircuit(circ) }));
+      scored.sort((a, b) => b.fit - a.fit);
+      const best = scored[0];
+      // Show best circuit and stats
+      document.getElementById('aiCircuitPreview').textContent =
+        best.circ.map(g => g.type === 'H' ? `H(${qubitChars[g.qubit]})` : `CNOT(${qubitChars[g.control]}→${qubitChars[g.target]})`).join(', ');
+      document.getElementById('evolveStats').textContent =
+        `Fitness: ${best.fit.toFixed(4)} · Gen: ${aiGeneration}`;
+      // If perfect, stop auto
+      if (best.fit > 0.9999) {
+        document.getElementById('evolveStats').textContent += ' ✅ PERFECT';
+        if (autoEvolveInterval) {
+          clearInterval(autoEvolveInterval);
+          autoEvolveInterval = null;
+        }
+      }
+      // Create next generation via tournament selection and mutation
+      const newPop = [best.circ]; // elitism
+      while (newPop.length < popSize) {
+        const parent1 = scored[Math.floor(Math.random() * Math.min(10, popSize))].circ;
+        const parent2 = scored[Math.floor(Math.random() * Math.min(10, popSize))].circ;
+        const child = [];
+        for (let i = 0; i < circuitLength; i++) {
+          const gene = Math.random() < 0.5 ? parent1[i] : parent2[i];
+          // mutation
+          if (Math.random() < 0.2) {
+            if (Math.random() < 0.6) {
+              child.push({ type: 'H', qubit: Math.floor(Math.random() * N) });
+            } else {
+              const c = Math.floor(Math.random() * N);
+              let t = Math.floor(Math.random() * N);
+              while (t === c) t = Math.floor(Math.random() * N);
+              child.push({ type: 'CNOT', control: c, target: t });
+            }
+          } else {
+            child.push({ ...gene });
+          }
+        }
+        newPop.push(child);
+      }
+      aiPopulation = newPop;
+      aiGeneration++;
+      document.getElementById('genInfo').textContent = `Gen: ${aiGeneration}`;
+      renderAll();
+    }
+
+    let autoEvolveInterval = null;
+    function startAutoEvolve() {
+      if (autoEvolveInterval) return;
+      if (!aiPopulation.length) aiPopulation = Array.from({ length: popSize }, () => randomCircuit(circuitLength));
+      autoEvolveInterval = setInterval(() => evolveOneGeneration(), 800);
+    }
+    function stopAutoEvolve() {
+      if (autoEvolveInterval) { clearInterval(autoEvolveInterval); autoEvolveInterval = null; }
+    }
+
+    // ── UI Rendering ──────────────────────────────
+    function renderQubits() {
+      const container = document.getElementById('qubitContainer');
+      let html = '';
+      for (let q = 0; q < N; q++) {
+        // Compute probability of |1> for qubit q
+        let prob1 = 0;
+        for (let i = 0; i < dim; i++) {
+          if ((i >> q) & 1) prob1 += stateVec[i].mag2();
+        }
+        const prob0 = 1 - prob1;
+        html += `
+          <div class="qubit-row">
+            <div class="qubit-label">${qubitChars[q]}</div>
+            <div class="prob-bar">
+              <div class="prob-fill0" style="width:${(prob0*100).toFixed(1)}%;"></div>
+              <div class="prob-fill1" style="width:${(prob1*100).toFixed(1)}%;"></div>
+            </div>
+            <span style="font-size:0.7rem; color:#fff;">|0⟩:${(prob0*100).toFixed(0)}% |1⟩:${(prob1*100).toFixed(0)}%</span>
+          </div>`;
+      }
+      container.innerHTML = html;
+      document.getElementById('fidelityDisplay').textContent =
+        targetState ? `Fidelity: ${fidelity(targetState).toFixed(4)}` : 'Fidelity: N/A';
+    }
+
+    function renderStateGrid() {
+      const grid = document.getElementById('stateGrid');
+      let html = '';
+      for (let i = 0; i < dim; i++) {
+        const amp = stateVec[i];
+        const prob = amp.mag2();
+        const intensity = Math.min(255, Math.floor(prob * 300));
+        const color = `rgb(${intensity}, ${100}, ${255 - intensity})`;
+        html += `
+          <div class="amp-cell" style="background:${color};">
+            <span class="amp-symbol">${basisSymbols[i]}</span>
+            <span class="amp-prob">${(prob*100).toFixed(1)}%</span>
+          </div>`;
+      }
+      grid.innerHTML = html;
+    }
+
+    function renderAll() {
+      renderQubits();
+      renderStateGrid();
+      document.getElementById('circuitDisplay').textContent =
+        circuit.map(g => g.type === 'H' ? `H(${qubitChars[g.qubit]})` : `CNOT(${qubitChars[g.control]}→${qubitChars[g.target]})`).join(' → ') || '(empty)';
+      if (targetState) {
+        document.getElementById('evolveStats').textContent =
+          `Fitness: ${fidelity(targetState).toFixed(4)} · Gen: ${aiGeneration}`;
+      }
+    }
+
+    // ── Event binding ─────────────────────────────
+    function bindEvents() {
+      document.getElementById('resetCircuitBtn').addEventListener('click', () => {
+        resetState(); renderAll();
+      });
+      document.getElementById('runCircuitBtn').addEventListener('click', () => {
+        runCircuit(circuit);
+      });
+      document.getElementById('addH0Btn').addEventListener('click', () => { circuit.push({type:'H', qubit:0}); renderAll(); });
+      document.getElementById('addH1Btn').addEventListener('click', () => { circuit.push({type:'H', qubit:1}); renderAll(); });
+      document.getElementById('addH2Btn').addEventListener('click', () => { circuit.push({type:'H', qubit:2}); renderAll(); });
+      document.getElementById('addH3Btn').addEventListener('click', () => { circuit.push({type:'H', qubit:3}); renderAll(); });
+      document.getElementById('addCNOT01Btn').addEventListener('click', () => { circuit.push({type:'CNOT', control:0, target:1}); renderAll(); });
+      document.getElementById('addCNOT12Btn').addEventListener('click', () => { circuit.push({type:'CNOT', control:1, target:2}); renderAll(); });
+      document.getElementById('addCNOT23Btn').addEventListener('click', () => { circuit.push({type:'CNOT', control:2, target:3}); renderAll(); });
+      document.getElementById('addX0Btn').addEventListener('click', () => { circuit.push({type:'X', qubit:0}); renderAll(); });
+      document.getElementById('addZ0Btn').addEventListener('click', () => { circuit.push({type:'Z', qubit:0}); renderAll(); });
+      document.getElementById('clearCircuitBtn').addEventListener('click', () => { circuit = []; renderAll(); });
+
+      document.getElementById('setTargetBtn').addEventListener('click', () => {
+        generateRandomTarget();
+        aiPopulation = []; aiGeneration = 0;
+        document.getElementById('genInfo').textContent = 'Gen: 0';
+        stopAutoEvolve();
+        renderAll();
+      });
+      document.getElementById('evolveBtn').addEventListener('click', () => {
+        if (!aiPopulation.length) aiPopulation = Array.from({ length: popSize }, () => randomCircuit(circuitLength));
+        evolveOneGeneration();
+      });
+      document.getElementById('autoEvolveBtn').addEventListener('click', startAutoEvolve);
+      document.getElementById('stopEvolveBtn').addEventListener('click', stopAutoEvolve);
+    }
+
+    // ── Init ──────────────────────────────────────
+    function init() {
+      resetState();
+      bindEvents();
+      renderAll();
+    }
+    init();
+  })();
+</script>
+</body>
+</html>
