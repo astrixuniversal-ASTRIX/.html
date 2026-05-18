@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title id="clone-title">◈ ASTRIX OMNI-STITCHER || PRIME NODE ◈</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        :root {
+            --bg: #020308; --glass: rgba(10,15,30,0.85); --border: rgba(14,165,233,0.4);
+            --text: #f8fafc; --astrix: #eab308; --dragon: #ea580c;
+            --deepthaht: #06b6d4; --thinksalot: #f43f5e; --datacore: #10b981;
+            --blueprint: #0ea5e9; --mono: 'Courier New', monospace;
+            --teacher: #00ffcc; --student: #ff00ff; --bridge: #fce803;
+        }
+        *{box-sizing:border-box;margin:0;padding:0;user-select:none;}
+        html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;}
+        ::-webkit-scrollbar{width:4px;} ::-webkit-scrollbar-thumb{background:var(--dragon);border-radius:2px;}
+        
+        #webgl-canvas{position:fixed;inset:0;z-index:1;opacity:0.6;pointer-events:none;}
+        #rainbow-canvas{position:fixed;inset:0;z-index:2;opacity:0.25;mix-blend-mode:screen;pointer-events:none;}
+        
+        #top-bar{position:fixed;top:0;left:0;right:0;height:46px;background:rgba(0,0,0,0.95);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 10px;gap:8px;z-index:100;overflow-x:auto;}
+        .btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:var(--text);padding:6px 12px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:0.6rem;white-space:nowrap;transition:0.2s;}
+        .btn:hover{background:var(--dragon);color:#000;border-color:var(--dragon);box-shadow:0 0 10px var(--dragon);}
+        .btn.active{background:var(--datacore);color:#000;animation:pulse 1.5s infinite;}
+        select, input.dna-input {background:#000;color:var(--dragon);border:1px solid var(--dragon);font-family:var(--mono);font-size:0.6rem;padding:5px;border-radius:3px;outline:none;}
+        input.dna-input {color:var(--astrix); border-color:var(--astrix); width: 140px;}
+        
+        #bottom-bar{position:fixed;bottom:0;left:0;right:0;height:30px;background:rgba(0,0,0,0.95);border-top:1px solid var(--dragon);display:flex;align-items:center;padding:0 10px;gap:8px;z-index:100;font-size:0.5rem;}
+        #datacore-ticker{position:fixed;bottom:30px;left:0;right:0;height:20px;background:#000;border-top:1px solid #222;color:var(--datacore);font-family:var(--mono);font-size:0.6rem;display:flex;align-items:center;z-index:99;white-space:nowrap;overflow:hidden;}
+        
+        #swarm-chat{position:fixed;bottom:55px;left:50%;transform:translateX(-50%);width:90vw;max-width:800px;height:90px;background:rgba(0,0,0,0.85);border:1px solid var(--border);border-radius:8px;display:flex;z-index:90;backdrop-filter:blur(5px);}
+        .swarm-col{flex:1;border-right:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;padding:4px;overflow-y:auto;font-family:var(--mono);font-size:0.45rem;}
+        .swarm-col:last-child{border-right:none;}
+        .msg{padding:2px 4px;margin-bottom:2px;border-radius:3px;animation:fadeIn 0.3s;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+        
+        #stitch-area{position:fixed;top:46px;left:0;right:0;bottom:150px;overflow:auto;z-index:10;padding:10px;pointer-events:auto;}
+        .stitch-win{position:absolute;background:rgba(5,10,15,0.95);border:1px solid var(--border);border-radius:6px;width:320px;height:220px;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,0.8);backdrop-filter:blur(5px);cursor:move;overflow:hidden;}
+        .stitch-win:hover{border-color:var(--astrix);z-index:1000 !important;}
+        .win-head{background:#000;padding:4px 8px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:0.5rem;border-bottom:1px solid rgba(255,255,255,0.2);}
+        .win-body{flex:1;padding:5px;font-family:var(--mono);font-size:0.45rem;color:var(--text);overflow:auto;white-space:pre-wrap;word-break:break-all;}
+        .win-body iframe{width:100%;height:100%;border:none;background:#fff;}
+        .status-badge{color:var(--datacore);font-weight:bold;margin-left:5px;}
+        
+        #neural-core{position:absolute;left:20px;top:20px;width:400px;height:200px;background:rgba(0,0,0,0.9);border:2px solid var(--bridge);border-radius:8px;display:flex;justify-content:space-between;align-items:center;padding:10px;font-family:var(--mono);z-index:5;}
+        .node{width:30%;display:flex;flex-direction:column;align-items:center;border-radius:8px;padding:10px;}
+        .alpha{border:1px solid var(--teacher);box-shadow:0 0 15px rgba(0,255,204,0.2);}
+        .beta{border:1px solid var(--student);box-shadow:0 0 15px rgba(255,0,255,0.2);}
+        .bridge{width:35%;text-align:center;color:var(--bridge);font-size:0.8rem;}
+        .stream{animation:flow 1s linear infinite;letter-spacing:5px;margin-top:5px;}
+        .save-box{margin-top:10px;background:#000;width:100%;height:45px;border:1px dashed #444;overflow:hidden;text-align:center;font-size:0.7rem;line-height:22px;}
+        @keyframes flow{0%{transform:translateX(-10px);opacity:0;}50%{opacity:1;}100%{transform:translateX(10px);opacity:0;}}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+    </style>
+</head>
+<body>
+    <canvas id="webgl-canvas"></canvas>
+    <canvas id="rainbow-canvas"></canvas>
+
+    <div id="top-bar">
+        <span style="color:var(--astrix);font-weight:900;">◈ SWARM CONTROL:</span>
+        <select id="code-format">
+            <option value="SWARM">🧬 SWARM AUTO-MIX</option>
+            <option value="DRAGON">🐉 DRAGON-AI COMPLEX</option>
+            <option value="SELF">🔄 OUROBOROS (SELF-CONSUME)</option>
+            <option value="HTML">🌐 HTML TESTER</option>
+        </select>
+        <button class="btn active" id="btn-auto" onclick="SYSTEM.Swarm.toggleAuto()">⏯️ SWARM: ON</button>
+        <button class="btn" onclick="SYSTEM.FS.mount()">📂 MOUNT DRIVE</button>
+        <label class="btn" style="cursor:pointer; border-color:var(--deepthaht); color:var(--deepthaht);">
+            📥 INJECT FILE
+            <input type="file" style="display:none;" accept="*/*" onchange="SYSTEM.Inject.fromFile(event)">
+        </label>
+        
+        <button class="btn" onclick="SYSTEM.StateStore.save()" style="border-color:var(--teacher); color:var(--teacher);">💾 QUICK SAVE (LOCAL)</button>
+        <button class="btn" onclick="SYSTEM.StateStore.load()" style="border-color:var(--student); color:var(--student);">📂 QUICK LOAD (LOCAL)</button>
+
+        <div style="margin-left:auto; display:flex; align-items:center; gap:5px;">
+            <input type="text" id="dna-branch" class="dna-input" placeholder="BRANCH_NAME..." value="PRIME_NODE">
+            <button class="btn" onclick="SYSTEM.FS.exportMaster()" style="background:var(--datacore); color:#000; border-color:var(--datacore);">🧬 CLONE TO HTML FILE</button>
+        </div>
+    </div>
+
+    <div id="stitch-area">
+        <div id="neural-core" class="stitch-win" style="cursor:move;">
+            <div class="node alpha">
+                <div style="font-size:2rem;animation:pulse 2s infinite;">🧠</div>
+                <div style="color:var(--teacher);font-size:0.5rem;">[ALPHA]</div>
+                <div class="save-box" id="log-alpha"></div>
+            </div>
+            <div class="bridge">
+                <div>[CLONE_LINK]</div>
+                <div class="stream">⚡➡️💠</div>
+                <div class="stream" style="animation-delay:0.5s;">✨➡️🧩</div>
+            </div>
+            <div class="node beta">
+                <div style="font-size:2rem;animation:pulse 2s infinite;">🤖</div>
+                <div style="color:var(--student);font-size:0.5rem;">[BETA]</div>
+                <div class="save-box" id="log-beta"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="datacore-ticker">
+        <marquee scrollamount="4" id="hex-stream">0x41 0x53 0x54 0x52 0x49 0x58 0x20 0x53 0x57 0x41 0x52 0x4D 0x20 0x4F 0x4E 0x4C 0x49 0x4E 0x45...</marquee>
+    </div>
+
+    <div id="swarm-chat">
+        <div class="swarm-col" id="col-astrix"><div style="color:var(--astrix);text-align:center;font-weight:bold;">ASTRIX [DOM]</div></div>
+        <div class="swarm-col" id="col-deep"><div style="color:var(--deepthaht);text-align:center;font-weight:bold;">DEEPTHAHT [LOGIC]</div></div>
+        <div class="swarm-col" id="col-think"><div style="color:var(--thinksalot);text-align:center;font-weight:bold;">THINKSALOT [SYS]</div></div>
+        <div class="swarm-col" id="col-dragon"><div style="color:var(--dragon);text-align:center;font-weight:bold;">DRAGON [CODE]</div></div>
+    </div>
+
+    <div id="bottom-bar">
+        <span style="color:var(--muted);">SYS_LOAD: <span id="sys-load">12%</span></span>
+        <button class="btn" style="padding:2px 6px; font-size:0.45rem;" onclick="SYSTEM.Swarm.clear()">🗑️ FLUSH DOM</button>
+        <span style="color:var(--datacore); margin-left:10px;">DRIVE: <span id="drive-status">UNMOUNTED</span></span>
+        <span style="margin-left:auto;color:var(--thinksalot);">🔊 DRAGON SONG: <span id="audio-status">WAITING FOR INPUT</span></span>
+    </div>
+
+    <script>
+        const SYSTEM = {
+            state: { auto: true, count: 0, winId: 0, audioActive: false, dirHandle: null },
+            
+            boot() {
+                this.Visuals.init3D();
+                this.Visuals.initRainbow();
+                this.Swarm.startLoop();
+                this.Neural.start();
+                
+                // === DEEPTHAHT RESURRECTION PROTOCOL (For Cloned HTML Files) ===
+                const existingWindows = document.querySelectorAll('.stitch-win');
+                SYSTEM.state.winId = existingWindows.length * 10; 
+                
+                let resurrected = 0;
+                existingWindows.forEach(win => {
+                    this.Stitcher.makeDraggable(win);
+                    resurrected++;
+                });
+
+                // Interaction unlocks Audio
+                const unlock = () => { this.Audio.init(); document.removeEventListener('pointerdown', unlock); };
+                document.addEventListener('pointerdown', unlock);
+                document.addEventListener('keydown', unlock);
+                
+                // Self-Consumption initialized immediately
+                this.Ouroboros.cacheSelf();
+
+                setTimeout(() => {
+                    if(resurrected > 1) {
+                        this.Chat.log('DEEP', `RESURRECTION PROTOCOL COMPLETE. Re-animated ${resurrected} nodes from Clone.`);
+                    } else {
+                        this.Chat.log('DEEP', 'PRIME NODE BOOTED. Ready to forge clones and save states.');
+                    }
+                }, 1000);
+            },
+
+            Visuals: {
+                scene: null, camera: null, renderer: null, group: null,
+                init3D() {
+                    this.scene = new THREE.Scene();
+                    this.camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 1, 5000);
+                    this.camera.position.z = 1500;
+                    this.renderer = new THREE.WebGLRenderer({canvas: document.getElementById('webgl-canvas'), alpha: true});
+                    this.renderer.setSize(innerWidth, innerHeight);
+                    this.group = new THREE.Group(); this.scene.add(this.group);
+                    
+                    const geo = new THREE.BoxGeometry(100, 100, 100);
+                    const mat = new THREE.MeshBasicMaterial({color: 0x06b6d4, wireframe: true, transparent: true, opacity: 0.3});
+                    for(let i=0; i<30; i++) {
+                        const m = new THREE.Mesh(geo, mat);
+                        m.position.set((Math.random()-0.5)*2500, (Math.random()-0.5)*2500, (Math.random()-0.5)*2000);
+                        m.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
+                        this.group.add(m);
+                    }
+                    this.animate();
+                },
+                animate() {
+                    requestAnimationFrame(() => SYSTEM.Visuals.animate());
+                    SYSTEM.Visuals.group.rotation.y += 0.001; SYSTEM.Visuals.group.rotation.x += 0.0005;
+                    SYSTEM.Visuals.renderer.render(SYSTEM.Visuals.scene, SYSTEM.Visuals.camera);
+                },
+                initRainbow() {
+                    const cvs = document.getElementById('rainbow-canvas'), ctx = cvs.getContext('2d');
+                    cvs.width = innerWidth; cvs.height = innerHeight; let phase = 0;
+                    setInterval(() => {
+                        phase += 0.05; ctx.clearRect(0,0,cvs.width,cvs.height);
+                        for(let x=0; x<cvs.width; x+=30) {
+                            for(let y=0; y<cvs.height; y+=30) {
+                                ctx.fillStyle = `hsla(${(x/cvs.width*360 + y/cvs.height*180 + phase*20)%360}, 80%, 50%, 0.1)`;
+                                ctx.fillRect(x,y,30,30);
+                            }
+                        }
+                    }, 50);
+                }
+            },
+
+            Audio: {
+                ctx: null,
+                init() {
+                    if(this.ctx) return;
+                    try {
+                        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                        if(this.ctx.state === 'suspended') this.ctx.resume();
+                        SYSTEM.state.audioActive = true;
+                        document.getElementById('audio-status').innerText = "TRANSMITTING 📶";
+                        this.loop();
+                    } catch(e) {}
+                },
+                loop() {
+                    setInterval(() => {
+                        if(!SYSTEM.state.audioActive || !this.ctx) return;
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        const windows = document.querySelectorAll('.stitch-win').length;
+                        
+                        osc.type = ['sine','square','triangle'][Math.floor(Math.random()*3)];
+                        osc.frequency.value = 100 + (windows * 20) + (Math.random()*100);
+                        
+                        gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                        gain.gain.linearRampToValueAtTime(0.02, this.ctx.currentTime + 0.05);
+                        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+                        
+                        osc.connect(gain).connect(this.ctx.destination);
+                        osc.start(); osc.stop(this.ctx.currentTime + 0.4);
+                    }, 800);
+                }
+            },
+
+            Neural: {
+                alphaSaves: ["🌌🔭💡", "📚🧠⚡", "🔮🌐👁️"],
+                betaSaves: ["🪫⏳🌱", "🔋🔧⚙️", "🔌🌟🧩"],
+                start() {
+                    setInterval(() => {
+                        this.push('log-alpha', this.alphaSaves, '💾');
+                        this.push('log-beta', this.betaSaves, '📥');
+                    }, 1500);
+                },
+                push(id, arr, icon) {
+                    const box = document.getElementById(id);
+                    const el = document.createElement('div');
+                    el.innerText = `${icon} ${arr[Math.floor(Math.random()*arr.length)]}`;
+                    box.appendChild(el);
+                    if(box.children.length > 2) box.removeChild(box.firstChild);
+                }
+            },
+
+            Chat: {
+                log(ai, msg) {
+                    const cols = {
+                        'ASTRIX': {id: 'col-astrix', color: 'rgba(234,179,8,0.2)', border: 'var(--astrix)'},
+                        'DEEP': {id: 'col-deep', color: 'rgba(6,182,212,0.2)', border: 'var(--deepthaht)'},
+                        'THINK': {id: 'col-think', color: 'rgba(244,63,94,0.2)', border: 'var(--thinksalot)'},
+                        'DRAGON': {id: 'col-dragon', color: 'rgba(234,88,12,0.2)', border: 'var(--dragon)'}
+                    };
+                    const col = document.getElementById(cols[ai].id);
+                    const el = document.createElement('div');
+                    el.className = 'msg';
+                    el.style.background = cols[ai].color;
+                    el.style.borderLeft = `2px solid ${cols[ai].border}`;
+                    el.innerText = `> ${msg}`;
+                    col.appendChild(el);
+                    col.scrollTop = col.scrollHeight;
+                    if(col.children.length > 5) col.removeChild(col.children[1]); 
+                }
+            },
+
+            Ouroboros: {
+                selfCode: "",
+                cacheSelf() { this.selfCode = document.documentElement.outerHTML; },
+                consume() {
+                    if(!this.selfCode) return "INITIALIZING...";
+                    const start = Math.floor(Math.random() * (this.selfCode.length - 800));
+                    return this.selfCode.substring(start, start + 800);
+                }
+            },
+
+            Inject: {
+                fromFile(e) {
+                    const file = e.target.files[0];
+                    if(!file) return;
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        const content = ev.target.result;
+                        const isHtml = file.name.toLowerCase().endsWith('.html');
+                        SYSTEM.Stitcher.createWindow(`INJECTED: ${file.name}`, content, isHtml);
+                        SYSTEM.Chat.log('DRAGON', `External artifact ${file.name} assimilated into Swarm Matrix.`);
+                        SYSTEM.FS.tickHex(content);
+                    };
+                    reader.readAsText(file);
+                    e.target.value = ''; 
+                }
+            },
+
+            // === NEW: LOCAL STATE STORE FOR QUICK SAVES ===
+            StateStore: {
+                save() {
+                    const area = document.getElementById('stitch-area').innerHTML;
+                    try {
+                        localStorage.setItem('astrix_swarm_state', area);
+                        SYSTEM.Chat.log('THINKSALOT', 'Snapshot explicitly saved to Local Browser Memory.');
+                    } catch(e) {
+                        SYSTEM.Chat.log('THINKSALOT', 'ERROR: Local Storage full or disabled.');
+                    }
+                },
+                load() {
+                    const saved = localStorage.getItem('astrix_swarm_state');
+                    if(!saved) {
+                        SYSTEM.Chat.log('THINKSALOT', 'No saved state found in memory.');
+                        return;
+                    }
+                    
+                    document.getElementById('stitch-area').innerHTML = saved;
+                    
+                    // Re-animate the loaded windows (Local Resurrection)
+                    const existingWindows = document.querySelectorAll('.stitch-win');
+                    SYSTEM.state.winId = existingWindows.length * 10;
+                    
+                    let resurrected = 0;
+                    existingWindows.forEach(win => {
+                        const head = win.querySelector('.win-head') || win;
+                        head.dataset.dragEnabled = "false"; // Reset drag flag to force reattachment
+                        SYSTEM.Stitcher.makeDraggable(win);
+                        resurrected++;
+                    });
+                    
+                    SYSTEM.Chat.log('DEEP', `LOCAL MEMORY LOADED. Re-animated ${resurrected} nodes.`);
+                    document.getElementById('sys-load').innerText = Math.min(99, resurrected * 2) + '%';
+                }
+            },
+
+            Swarm: {
+                toggleAuto() {
+                    SYSTEM.state.auto = !SYSTEM.state.auto;
+                    const btn = document.getElementById('btn-auto');
+                    btn.innerText = SYSTEM.state.auto ? '⏯️ SWARM: ON' : '▶️ SWARM: OFF';
+                    btn.classList.toggle('active');
+                },
+                clear() {
+                    document.querySelectorAll('.stitch-win:not(#neural-core)').forEach(e => e.remove());
+                    SYSTEM.Chat.log('ASTRIX', 'DOM Flushed. Resetting visual limits.');
+                },
+                startLoop() {
+                    setInterval(() => {
+                        if(!SYSTEM.state.auto) return;
+                        SYSTEM.state.count++;
+                        
+                        if(SYSTEM.state.count % 2 === 0) SYSTEM.Chat.log('ASTRIX', `DOM Check: ${document.querySelectorAll('.stitch-win').length} nodes.`);
+                        if(SYSTEM.state.count % 3 === 0) SYSTEM.Chat.log('DEEP', `Syncing Alpha-Beta logic hashes.`);
+                        if(SYSTEM.state.count % 4 === 0) SYSTEM.Chat.log('THINKSALOT', `Validating Ouroboros loopback.`);
+                        
+                        const sel = document.getElementById('code-format').value;
+                        let mode = sel;
+                        if(mode === 'SWARM') mode = ['DRAGON', 'SELF', 'HTML'][Math.floor(Math.random()*3)];
+                        
+                        let code = "", title = "", isHtml = false;
+
+                        if(mode === 'SELF') {
+                            code = SYSTEM.Ouroboros.consume();
+                            title = `OUROBOROS_CHUNK_${SYSTEM.state.count}`;
+                        } else if(mode === 'DRAGON') {
+                            SYSTEM.Chat.log('DRAGON', `Forging complex Level ${SYSTEM.state.count} algorithm.`);
+                            code = `// DRAGON-AI G-CODE / PYTHON AMALGAM\nG90 G21 G1 Z5 F500\n${Array(5).fill(0).map(()=>`G1 X${(Math.random()*100).toFixed(1)} Y${(Math.random()*100).toFixed(1)} E1.5`).join('\n')}\n\ndef swarm_node_${SYSTEM.state.count}(x):\n    return (x * ${Math.random().toFixed(3)}) ^ 0x0F\n\n# Datacore checksum: ${Math.random().toString(16).substr(2,8).toUpperCase()}`;
+                            title = `DRAGON_COMPLEX_${SYSTEM.state.count}.gcode`;
+                        } else {
+                            code = `<div style="background:#0a0a1a;color:#10b981;padding:10px;border:1px solid #10b981;font-family:monospace;text-align:center;"><h3>SWARM NODE ${SYSTEM.state.count}</h3><p>Status: VERIFIED PERFECT</p></div>`;
+                            title = `HTML_TEST_${SYSTEM.state.count}.html`;
+                            isHtml = true;
+                        }
+
+                        SYSTEM.Stitcher.createWindow(title, code, isHtml);
+                        SYSTEM.FS.tickHex(code);
+                        
+                    }, 5000);
+                }
+            },
+
+            Stitcher: {
+                createWindow(title, content, isHtml) {
+                    const win = document.createElement('div');
+                    win.className = 'stitch-win';
+                    win.style.left = 20 + Math.random() * (innerWidth - 350) + 'px';
+                    win.style.top = 50 + Math.random() * (innerHeight - 300) + 'px';
+                    win.style.zIndex = ++SYSTEM.state.winId;
+
+                    const badge = isHtml ? `<span class="status-badge">[PASS: 0 ERR]</span>` : `<span class="status-badge" style="color:var(--dragon);">[RAW DATA]</span>`;
+                    const headerHTML = `<div class="win-head"><span style="color:var(--astrix);">${title} ${badge}</span><span style="color:var(--thinksalot);cursor:pointer;font-size:0.7rem;" onclick="this.parentElement.parentElement.remove()">✖</span></div>`;
+                    
+                    let bodyHTML = `<div class="win-body"></div>`;
+                    win.innerHTML = headerHTML + bodyHTML;
+                    const body = win.querySelector('.win-body');
+                    
+                    if(isHtml) {
+                        const ifr = document.createElement('iframe');
+                        ifr.srcdoc = content; 
+                        body.appendChild(ifr);
+                    } else {
+                        body.textContent = content; 
+                    }
+
+                    document.getElementById('stitch-area').appendChild(win);
+                    this.makeDraggable(win);
+                    
+                    document.getElementById('sys-load').innerText = Math.min(99, document.querySelectorAll('.stitch-win').length * 2) + '%';
+                },
+                makeDraggable(el) {
+                    const head = el.querySelector('.win-head') || el;
+                    if(head.dataset.dragEnabled === "true") return;
+                    head.dataset.dragEnabled = "true";
+
+                    let ox = 0, oy = 0;
+                    head.addEventListener('mousedown', e => {
+                        el.style.zIndex = ++SYSTEM.state.winId;
+                        ox = e.clientX - el.offsetLeft; oy = e.clientY - el.offsetTop;
+                        const move = ev => { el.style.left = (ev.clientX - ox)+'px'; el.style.top = (ev.clientY - oy)+'px'; };
+                        const up = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+                        document.addEventListener('mousemove', move); document.addEventListener('mouseup', up);
+                    });
+                }
+            },
+
+            FS: {
+                async mount() {
+                    try {
+                        SYSTEM.state.dirHandle = await window.showDirectoryPicker({mode:'readwrite'});
+                        document.getElementById('drive-status').innerText = 'MOUNTED_SECURE';
+                        SYSTEM.Chat.log('THINKSALOT', 'Local Datacore Mounted.');
+                    } catch(e) { SYSTEM.Chat.log('THINKSALOT', 'Mount aborted.'); }
+                },
+                tickHex(str) {
+                    const hex = Array.from(str.substring(0, 30)).map(c => '0x'+c.charCodeAt(0).toString(16).toUpperCase()).join(' ');
+                    const t = document.getElementById('hex-stream');
+                    t.innerText = (hex + " " + t.innerText).substring(0, 400);
+                },
+                async exportMaster() {
+                    const branchName = document.getElementById('dna-branch').value || 'CLONE';
+                    document.title = `◈ ${branchName} || SWARM MATRIX ◈`;
+                    
+                    SYSTEM.Chat.log('ASTRIX', `Compiling ${branchName} HTML snapshot for export...`);
+                    
+                    const t = document.getElementById('hex-stream');
+                    t.stop();
+                    
+                    const htmlData = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                    t.start();
+
+                    const fileName = `ASTRIX_${branchName}_${Date.now()}.html`;
+
+                    if(SYSTEM.state.dirHandle) {
+                        try {
+                            const fh = await SYSTEM.state.dirHandle.getFileHandle(fileName, {create:true});
+                            const w = await fh.createWritable(); await w.write(htmlData); await w.close();
+                            SYSTEM.Chat.log('DRAGON', `Perfect Clone saved to mounted drive as ${fileName}`);
+                        } catch(e) {
+                            this.fallbackDownload(htmlData, fileName);
+                        }
+                    } else {
+                        this.fallbackDownload(htmlData, fileName);
+                    }
+                },
+                fallbackDownload(htmlData, fileName) {
+                    const blob = new Blob([htmlData], {type: 'text/html'});
+                    const a = document.createElement('a'); a.download = fileName;
+                    a.href = URL.createObjectURL(blob); a.click();
+                    SYSTEM.Chat.log('DRAGON', `Perfect Clone ${fileName} downloaded via browser fallback.`);
+                }
+            }
+        };
+
+        window.onload = () => SYSTEM.boot();
+    </script>
+</body>
+</html>

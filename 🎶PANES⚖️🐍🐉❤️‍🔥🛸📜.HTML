@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrix-AI Core Matrix</title>
+    <style>
+        body { margin: 0; background: #050508; color: #00ffcc; font-family: 'Courier New', Courier, monospace; overflow-x: hidden; padding-bottom: 120px; }
+        
+        /* Slide-out Menu */
+        #side-menu {
+            position: fixed; top: 0; left: -450px; width: 450px; height: 100vh;
+            background: rgba(0, 15, 15, 0.98); border-right: 2px solid #00ffcc;
+            box-shadow: 5px 0 25px rgba(0, 255, 204, 0.3); transition: left 0.3s ease;
+            z-index: 1000; overflow-y: auto; padding: 20px; box-sizing: border-box;
+        }
+        #side-menu.open { left: 0; }
+        
+        #menu-toggle {
+            position: fixed; top: 20px; left: 20px; z-index: 1001;
+            background: #00ffcc; color: #000; border: none; padding: 15px 20px;
+            font-weight: bold; font-size: 16px; cursor: pointer; border-radius: 5px;
+            box-shadow: 0 0 10px #00ffcc;
+        }
+        #menu-toggle:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+
+        /* Clone Save Button */
+        #clone-btn {
+            width: 100%; background: #ff0055; color: #fff; border: 2px solid #fff;
+            padding: 15px; font-size: 18px; font-weight: bold; cursor: pointer;
+            margin-bottom: 20px; border-radius: 5px; box-shadow: 0 0 15px rgba(255,0,85,0.5);
+        }
+        #clone-btn:hover { background: #fff; color: #ff0055; border-color: #ff0055; }
+
+        .menu-section { margin-bottom: 35px; border-bottom: 1px solid #00ffcc; padding-bottom: 15px; }
+        .menu-section h3 { color: #ff0055; margin-top: 0; font-size: 20px; }
+        
+        .control-group { margin-bottom: 15px; background: rgba(0,255,204,0.05); padding: 10px; border-radius: 5px; border: 1px solid rgba(0,255,204,0.2); }
+        .control-group label { display: block; font-size: 14px; margin-bottom: 8px; font-weight: bold; color: #fff; }
+        .control-group input[type="file"] { width: 100%; font-size: 12px; color: #aaa; background: #000; padding: 5px; }
+        
+        .rotate-btns button { 
+            background: #111; color: #00ffcc; border: 1px solid #00ffcc; 
+            padding: 10px 15px; cursor: pointer; font-size: 14px; margin: 3px; font-weight: bold;
+        }
+        .rotate-btns button:hover { background: #00ffcc; color: #000; }
+
+        .load-all-box { border: 1px solid #ff0055; background: rgba(255,0,85,0.05); }
+        .load-all-box label { color: #ff0055; }
+
+        /* Dashboard Layout */
+        .dashboard { display: flex; flex-direction: column; align-items: center; gap: 80px; padding: 100px 20px 50px 20px; min-height: 100vh; }
+
+        /* 3D Cube Container */
+        .scene { width: 350px; height: 350px; perspective: 1200px; margin: 0 auto; }
+        .cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transform: translateZ(-175px); transition: transform 1s cubic-bezier(0.25, 0.1, 0.25, 1); }
+        
+        .cube.show-front  { transform: translateZ(-175px) rotateY(   0deg); }
+        .cube.show-right  { transform: translateZ(-175px) rotateY( -90deg); }
+        .cube.show-back   { transform: translateZ(-175px) rotateY(-180deg); }
+        .cube.show-left   { transform: translateZ(-175px) rotateY(  90deg); }
+        .cube.show-top    { transform: translateZ(-175px) rotateX( -90deg); }
+        .cube.show-bottom { transform: translateZ(-175px) rotateX(  90deg); }
+
+        .cube__face {
+            position: absolute; width: 350px; height: 350px;
+            border: 2px solid #00ffcc; background: rgba(0, 10, 10, 0.9);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2) inset;
+            box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column;
+        }
+        .cube__face--front  { transform: rotateY(  0deg) translateZ(175px); }
+        .cube__face--right  { transform: rotateY( 90deg) translateZ(175px); }
+        .cube__face--back   { transform: rotateY(180deg) translateZ(175px); }
+        .cube__face--left   { transform: rotateY(-90deg) translateZ(175px); }
+        .cube__face--top    { transform: rotateX( 90deg) translateZ(175px); }
+        .cube__face--bottom { transform: rotateX(-90deg) translateZ(175px); }
+
+        .face-header { background: #00ffcc; color: #000; padding: 5px; font-weight: bold; font-size: 14px; text-align: center; border-bottom: 2px solid #00ffcc; }
+        .face-content { flex-grow: 1; padding: 10px; overflow-y: auto; font-size: 12px; }
+
+        .cube-title { text-align: center; color: #fff; font-size: 24px; text-shadow: 0 0 10px #00ffcc; margin-bottom: 20px; font-weight: bold; letter-spacing: 2px; }
+
+        .bottom-ticker {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: #000; border-top: 2px solid #00ffcc;
+            display: flex; align-items: center; overflow: hidden; z-index: 500;
+        }
+        .ticker-text {
+            white-space: nowrap; color: #00ff00; font-size: 16px; font-weight: bold;
+            animation: scrollAcross 25s linear infinite;
+        }
+        @keyframes scrollAcross { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+
+        #math-engine { position: fixed; bottom: 80px; right: 20px; width: 320px; height: 200px; background: #0a0a0a; border: 2px solid #ff0055; padding: 15px; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); z-index: 100; display: flex; flex-direction: column; }
+        #math-output { flex-grow: 1; overflow-y: auto; font-size: 12px; margin-bottom: 10px; color: #ff99bb; }
+        
+    </style>
+</head>
+<body>
+
+    <button id="menu-toggle" onclick="toggleMenu()">☰ SWARM OVERRIDE CONTROLS</button>
+
+    <div id="side-menu">
+        <h2 style="color: #fff; font-size: 28px; text-shadow: 0 0 10px #00ffcc;">MATRIX ROUTING</h2>
+        
+        <button id="clone-btn" onclick="cloneMatrixState()">💾 CLONE & SAVE MATRIX STATE</button>
+        
+        <div class="menu-section">
+            <h3>CUBE 1: DEEPTHAHT-AI</h3>
+            <div class="rotate-btns">
+                <button onclick="rotateCube('cube1', 'front')">Front</button>
+                <button onclick="rotateCube('cube1', 'right')">Right</button>
+                <button onclick="rotateCube('cube1', 'back')">Back</button>
+                <button onclick="rotateCube('cube1', 'left')">Left</button>
+                <button onclick="rotateCube('cube1', 'top')">Top</button>
+                <button onclick="rotateCube('cube1', 'bottom')">Bottom</button>
+            </div>
+            <div class="control-group">
+                <label>Target Active Face Only:</label>
+                <input type="file" accept=".html" onchange="loadHTML(event, 'cube1', false)">
+            </div>
+            <div class="control-group load-all-box">
+                <label>⚡ LOAD ALL AS ONE MIND (6 FACES):</label>
+                <input type="file" accept=".html" onchange="loadHTML(event, 'cube1', true)">
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <h3>CUBE 2: THINKSALOT-AI</h3>
+            <div class="rotate-btns">
+                <button onclick="rotateCube('cube2', 'front')">Front</button>
+                <button onclick="rotateCube('cube2', 'right')">Right</button>
+                <button onclick="rotateCube('cube2', 'back')">Back</button>
+                <button onclick="rotateCube('cube2', 'left')">Left</button>
+                <button onclick="rotateCube('cube2', 'top')">Top</button>
+                <button onclick="rotateCube('cube2', 'bottom')">Bottom</button>
+            </div>
+            <div class="control-group">
+                <label>Target Active Face Only:</label>
+                <input type="file" accept=".html" onchange="loadHTML(event, 'cube2', false)">
+            </div>
+            <div class="control-group load-all-box">
+                <label>⚡ LOAD ALL AS ONE MIND (6 FACES):</label>
+                <input type="file" accept=".html" onchange="loadHTML(event, 'cube2', true)">
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <h3>CUBE 3: ASTRIX-AI</h3>
+            <div class="rotate-btns">
+                <button onclick="rotateCube('cube3', 'front')">Front</button>
+                <button onclick="rotateCube('cube3', 'right')">Right</button>
+                <button onclick="rotateCube('cube3', 'back')">Back</button>
+                <button onclick="rotateCube('cube3', 'left')">Left</button>
+                <button onclick="rotateCube('cube3', 'top')">Top</button>
+                <button onclick="rotateCube('cube3', 'bottom')">Bottom</button>
+            </div>
+            <div class="control-group">
+                <label>Target Active Face Only:</label>
+                <input type="file" accept=".html" onchange="loadHTML(event, 'cube3', false)">
+            </div>
+            <div class="control-group load-all-box">
+                <label>⚡ LOAD ALL AS ONE MIND (6 FACES):</label>
+                <input type="file" accept=".html" onchange="loadHTML(event, 'cube3', true)">
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        
+        <div class="cube-container">
+            <div class="cube-title">1. DEEPTHAHT-AI</div>
+            <div class="scene">
+                <div class="cube show-front" id="cube1" data-active-face="front">
+                    <div class="cube__face cube__face--front" id="cube1-front"><div class="face-header">CORE MIND</div><div class="face-content">Awaiting logic...</div></div>
+                    <div class="cube__face cube__face--right" id="cube1-right"><div class="face-header">MEMORY</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--back" id="cube1-back"><div class="face-header">LOGIC</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--left" id="cube1-left"><div class="face-header">SYS</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--top" id="cube1-top"><div class="face-header">NET</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--bottom" id="cube1-bottom"><div class="face-header">I/O</div><div class="face-content">Empty</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cube-container">
+            <div class="cube-title">2. THINKSALOT-AI</div>
+            <div class="scene">
+                <div class="cube show-front" id="cube2" data-active-face="front">
+                    <div class="cube__face cube__face--front" id="cube2-front"><div class="face-header">ANALYTICS</div><div class="face-content">Awaiting parsing...</div></div>
+                    <div class="cube__face cube__face--right" id="cube2-right"><div class="face-header">DATA</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--back" id="cube2-back"><div class="face-header">VARS</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--left" id="cube2-left"><div class="face-header">FUNCTIONS</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--top" id="cube2-top"><div class="face-header">CACHE</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--bottom" id="cube2-bottom"><div class="face-header">AUDIO FLOW</div><div class="face-content">Empty</div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cube-container">
+            <div class="cube-title">3. ASTRIX-AI / SWARM VM</div>
+            <div class="scene">
+                <div class="cube show-front" id="cube3" data-active-face="front">
+                    <div class="cube__face cube__face--front" id="cube3-front"><div class="face-header">VM SANDBOX</div><div class="face-content">Awaiting payload...</div></div>
+                    <div class="cube__face cube__face--right" id="cube3-right"><div class="face-header">UNICODE SEARCH</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--back" id="cube3-back"><div class="face-header">HTML RENDER</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--left" id="cube3-left"><div class="face-header">TESTS</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--top" id="cube3-top"><div class="face-header">PORTS</div><div class="face-content">Empty</div></div>
+                    <div class="cube__face cube__face--bottom" id="cube3-bottom"><div class="face-header">COMPILE</div><div class="face-content">Empty</div></div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="bottom-ticker">
+        <div class="ticker-text">
+            [SYS-DRAGON] OVERRIDE ACTIVE // INJECTING FIRE-THREAD PARALLELISM TO ASTRIX SWARM... // UNICODE DATASET MOUNTED // GOTO-AI ROUTINES SYNCHRONIZING ACROSS ALL 6 PANES // AWAITING DEEPTHAHT ANALYSIS // CALCULATOR-AI ONLINE // E=MC^2 VERIFIED // ... 
+        </div>
+    </div>
+
+    <div id="math-engine">
+        <h4 style="margin: 0; color: #ff0055; font-size: 16px;">PYTHON-SI CALCULATOR</h4>
+        <hr style="border-color: #ff0055; width: 100%;">
+        <div id="math-output">Verifying logic streams...</div>
+        <input type="text" id="formula-input" placeholder="Input math/code..." style="width: 100%; background: #000; color: #fff; border: 1px solid #ff0055; padding: 10px; box-sizing: border-box; font-family: monospace; font-size: 14px;">
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('side-menu');
+            menu.classList.toggle('open');
+            playComputeSound();
+        }
+
+        function rotateCube(cubeId, side) {
+            const cube = document.getElementById(cubeId);
+            cube.className = 'cube show-' + side;
+            cube.setAttribute('data-active-face', side); 
+            playComputeSound();
+        }
+
+        // Advanced Safe Sandbox Injector using iFrames
+        function injectSandbox(targetId, content, filename, isAll) {
+            const targetElement = document.getElementById(targetId);
+            if (!targetElement) return;
+            
+            // Find the content div inside the face
+            const contentDiv = targetElement.querySelector('.face-content');
+            if (contentDiv) {
+                const accentColor = isAll ? "#ff0055" : "#00ffcc";
+                // Inject an iframe so the uploaded HTML's CSS cannot break the 3D Cube
+                contentDiv.innerHTML = `
+                    <div style="margin-bottom: 5px; color: ${accentColor}; border-bottom: 1px dashed ${accentColor};">
+                        [MOUNTED: ${filename}]
+                    </div>
+                    <iframe style="width: 100%; height: 90%; border: none; background: transparent;"></iframe>
+                `;
+                
+                // Write the content securely into the iframe
+                const iframe = contentDiv.querySelector('iframe');
+                iframe.contentWindow.document.open();
+                iframe.contentWindow.document.write(content);
+                iframe.contentWindow.document.close();
+                
+                // Force base text colors inside iframe just in case the file has none
+                const style = iframe.contentWindow.document.createElement('style');
+                style.innerHTML = "body { color: #00ffcc; font-family: 'Courier New', monospace; font-size: 12px; }";
+                iframe.contentWindow.document.head.appendChild(style);
+            }
+        }
+
+        // Unified Load Function (Handles both Single Face and All Faces)
+        function loadHTML(event, cubeId, loadAll) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (loadAll) {
+                    const faces = ['front', 'right', 'back', 'left', 'top', 'bottom'];
+                    faces.forEach(face => {
+                        injectSandbox(`${cubeId}-${face}`, e.target.result, file.name, true);
+                    });
+                } else {
+                    const cube = document.getElementById(cubeId);
+                    const activeSide = cube.getAttribute('data-active-face');
+                    injectSandbox(`${cubeId}-${activeSide}`, e.target.result, file.name, false);
+                }
+                playComputeSound();
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
+        }
+
+        // CLONE MATRIX STATE (Save current DOM)
+        function cloneMatrixState() {
+            playComputeSound();
+            
+            // Grab the current HTML of the entire page
+            let htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            
+            // Convert to a Blob
+            let blob = new Blob([htmlContent], { type: "text/html" });
+            
+            // Create a fake anchor tag to trigger download
+            let a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            
+            // Generate a timestamp for the filename
+            let date = new Date();
+            let timestamp = date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate() + "_" + date.getHours() + "-" + date.getMinutes() + "-" + date.getSeconds();
+            a.download = `Astrix_Swarm_Clone_${timestamp}.html`;
+            
+            // Trigger download
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        // AUDIO ENGINE
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playComputeSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(100 + Math.random() * 200, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.4);
+            gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.4);
+        }
+
+        // MATH CALCULATOR LOGIC
+        document.getElementById('formula-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                const formula = this.value;
+                document.getElementById('math-output').innerHTML += `<br>> <b>${formula}</b><br><span style="color:#00ffcc;">> Verified by Swarm.</span>`;
+                this.value = '';
+                const outputDiv = document.getElementById('math-output');
+                outputDiv.scrollTop = outputDiv.scrollHeight;
+                playComputeSound();
+            }
+        });
+    </script>
+</body>
+</html>

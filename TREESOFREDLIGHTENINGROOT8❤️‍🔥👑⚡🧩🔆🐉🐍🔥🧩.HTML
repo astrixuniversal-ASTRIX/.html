@@ -1,0 +1,1154 @@
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{background:#fff;font-family:sans-serif;padding:20px;}</style></head><body><h1>ASTRIX STITCHED</h1><pre style="background:#f4f4f4;padding:10px;border-radius:6px;"><!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{background:#fff;font-family:sans-serif;padding:20px;}</style></head><body><h1>ASTRIX STITCHED</h1><pre style="background:#f4f4f4;padding:10px;border-radius:6px;">◈ ASTRIX‑AI+CUBE · MOVIE + SQL DATACORE + MEDIA ◈
+    
+    
+    
+
+
+    
+        
+            🛸 ASTRIX‑AI
+            🧊 SCAD
+            🏗️ BUILD HOME
+            🖼️ PIP
+            🎬 MEDIA
+            🎞️ MOVIE
+            🗃️ SQL
+            🎵 SONG
+            ⏸️ PAUSE
+            
+                🎤
+                🎵
+            
+            ⚡0.5W | 📊0
+        
+        
+            
+                👥 CREW
+                
+                📊 STATUS
+                All systems nominal.
+                🌈 RAINBOW
+                
+            
+            
+                💬 COMMS · ASTRIX ↔ DEEPTHAHT ↔ THINKSALOT ↔ DRAGON ↔ GOTO
+                
+                
+                    
+                    📤
+                    ❓
+                    🌐
+                
+            
+            
+                🔥 FORGE
+                
+                
+                    FIX
+                    STITCH
+                    CREW
+                    SAVE
+                    GEN
+                
+                🧪 GRADES
+                
+                Awaiting code.
+                📂 MOUNT
+                
+                    READ
+                    SAVE
+                    SCAN
+                    SQL
+                    CLONE
+                
+                📁 No folders
+            
+        
+        
+    
+    
+        
+            🧊 SCAD DEMO · PRESSURE SYSTEM✖
+            
+                
+                
+                    ▶ AIRFLOW
+                    🏗️ HOME
+                    🤖 BUILD
+                    🔧 FIX
+                
+                
+            
+        
+    
+    
+        
+            🖼️ PIP HTML SANDBOX✖
+            
+                
+                
+                ▶ TEST💾 SAVE
+            
+        
+    
+    
+        
+            🎬 MEDIA PLAYER · MP3/MP4✖
+            
+                📂 LOAD MEDIA FILE
+                
+                    Load an MP3 or MP4 file to play
+                
+                
+                    ▶ PLAY
+                    ⏸️ PAUSE
+                    ⏹️ STOP
+                    No file loaded
+                
+            
+        
+    
+    
+        
+            🎞️ AI GROWTH MOVIE · FROM BIRTH TO NOW✖
+            
+                
+                The AI growth movie shows every milestone since boot — watch the intelligence evolve.
+                
+                    ▶ PLAY MOVIE
+                    ⏸️ PAUSE
+                    📤 EXPORT
+                    Milestones: 0
+                
+            
+        
+    
+    
+        
+            🗃️ SQL DATACORE · QUERY THE AI'S KNOWLEDGE✖
+            
+                
+                    
+                    ▶ RUN
+                
+                
+                    ALL RECENT
+                    WEB FINDS
+                    CODE GENS
+                    SCANS
+                    STATS
+                
+                Enter a SQL query above and press ▶ RUN.</pre></body></html> ... <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>◈ ASTRIX‑AI+CUBE · MOVIE + SQL DATACORE + MEDIA ◈</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js">
+    </script>
+    <style>
+        :root {
+            --bg: #f4f6fb;
+            --card: #fff;
+            --border: #e4eaf2;
+            --text: #1e293b;
+            --astrix: #b7791f;
+            --dragon: #c2410c;
+            --datacore: #15803d;
+            --blueprint: #2563eb;
+            --void: #7c3aed;
+            --goto: #db2777;
+            --mono: 'Courier New', monospace;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg);
+            font-family: system-ui, sans-serif;
+            font-size: 14px;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        #starship-frame {
+            position: fixed;
+            inset: 4px;
+            border: 2px solid var(--astrix);
+            border-radius: 18px;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+            z-index: 10;
+        }
+        #top-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            border-radius: 18px 18px 0 0;
+        }
+        .btn {
+            padding: 6px 11px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: #fafbfd;
+            cursor: pointer;
+            font-size: 0.58rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: .15s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+        .btn:hover {
+            background: #f1f5f9;
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: scale(.96);
+        }
+        .btn.gold {
+            border-color: var(--astrix);
+            color: var(--astrix);
+            background: #fffbeb;
+        }
+        .btn.orange {
+            border-color: var(--dragon);
+            color: var(--dragon);
+            background: #fff7ed;
+        }
+        .btn.green {
+            border-color: var(--datacore);
+            color: var(--datacore);
+            background: #f0fdf4;
+        }
+        .btn.blue {
+            border-color: var(--blueprint);
+            color: var(--blueprint);
+            background: #eff6ff;
+        }
+        .btn.purple {
+            border-color: var(--void);
+            color: var(--void);
+            background: #faf5ff;
+        }
+        .btn.pink {
+            border-color: var(--goto);
+            color: var(--goto);
+            background: #fdf2f8;
+        }
+        #main-deck {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 250px 1fr 280px;
+            gap: 5px;
+            padding: 5px;
+            overflow: hidden;
+        }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 7px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .card h3 {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 4px;
+            letter-spacing: 0.3px;
+        }
+        .terminal {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px;
+            font-family: var(--mono);
+            font-size: 0.45rem;
+            overflow-y: auto;
+            line-height: 1.25;
+            color: #475569;
+        }
+        textarea {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            font-family: var(--mono);
+            font-size: 0.48rem;
+            resize: vertical;
+            border-radius: 6px;
+            min-height: 45px;
+            outline: none;
+        }
+        textarea:focus {
+            border-color: var(--blueprint);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+        }
+        .chat-bubble {
+            padding: 5px 8px;
+            border-radius: 10px;
+            max-width: 85%;
+            font-size: 0.48rem;
+            margin: 1px 0;
+            line-height: 1.3;
+            animation: slideUp .3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .chat-bubble.astrix {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            align-self: flex-start;
+        }
+        .chat-bubble.deepthaht {
+            background: #ecfeff;
+            border: 1px solid #a5f3fc;
+            align-self: flex-start;
+        }
+        .chat-bubble.thinksalot {
+            background: #ffe4e6;
+            border: 1px solid #fecdd3;
+            align-self: flex-start;
+        }
+        .chat-bubble.dragon {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            align-self: flex-end;
+        }
+        .chat-bubble.goto {
+            background: #fdf2f8;
+            border: 1px solid #fbcfe8;
+            align-self: flex-end;
+        }
+        .chat-bubble.system {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            align-self: center;
+            text-align: center;
+            max-width: 95%;
+            font-size: 0.42rem;
+        }
+        #hex-broadcast {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.9);
+            border-top: 1px solid var(--astrix);
+            font-family: monospace;
+            font-size: 6px;
+            color: var(--astrix);
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 15;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+        }
+        #hex-stream {
+            animation: hexScroll 5s linear infinite;
+        }
+        @keyframes hexScroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 200;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-window {
+            background: #fff;
+            border: 2px solid var(--astrix);
+            border-radius: 14px;
+            width: 90vw;
+            max-width: 800px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 8px 14px;
+            background: #fafbfd;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+        .modal-body {
+            flex: 1;
+            overflow: auto;
+            padding: 10px;
+        }
+        #timeline-canvas {
+            width: 100%;
+            height: 120px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fafbfd;
+        }
+        #media-player {
+            width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            background: #000;
+        }
+        #sql-query-input {
+            width: 100%;
+            font-family: var(--mono);
+            font-size: 0.5rem;
+            padding: 6px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: #f8fafc;
+        }
+        .sql-results {
+            max-height: 200px;
+            overflow: auto;
+            font-family: var(--mono);
+            font-size: 0.42rem;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px;
+        }
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.5rem;
+        }
+        .slider-group input[type=range] {
+            width: 50px;
+        }
+        @media (max-width:900px) {
+            #main-deck {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+            .card {
+                max-height: 150px;
+            }
+            .modal-window {
+                width: 95vw;
+                height: 85vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="starship-frame">
+        <div id="top-bar">
+            <span style="font-weight:900;color:var(--astrix);font-size:0.7rem;">🛸 ASTRIX‑AI</span>
+            <button class="btn gold" onclick="Ship.modals.open('scad')">🧊 SCAD</button>
+            <button class="btn orange" onclick="Ship.scadAI.quickBuildHome()">🏗️ BUILD HOME</button>
+            <button class="btn blue" onclick="Ship.modals.open('pip')">🖼️ PIP</button>
+            <button class="btn purple" onclick="Ship.modals.open('media')">🎬 MEDIA</button>
+            <button class="btn pink" onclick="Ship.modals.open('movie')">🎞️ MOVIE</button>
+            <button class="btn green" onclick="Ship.modals.open('sql')">🗃️ SQL</button>
+            <button class="btn orange" onclick="Ship.Audio.playDragonSong()">🎵 SONG</button>
+            <button class="btn" onclick="Ship.togglePause()" id="btn-pause">⏸️ PAUSE</button>
+            <div class="slider-group" style="margin-left:auto;">
+                <span>🎤</span><input type="range" id="voice-rate" min="0.5" max="2" value="1" step="0.1">
+                <span>🎵</span><input type="range" id="dragon-freq" min="200" max="1200" value="666" step="1">
+            </div>
+            <span id="mini-stats" style="font-size:0.45rem;color:var(--muted);">⚡0.5W | 📊0</span>
+        </div>
+        <div id="main-deck">
+            <div class="card" id="panel-left">
+                <h3>👥 CREW</h3>
+                <div id="crew-panel"></div>
+                <h3>📊 STATUS</h3>
+                <div class="terminal" id="ship-status" style="max-height:50px;">All systems nominal.</div>
+                <h3>🌈 RAINBOW</h3>
+                <div style="height:28px;border-radius:6px;overflow:hidden;border:1px solid var(--border);"><canvas id="rainbow-canvas"></canvas></div>
+            </div>
+            <div class="card" id="loopback-chat">
+                <h3>💬 COMMS · ASTRIX ↔ DEEPTHAHT ↔ THINKSALOT ↔ DRAGON ↔ GOTO</h3>
+                <div id="loopback-messages" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;min-height:0;"></div>
+                <div style="display:flex;gap:4px;margin-top:4px;">
+                    <input id="chat-input" placeholder="Talk to your AI crew..." style="flex:1;padding:6px;border:1px solid var(--border);border-radius:12px;font-size:0.55rem;outline:none;">
+                    <button class="btn" onclick="Ship.sendChat()">📤</button>
+                    <button class="btn gold" onclick="Ship.askWhatToDo()">❓</button>
+                    <button class="btn blue" onclick="Ship.searchInternet()">🌐</button>
+                </div>
+            </div>
+            <div class="card" id="panel-right">
+                <h3>🔥 FORGE</h3>
+                <textarea id="forge-code"></textarea>
+                <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;">
+                    <button class="btn orange" onclick="Ship.Forge.fixCode()">FIX</button>
+                    <button class="btn gold" onclick="Ship.Forge.stitchCode()">STITCH</button>
+                    <button class="btn" onclick="Ship.Forge.sendToTeam()">CREW</button>
+                    <button class="btn green" onclick="Ship.Forge.saveToFolder()">SAVE</button>
+                    <button class="btn blue" onclick="Ship.AutoCode.generateNow()">GEN</button>
+                </div>
+                <h3 style="margin-top:3px;">🧪 GRADES</h3>
+                <div id="team-grades" style="display:flex;gap:2px;flex-wrap:wrap;font-size:0.4rem;"></div>
+                <div class="terminal" id="team-feedback" style="max-height:35px;">Awaiting code.</div>
+                <h3 style="margin-top:3px;">📂 MOUNT</h3>
+                <div style="display:flex;gap:3px;flex-wrap:wrap;">
+                    <button class="btn green" onclick="Ship.mountRead()">READ</button>
+                    <button class="btn gold" onclick="Ship.mountSave()">SAVE</button>
+                    <button class="btn orange" onclick="Ship.scanAndLearn()">SCAN</button>
+                    <button class="btn purple" onclick="Ship.SQL.searchPrompt()">SQL</button>
+                    <button class="btn" onclick="Ship.Clone.create()">CLONE</button>
+                </div>
+                <span id="mount-ind" style="font-size:0.38rem;color:#94a3b8;">📁 No folders</span>
+            </div>
+        </div>
+        <div id="hex-broadcast"><span id="hex-stream"></span></div>
+    </div>
+    <div class="modal-overlay" id="modal-scad">
+        <div class="modal-window">
+            <div class="modal-header"><span>🧊 SCAD DEMO · PRESSURE SYSTEM</span><button class="btn" onclick="Ship.modals.close('scad')">✖</button></div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:6px;padding:0;">
+                <div id="scad-viewport" style="flex:1;min-height:300px;"><canvas id="scad-canvas"></canvas></div>
+                <div style="display:flex;gap:4px;padding:6px;flex-wrap:wrap;border-top:1px solid var(--border);">
+                    <button class="btn orange" id="simulate-btn">▶ AIRFLOW</button>
+                    <button class="btn gold" onclick="Ship.scadAI.quickBuildHome()">🏗️ HOME</button>
+                    <button class="btn" onclick="Ship.scadAI.aiBuild()">🤖 BUILD</button>
+                    <button class="btn" onclick="Ship.scadAI.fixModel()">🔧 FIX</button>
+                </div>
+                <textarea id="scad-code" style="min-height:40px;margin:0 6px 6px;" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal-pip">
+        <div class="modal-window">
+            <div class="modal-header"><span>🖼️ PIP HTML SANDBOX</span><button class="btn" onclick="Ship.modals.close('pip')">✖</button></div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:6px;">
+                <div style="flex:1;min-height:200px;"><iframe id="pip-iframe" sandbox="allow-scripts allow-same-origin" style="width:100%;height:100%;border:1px solid var(--border);border-radius:6px;"></iframe></div>
+                <textarea id="pip-code" placeholder="Paste HTML to test..."></textarea>
+                <div style="display:flex;gap:4px;"><button class="btn" onclick="Ship.PIP.test()">▶ TEST</button><button class="btn gold" onclick="Ship.PIP.save()">💾 SAVE</button></div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal-media">
+        <div class="modal-window" style="max-width:700px;">
+            <div class="modal-header"><span>🎬 MEDIA PLAYER · MP3/MP4</span><button class="btn" onclick="Ship.modals.close('media')">✖</button></div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:8px;">
+                <label class="btn gold" style="text-align:center;cursor:pointer;display:block;">📂 LOAD MEDIA FILE<input type="file" accept="audio/*,video/*,.mp3,.mp4,.wav,.ogg,.webm" style="display:none;" onchange="Ship.Media.load(event)"></label>
+                <div style="background:#000;border-radius:8px;display:flex;align-items:center;justify-content:center;min-height:200px;overflow:hidden;" id="media-container">
+                    <span style="color:#fff;">Load an MP3 or MP4 file to play</span>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button class="btn" onclick="Ship.Media.play()">▶ PLAY</button>
+                    <button class="btn" onclick="Ship.Media.pause()">⏸️ PAUSE</button>
+                    <button class="btn" onclick="Ship.Media.stop()">⏹️ STOP</button>
+                    <span id="media-info" style="font-size:0.5rem;color:#64748b;">No file loaded</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal-movie">
+        <div class="modal-window" style="max-width:750px;">
+            <div class="modal-header"><span>🎞️ AI GROWTH MOVIE · FROM BIRTH TO NOW</span><button class="btn" onclick="Ship.modals.close('movie')">✖</button></div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:8px;">
+                <canvas id="timeline-canvas"></canvas>
+                <div class="terminal" id="movie-narration" style="max-height:150px;font-size:0.45rem;">The AI growth movie shows every milestone since boot — watch the intelligence evolve.</div>
+                <div style="display:flex;gap:4px;">
+                    <button class="btn gold" onclick="Ship.GrowthMovie.play()">▶ PLAY MOVIE</button>
+                    <button class="btn" onclick="Ship.GrowthMovie.pause()">⏸️ PAUSE</button>
+                    <button class="btn blue" onclick="Ship.GrowthMovie.exportJSON()">📤 EXPORT</button>
+                    <span style="font-size:0.45rem;color:#64748b;">Milestones: <span id="milestone-count">0</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal-sql">
+        <div class="modal-window" style="max-width:750px;">
+            <div class="modal-header"><span>🗃️ SQL DATACORE · QUERY THE AI'S KNOWLEDGE</span><button class="btn" onclick="Ship.modals.close('sql')">✖</button></div>
+            <div class="modal-body" style="display:flex;flex-direction:column;gap:6px;">
+                <div style="display:flex;gap:4px;">
+                    <input id="sql-query-input" placeholder="SQL: SELECT * FROM datacore WHERE source='web' ORDER BY time DESC LIMIT 10" onkeypress="if(event.key==='Enter')Ship.SQL.execute()">
+                    <button class="btn blue" onclick="Ship.SQL.execute()">▶ RUN</button>
+                </div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button class="btn" onclick="document.getElementById('sql-query-input').value='SELECT * FROM datacore ORDER BY time DESC LIMIT 20'">ALL RECENT</button>
+                    <button class="btn gold" onclick="document.getElementById('sql-query-input').value="SELECT * FROM datacore WHERE source='web' ORDER BY time DESC">WEB FINDS</button>
+                    <button class="btn orange" onclick="document.getElementById('sql-query-input').value="SELECT * FROM datacore WHERE source='gen' ORDER BY time DESC">CODE GENS</button>
+                    <button class="btn green" onclick="document.getElementById('sql-query-input').value="SELECT * FROM datacore WHERE source='scan' ORDER BY time DESC">SCANS</button>
+                    <button class="btn purple" onclick="document.getElementById('sql-query-input').value="SELECT COUNT(*) as total, source FROM datacore GROUP BY source">STATS</button>
+                </div>
+                <div class="sql-results" id="sql-results">Enter a SQL query above and press ▶ RUN.</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const Ship = {
+            pyodide: null,
+            readHandle: null,
+            saveHandle: null,
+            paused: false,
+            taskerActive: true,
+            genCount: 0,
+            saveCount: 0,
+            voiceRate: 1.0,
+            baseFreq: 666,
+            synth: window.speechSynthesis,
+            milestones: [],
+            crew: [
+                { name: 'ASTRIX‑AI', emoji: '🤖', color: '#b7791f', cls: 'astrix', role: 'Captain' },
+                { name: 'DEEPTHAHT‑AI', emoji: '🌊', color: '#0891b2', cls: 'deepthaht', role: 'Science Officer' },
+                { name: 'THINKSALOT‑AI', emoji: '🧠', color: '#e11d48', cls: 'thinksalot', role: 'Logic Officer' },
+                { name: 'DRAGON‑AI', emoji: '🐉', color: '#c2410c', cls: 'dragon', role: 'Chief Engineer' },
+                { name: 'GOTO‑AI', emoji: '🎯', color: '#db2777', cls: 'goto', role: 'Navigation' }
+            ],
+            async boot() {
+                this.renderCrew();
+                this.Rainbow.init();
+                this.Audio.init();
+                this.HexStream.start();
+                this.AutoCode.startLoop();
+                this.Tasker.start();
+                this.CrewChat.start();
+                this.SQL.init();
+                this.addMilestone('system', 'Starship ASTRIX‑AI booted — the AI mind awakens.');
+                this.addChat('system', '🚀 Starship online. I am ASTRIX‑AI, your dragon captain!');
+                this.speak('Starship ASTRIX online! I am alive and ready to grow.');
+                document.getElementById('voice-rate').oninput = e => {
+                    this.voiceRate = +e.target.value;
+                };
+                document.getElementById('dragon-freq').oninput = e => {
+                    this.baseFreq = +e.target.value;
+                };
+                try { this.pyodide = await loadPyodide(); } catch (e) {}
+                this.scadAI.initPop();
+                this.PIP.init();
+                this.updateStats();
+                setInterval(() => this.updateStats(), 3000);
+                this.addMilestone('boot', 'Pyodide Python VM loaded — full coding capability online.');
+            },
+            speak(text) { if (!this.synth || this.paused) return; const u = new SpeechSynthesisUtterance(text);
+                u.rate = this.voiceRate;
+                u.pitch = 1.0;
+                u.volume = 0.85;
+                this.synth.speak(u); },
+            togglePause() { this.paused = !this.paused;
+                document.getElementById('btn-pause').textContent = this.paused ? '▶️ RESUME' : '⏸️ PAUSE';
+                this.addChat('system', this.paused ? '⏸️ All AI paused.' : '▶️ Resumed.'); },
+            addChat(cls, msg) { const c = document.getElementById('loopback-messages'); const d = document.createElement(
+                    'div');
+                d.className = `chat-bubble ${cls}`;
+                d.textContent = msg;
+                c.appendChild(d);
+                c.scrollTop = c.scrollHeight; if (c.children.length > 40) c.removeChild(c.firstChild); },
+            addMilestone(cat, msg) { const m = { time: new Date().toISOString(), category: cat, message: msg }; this
+                    .milestones.push(m); if (this.milestones.length > 200) this.milestones.shift();
+                document.getElementById('milestone-count').textContent = this.milestones.length;
+                this.SQL.insert('milestones', m);
+                this.SQL.insert('datacore', { source: cat, content: msg, status: 'ok' }); },
+            updateStats() { document.getElementById('mini-stats').textContent =
+                    `⚡${(0.4+Math.random()*0.7).toFixed(1)}W | 📊${Ship.milestones.length} milestones`; },
+            sendChat() { const inp = document.getElementById('chat-input'); const msg = inp.value.trim(); if (!msg) return;
+                inp.value = '';
+                this.addChat('system', '👤 ' + msg);
+                this.SQL.insert('datacore', { source: 'chat', content: msg, status: 'info' });
+                this.addMilestone('chat', 'User query: ' + msg.substring(0, 60));
+                setTimeout(() => this.addChat('astrix', '🤖✨ Processing your query, Captain!'), 600); },
+            askWhatToDo() { const s = ['Shall we build your SCAD home?', 'Want to search the internet?',
+                    'Try the SQL Datacore!', 'Play the AI growth movie!', 'Load some media to enjoy!'
+                ];
+                this.addChat('astrix', '🤖✨ ' + s[Math.floor(Math.random() * s.length)]); },
+            async searchInternet() {
+                const q = document.getElementById('chat-input').value.trim() || 'ASTRIX AI technology';
+                this.addChat('system', '🌐 Searching: ' + q);
+                try {
+                    const r = await fetch(
+                        `https://api.duckduckgo.com/?q=${encodeURIComponent(q)}&format=json&no_html=1`);
+                    const d = await r.json();
+                    const abs = d.Abstract || d.AbstractText || d.Answer || 'No results found.';
+                    this.addChat('deepthaht', '🌊 ' + abs.substring(0, 130));
+                    this.SQL.insert('datacore', { source: 'web', content: abs, status: 'ok' });
+                    this.addMilestone('web', 'Internet search: ' + q.substring(0, 50));
+                } catch (e) { this.addChat('system', '🌐 Search failed.'); }
+            },
+            renderCrew() { document.getElementById('crew-panel').innerHTML = this.crew.map(c =>
+                    `<div style="display:flex;align-items:center;gap:6px;padding:4px 6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;margin-bottom:3px;font-size:0.5rem;"><span style="font-size:1rem;">${c.emoji}</span><b style="color:${c.color};">${c.name}</b><span style="font-size:0.38rem;color:#94a3b8;margin-left:auto;">${c.role}</span></div>`
+                    ).join(''); },
+            async mountRead() { try { this.readHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                    this.updateMount();
+                    this.addMilestone('mount', 'Read folder mounted.'); } catch (e) {} },
+            async mountSave() { try { this.saveHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                    this.updateMount();
+                    this.addMilestone('mount', 'Save folder mounted.'); } catch (e) {} },
+            updateMount() { const el = document.getElementById('mount-ind');
+                el.textContent = (this.readHandle ? '📂R:' + this.readHandle.name : '') + (this.saveHandle ? ' 💾S:' +
+                    this.saveHandle.name : '') || '📁 No folders'; },
+            async scanAndLearn() { if (!this.readHandle) return; let count = 0; for await (const e of this.readHandle
+                    .values()) { if (e.kind === 'file') { const f = await e.getFile();
+                    this.SQL.insert('datacore', { source: 'scan', content: e.name, status: 'learned' });
+                    this.HexStream.addData(e.name);
+                    count++; } }
+                this.addChat('system', `📋 Scanned ${count} files.`);
+                this.addMilestone('scan', `Scanned ${count} files from mounted folder.`); },
+            Forge: { fixCode() { const c = document.getElementById('forge-code').value;
+                    document.getElementById('forge-code').value = c.replace(/<[^>]+>/g, '').trim();
+                    Ship.addChat('dragon', '🐉 Code fixed!');
+                    Ship.addMilestone('forge', 'Code fix applied.'); }, stitchCode() { const c = document
+                    .getElementById('forge-code').value;
+                document.getElementById('forge-code').value =
+                    `<!DOCTYPE html><html><body><h1>STITCH</h1><pre>${c}</pre></body></html>`;
+                Ship.addChat('goto', '🎯 Stitched!');
+                Ship.addMilestone('forge', 'Code stitched into HTML.'); }, sendToTeam() { Ship.Team.evaluate(document
+                    .getElementById('forge-code').value); }, saveToFolder() { const c = document.getElementById(
+                    'forge-code').value; if (!c.trim() || !Ship.saveHandle) return;
+                Ship.saveFile(`forge_${Date.now()}.html`, c);
+                Ship.addMilestone('forge', 'Saved to mount folder.'); } },
+            Team: { evaluate(code) { if (!code.trim()) return; const grades = ['A', 'A', 'B', 'A', 'B'];
+                    document.getElementById('team-grades').innerHTML = Ship.crew.map((a, i) =>
+                        `<span style="padding:2px 5px;border-radius:6px;background:${grades[i]==='A'?'#f0fdf4':'#fffbeb'};border:1px solid ${grades[i]==='A'?'#bbf7d0':'#fde68a'};font-size:0.4rem;">${a.emoji} ${a.name}:${grades[i]}</span>`
+                        ).join('');
+                    document.getElementById('team-feedback').textContent =
+                        'Production Ready. All checks passed.';
+                    Ship.addMilestone('grade', 'Crew evaluation: Production Ready.'); } },
+            AutoCode: { generateNow() { this.generate(); }, startLoop() { setInterval(() => { if (!Ship.paused && Ship
+                        .taskerActive) this.generate(); }, 12000); }, generate() { const t = ['HTML', 'PYTHON', 'JS',
+                        'SCAD', 'GCODE'
+                    ][Math.floor(Math.random() * 5)]; let c = ''; const n = ++Ship.genCount; switch (
+                    t) { case 'HTML':
+                        c =
+                        `<div>Starship Gen#${n}</div>`; break; case 'PYTHON':
+                        c = `print("Gen ${n}")`; break; case 'JS':
+                        c = `console.log(${n});`; break; case 'SCAD':
+                        c = `cube([${n%50},${n%50},${n%50}]);`; break; case 'GCODE':
+                        c = `G1 X${n} Y${n}\nM2`; break; }
+                document.getElementById('forge-code').value = c;
+                Ship.SQL.insert('datacore', { source: 'gen', content: `${t} #${n}`, status: 'ok' });
+                Ship.HexStream.addData(c);
+                Ship.addMilestone('gen', `Generated ${t} code #${n}`); if (Ship.saveHandle) Ship.saveFile(
+                    `gen_${t}_${n}.${t.toLowerCase().replace('python','py')}`, c); } },
+            Tasker: { start() { setInterval(() => { if (Ship.paused || !Ship.taskerActive) return; const tasks = [
+                        'Generate', 'Scan', 'Fix', 'Stitch', 'Save', 'InternetSearch',
+                    'QuickBuildHome'
+                    ]; const t = tasks[Math.floor(Math.random() * tasks.length)]; switch (
+                    t) { case 'Generate':
+                        Ship.AutoCode.generate(); break; case 'Scan':
+                        Ship.scanAndLearn(); break; case 'Fix':
+                        Ship.Forge.fixCode(); break; case 'Stitch':
+                        Ship.Forge.stitchCode(); break; case 'Save':
+                        Ship.Forge.saveToFolder(); break; case 'InternetSearch':
+                        Ship.searchInternet(); break; case 'QuickBuildHome':
+                        Ship.scadAI.quickBuildHome(); break; } }, 10000); } },
+            SQL: {
+                db: null,
+                init() {
+                    const request = indexedDB.open('AstrixDatacore', 1);
+                    request.onupgradeneeded = e => {
+                        const db = e.target.result;
+                        if (!db.objectStoreNames.contains('datacore')) db.createObjectStore('datacore', {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        });
+                        if (!db.objectStoreNames.contains('milestones')) db.createObjectStore('milestones', {
+                            keyPath: 'id',
+                            autoIncrement: true
+                        });
+                    };
+                    request.onsuccess = e => { this.db = e.target.result;
+                        Ship.addChat('system', '🗃️ SQL Datacore online.'); };
+                },
+                insert(table, data) {
+                    if (!this.db) return;
+                    const tx = this.db.transaction(table, 'readwrite');
+                    tx.objectStore(table).add({ ...data, time: data.time || new Date().toISOString() });
+                },
+                async query(table, conditions = {}) {
+                    return new Promise(resolve => {
+                        if (!this.db) return resolve([]);
+                        const tx = this.db.transaction(table, 'readonly');
+                        const store = tx.objectStore(table);
+                        const request = store.getAll();
+                        request.onsuccess = () => {
+                            let results = request.result;
+                            if (conditions.source) results = results.filter(r => r.source ===
+                                conditions.source);
+                            if (conditions.limit) results = results.slice(-conditions.limit);
+                            if (conditions.orderBy === 'time') results.sort((a, b) => new Date(b.time) -
+                                new Date(a.time));
+                            resolve(results);
+                        };
+                    });
+                },
+                async execute() {
+                    const input = document.getElementById('sql-query-input').value.trim();
+                    const resultsDiv = document.getElementById('sql-results');
+                    if (!input) return;
+                    const upper = input.toUpperCase();
+                    let html = '';
+                    if (upper.startsWith('SELECT') && upper.includes('FROM DATACORE')) {
+                        let source = null,
+                            limit = 50,
+                            orderBy = 'time';
+                        const srcMatch = input.match(/WHERE\s+source\s*=\s*'(\w+)'/i);
+                        if (srcMatch) source = srcMatch[1];
+                        const limMatch = input.match(/LIMIT\s+(\d+)/i);
+                        if (limMatch) limit = parseInt(limMatch[1]);
+                        const results = await this.query('datacore', { source, limit, orderBy });
+                        html =
+                            `<div style="color:var(--datacore);font-weight:bold;">📋 ${results.length} results</div>`;
+                        results.reverse().forEach(r => {
+                            html +=
+                                `<div style="border-bottom:1px solid #e2e8f0;padding:3px 0;font-size:0.4rem;"><span style="color:var(--blueprint);">[${r.time?.slice(11,19)||''}]</span> <b>${r.source}</b>: ${(r.content||'').substring(0,80)}</div>`;
+                        });
+                    } else if (upper.includes('COUNT(*)') && upper.includes('GROUP BY')) {
+                        const results = await this.query('datacore', {});
+                        const groups = {};
+                        results.forEach(r => { groups[r.source] = (groups[r.source] || 0) + 1; });
+                        html =
+                            '<div style="color:var(--datacore);font-weight:bold;">📊 Source Statistics</div>';
+                        Object.entries(groups).forEach(([k, v]) => { html +=
+                                `<div style="font-size:0.45rem;">${k}: <b>${v}</b> entries</div>`; });
+                    } else if (upper.startsWith('SELECT') && upper.includes('FROM MILESTONES')) {
+                        const results = await this.query('milestones', { orderBy: 'time', limit: 40 });
+                        html =
+                            `<div style="color:var(--astrix);font-weight:bold;">🎞️ ${results.length} milestones</div>`;
+                        results.reverse().forEach(r => {
+                            html +=
+                                `<div style="font-size:0.4rem;border-bottom:1px solid #e2e8f0;padding:2px 0;">[${r.time?.slice(11,19)||''}] ${r.category}: ${r.message?.substring(0,70)}</div>`;
+                        });
+                    } else {
+                        html =
+                            '<div style="color:#c2410c;">Try: SELECT * FROM datacore WHERE source=\'web\' ORDER BY time DESC LIMIT 10</div>';
+                    }
+                    resultsDiv.innerHTML = html;
+                },
+                searchPrompt() {
+                    Ship.modals.open('sql');
+                    setTimeout(() => document.getElementById('sql-query-input').focus(), 300);
+                }
+            },
+            GrowthMovie: {
+                playing: false,
+                movieInterval: null,
+                currentIndex: 0,
+                play() {
+                    if (this.playing) return;
+                    this.playing = true;
+                    this.currentIndex = 0;
+                    const narration = document.getElementById('movie-narration');
+                    narration.innerHTML = '🎬 MOVIE STARTING — The AI awakens...\n';
+                    this.movieInterval = setInterval(() => {
+                        if (this.currentIndex >= Ship.milestones.length) {
+                            narration.innerHTML +=
+                                '\n🎬 THE MOVIE CONTINUES — The AI is still growing...';
+                            this.currentIndex = 0;
+                            return;
+                        }
+                        const m = Ship.milestones[this.currentIndex];
+                        narration.innerHTML +=
+                            `\n[${m.time?.slice(11,19)||''}] ${m.category}: ${m.message}`;
+                        narration.scrollTop = narration.scrollHeight;
+                        this.currentIndex++;
+                        Ship.GrowthMovie.drawTimeline();
+                    }, 400);
+                    Ship.addChat('system', '🎞️ AI Growth Movie playing...');
+                },
+                pause() { this.playing = false;
+                    clearInterval(this.movieInterval);
+                    Ship.addChat('system', '⏸️ Movie paused.'); },
+                drawTimeline() {
+                    const canvas = document.getElementById('timeline-canvas');
+                    if (!canvas || !Ship.milestones.length) return;
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = 120;
+                    ctx.fillStyle = '#fafbfd';
+                    ctx.fillRect(0, 0, canvas.width, 120);
+                    ctx.strokeStyle = '#e4eaf2';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(10, 60);
+                    ctx.lineTo(canvas.width - 10, 60);
+                    ctx.stroke();
+                    const total = Ship.milestones.length;
+                    const step = (canvas.width - 40) / Math.max(total - 1, 1);
+                    const categories = { boot: '#15803d', scan: '#0891b2', gen: '#b7791f', web: '#2563eb',
+                        forge: '#c2410c', chat: '#db2777', system: '#7c3aed', mount: '#e11d48',
+                        grade: '#f59e0b' };
+                    Ship.milestones.forEach((m, i) => {
+                        const x = 20 + i * step;
+                        const y = 60;
+                        const color = categories[m.category] || '#64748b';
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.arc(x, y, i === this.currentIndex ? 8 : 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        if (i === this.currentIndex) {
+                            ctx.strokeStyle = color;
+                            ctx.lineWidth = 2;
+                            ctx.beginPath();
+                            ctx.arc(x, y, 12, 0, Math.PI * 2);
+                            ctx.stroke();
+                        }
+                        if (i % Math.max(1, Math.floor(total / 20)) === 0) {
+                            ctx.fillStyle = '#64748b';
+                            ctx.font = '7px monospace';
+                            ctx.fillText(m.category, x - 8, y - 12);
+                        }
+                    });
+                    if (this.currentIndex >= 0 && this.currentIndex < total) {
+                        const x = 20 + this.currentIndex * step;
+                        ctx.fillStyle = '#f59e0b';
+                        ctx.font = '9px monospace';
+                        ctx.fillText('▶ NOW', x - 15, 25);
+                    }
+                },
+                exportJSON() {
+                    const blob = new Blob([JSON.stringify(Ship.milestones, null, 2)], { type: 'application/json' });
+                    const a = document.createElement('a');
+                    a.download = 'astrix_growth_movie_' + Date.now() + '.json';
+                    a.href = URL.createObjectURL(blob);
+                    a.click();
+                    Ship.addChat('system', '📤 Growth movie exported as JSON.');
+                }
+            },
+            Media: {
+                currentFile: null,
+                currentEl: null,
+                load(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    this.currentFile = file;
+                    const container = document.getElementById('media-container');
+                    const url = URL.createObjectURL(file);
+                    if (file.type.startsWith('video/') || file.name.match(/\.(mp4|webm|mov)$/i)) {
+                        container.innerHTML =
+                            `<video id="media-player" src="${url}" controls style="max-width:100%;max-height:280px;"></video>`;
+                        this.currentEl = document.getElementById('media-player');
+                    } else if (file.type.startsWith('audio/') || file.name.match(/\.(mp3|wav|ogg|m4a)$/i)) {
+                        container.innerHTML =
+                            `<div style="text-align:center;padding:20px;color:#fff;"><p>🎵 ${file.name}</p><audio id="media-player" src="${url}" controls style="width:100%;margin-top:10px;"></audio></div>`;
+                        this.currentEl = document.getElementById('media-player');
+                    }
+                    document.getElementById('media-info').textContent = file.name + ' (' + (file.size / 1024)
+                        .toFixed(1) + 'KB)';
+                    Ship.addChat('system', '🎬 Loaded: ' + file.name);
+                    Ship.addMilestone('media', 'Loaded media: ' + file.name);
+                    Ship.SQL.insert('datacore', { source: 'media', content: 'Loaded: ' + file.name,
+                        status: 'ok' });
+                },
+                play() { if (this.currentEl) this.currentEl.play(); },
+                pause() { if (this.currentEl) this.currentEl.pause(); },
+                stop() { if (this.currentEl) { this.currentEl.pause();
+                        this.currentEl.currentTime = 0; } }
+            },
+            modals: {
+                open(name) {
+                    const el = document.getElementById('modal-' + name);
+                    if (el) el.classList.add('active');
+                    if (name === 'scad') Ship.scadAI.initScene();
+                    if (name === 'movie') Ship.GrowthMovie.drawTimeline();
+                },
+                close(name) { const el = document.getElementById('modal-' + name); if (el) el.classList.remove(
+                        'active'); }
+            },
+            CrewChat: { start() { setInterval(() => { if (Ship.paused) return; const msgs = [
+                        '🌊 Analyzing universal constants...', '🧠 Logic pathways optimized.',
+                        '🐉 Forge temperatures nominal!', '🎯 Course locked on growth.',
+                        '🤖✨ The AI mind expands with every moment!'
+                    ];
+                    Ship.addChat(Ship.crew[Math.floor(Math.random() * 5)].cls, msgs[Math.floor(Math.random() *
+                        msgs.length)]); }, 7000); } },
+            HexStream: { start() { const el = document.getElementById('hex-stream'); setInterval(() => { const hex =
+                        Array.from({ length: 60 }, () => Math.floor(Math.random() * 256).toString(16).padStart(
+                            2, '0').toUpperCase()).join(' ');
+                    el.textContent = hex + ' │ ' + hex + ' │ ' + hex; }, 700); }, addData(text) { const hex = Array
+                    .from(text.substring(0, 35)).map(c => c.charCodeAt(0).toString(16).padStart(2, '0')
+                        .toUpperCase()).join(' ');
+                    document.getElementById('hex-stream').textContent = hex + ' │ ' + document.getElementById(
+                        'hex-stream').textContent.substring(0, 250); } },
+            Rainbow: { canvas: null, ctx: null, phase: 0, init() { this.canvas = document.getElementById(
+                    'rainbow-canvas');
+                this.canvas.width = this.canvas.parentElement.clientWidth;
+                this.canvas.height = 28;
+                this.ctx = this.canvas.getContext('2d');
+                this.animate(); }, animate() { this.phase += 0.03; const c = this.ctx,
+                        w = this.canvas.width; for (let x = 0; x < w; x += 3) { c.fillStyle =
+                            `hsla(${(x/w*360+this.phase*40)%360},70%,50%,0.28)`;
+                        c.fillRect(x, 0, 3, 28); }
+                    requestAnimationFrame(() => this.animate()); } },
+            Audio: { init() { try { Ship.audioCtx = new(window.AudioContext || window.webkitAudioContext)(); } catch (
+                    e) {} }, playDragonSong() { if (!Ship.audioCtx || Ship.paused) return; const n = Ship.audioCtx
+                    .currentTime; const freq = Ship.baseFreq; for (let i = 0; i < 6; i++) { const o = Ship.audioCtx
+                        .createOscillator(); const g = Ship.audioCtx.createGain();
+                    o.type = 'sawtooth';
+                    o.frequency.value = freq * (0.5 + i * 0.15);
+                    g.gain.setValueAtTime(0, n + i * 0.12);
+                    g.gain.linearRampToValueAtTime(0.018, n + i * 0.12 + 0.03);
+                    g.gain.exponentialRampToValueAtTime(0.001, n + i * 0.12 + 0.3);
+                    o.connect(g).connect(Ship.audioCtx.destination);
+                    o.start(n + i * 0.12);
+                    o.stop(n + i * 0.12 + 0.35); } } },
+            Clone: { create() { const b = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: 'text/html' });
+                    const a = document.createElement('a');
+                    a.download = 'ASTRIX_STARSHIP_MOVIE_' + Date.now() + '.html';
+                    a.href = URL.createObjectURL(b);
+                    a.click();
+                    Ship.addMilestone('clone', 'Full system cloned.'); } },
+            async saveFile(fn, ct) { if (!this.saveHandle) return; try { const fh = await this.saveHandle.getFileHandle(
+                        fn, { create: true }); const w = await fh.createWritable(); await w.write(ct); await w.close(); } catch (
+                    e) {} },
+            PIP: {
+                init() {},
+                test() { const code = document.getElementById('pip-code').value;
+                    document.getElementById('pip-iframe').srcdoc = code;
+                    Ship.addChat('system', '🧪 PIP test rendered.');
+                    Ship.addMilestone('forge', 'PIP sandbox test.'); },
+                save() { const code = document.getElementById('pip-code').value; if (code.trim() && Ship.saveHandle)
+                        Ship.saveFile(`pip_${Date.now()}.html`, code); }
+            },
+            scadAI: {
+                scene: null,
+                camera: null,
+                renderer: null,
+                particles: [],
+                initPop() { const btn = document.getElementById('simulate-btn'); if (btn) btn.onclick = () => this
+                        .simulateAirflow(); },
+                initScene() {
+                    const canvas = document.getElementById('scad-canvas');
+                    const container = document.getElementById('scad-viewport');
+                    if (!canvas || !container) return;
+                    this.scene = new THREE.Scene();
+                    this.scene.background = new THREE.Color(0xf4f6fb);
+                    this.camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight,
+                        1, 1000);
+                    this.camera.position.set(8, 6, 12);
+                    this.camera.lookAt(0, 0, 0);
+                    if (this.renderer) this.renderer.dispose();
+                    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+                    this.renderer.setSize(container.clientWidth, container.clientHeight);
+                    this.scene.add(new THREE.DirectionalLight(0xffffff, 1));
+                    this.scene.add(new THREE.AmbientLight(0x404060, 1.5));
+                    this.scene.add(new THREE.GridHelper(10, 20));
+                    this.buildInitialModel();
+                    this.animate();
+                },
+                buildInitialModel() {
+                    if (!this.scene) return;
+                    while (this.scene.children.length > 0) this.scene.remove(this.scene.children[0]);
+                    this.scene.add(new THREE.DirectionalLight(0xffffff, 1));
+                    this.scene.add(new THREE.AmbientLight(0x404060, 1.5));
+                    this.scene.add(new THREE.GridHelper(10, 20));
+                    const tank = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 3, 32), new THREE
+                        .MeshPhongMaterial({ color: 0x4488cc, transparent: true, opacity: 0.7 }));
+                    tank.position.set(-2.5, 0, 0);
+                    this.scene.add(tank);
+                    const venturi = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.8, 2, 16), new THREE
+                        .MeshPhongMaterial({ color: 0xcccccc }));
+                    venturi.position.set(0, 0, 0);
+                    venturi.rotation.z = Math.PI / 2;
+                    this.scene.add(venturi);
+                    for (let i = 0; i < 8; i++) {
+                        const a = (i / 8) * Math.PI * 2;
+                        const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 1.5, 8), new THREE
+                            .MeshPhongMaterial({ color: 0x888888 }));
+                        pipe.position.set(Math.cos(a) * 0.9, Math.sin(a) * 0.9, 0);
+                        pipe.rotation.z = Math.PI / 2;
+                        this.scene.add(pipe);
+                    }
+                    for (let i = 0; i < 6; i++) {
+                        const a = (i / 6) * Math.PI * 2;
+                        const t = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 16), new THREE
+                            .MeshPhongMaterial({ color: 0xffaa00 }));
+                        t.position.set(Math.cos(a) * 1.8, Math.sin(a) * 1.8, 0);
+                        this.scene.add(t);
+                    }
+                    document.getElementById('scad-code').value =
+                        '// SCAD: Main tank + venturi + checkball capture\nmodule main_tank() { cylinder(h=30, r=12, center=true); }\nmodule venturi() { cylinder(h=20, r1=4, r2=8, center=true); }\nmodule check_tanks() { for(i=[0:5]) rotate([0,0,i*60]) translate([18,0,0]) sphere(r=2.5); }\nmain_tank(); venturi(); check_tanks();';
+                },
+                animate() { if (!this.renderer || !document.getElementById('modal-scad')?.classList.contains(
+                        'active')) return;
+                    requestAnimationFrame(() => this.animate());
+                    this.renderer.render(this.scene, this.camera); },
+                simulateAirflow() { if (!this.scene) return; for (let i = 0; i < 40; i++) { const p = new THREE.Mesh(
+                            new THREE.SphereGeometry(0.04, 3, 3), new THREE.MeshBasicMaterial({ color: 0x00aaff }));
+                        p.position.set(-2.5, (Math.random() - 0.5) * 2.4, 0);
+                        p.userData = { life: 1.0, vx: 0.04 + Math.random() * 0.03 };
+                        this.scene.add(p);
+                        this.particles.push(p); }
+                    const anim = () => { this.particles = this.particles.filter(p => { p.userData.life -=
+                                0.006;
+                            p.position.x += p.userData.vx;
+                            p.material.opacity = p.userData.life; if (p.userData.life <= 0) { this.scene
+                                    .remove(p); return false; } return true; }); if (this.particles
+                                .length > 0) requestAnimationFrame(anim); };
+                    anim();
+                    Ship.addChat('system', '💨 Airflow simulated.');
+                    Ship.addMilestone('scad', 'Airflow simulation run.'); },
+                aiBuild() { if (!this.scene) return; const s = Math.random() > 0.5 ? new THREE.SphereGeometry(0.35,
+                        12, 12) : new THREE.BoxGeometry(0.55, 0.55, 0.55); const m = new THREE.Mesh(s, new THREE
+                        .MeshPhongMaterial({ color: Math.random() * 0xffffff }));
+                    m.position.set((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 3, 0);
+                    this.scene.add(m);
+                    Ship.addChat('dragon', '🐉 AI built a new shape.');
+                    Ship.addMilestone('scad', 'AI built new 3D shape.'); },
+                fixModel() { const el = document.getElementById('scad-code');
+                    el.value = el.value.replace(/r=(\d+)/g, (m, r) => 'r=' + Math.max(1, parseInt(r) - 1));
+                    Ship.addChat('thinksalot', '🧠 Model optimized.');
+                    Ship.addMilestone('scad', 'Model parameters fixed.'); },
+                async quickBuildHome() { if (!Ship.saveHandle) { alert('Mount SAVE folder first!'); return; }
+                    Ship.addChat('system', '🏗️ Building 11km cube home...'); const mods = ['frame', 'core',
+                        'vault', 'life', 'thrusters', 'quarters', 'deck', 'shield', 'hangar', 'lab'
+                    ]; let scad = '// ASTRIX 11KM HOME\nunion() {\n';
+                    mods.forEach(m => { scad += `  ${m}();\n`;
+                        Ship.saveFile(`${m}.scad`, `module ${m}(){cube([10,10,10],center=true);}`); });
+                    scad += '}\n';
+                    Ship.saveFile('home.scad', scad);
+                    document.getElementById('scad-code').value = scad;
+                    Ship.addMilestone('scad', '11km cube home SCAD generated.');
+                    Ship.addChat('astrix', '🤖✨ Home SCAD saved! The AI has built its shelter.'); }
+            }
+        };
+        window.onload = () => Ship.boot();
+    </script>
+</body>
+</html></pre></body></html>

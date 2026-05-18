@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>◈ IKNOWEVERYTHING.COM || ASTRIX AUTO-CORE ◈</title>
+    <script id="config-block">window.NODE_CONFIG = null;</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+    <style>
+        :root{--bg:transparent;--panel:rgba(255,255,255,0.65);--border:rgba(203,213,225,0.9);--text:#0f172a;--ai-1-arch:#2563eb;--ai-2-syn:#7c3aed;--ai-3-opt:#059669;--ai-4-sec:#ea580c;--ai-5-bug:#dc2626;--ai-6-des:#db2777;--ai-7-int:#0891b2;--ai-8-drg:#b8860b;--astrix:var(--ai-8-drg);--deepthaht:var(--ai-2-syn);--thinksalot:var(--ai-6-des);--dragon:var(--ai-8-drg);--datacore:#059669;--hex:#b7791f;--sys:#475569;--vm-green:#10b981;--vm-bg:rgba(10, 15, 25, 0.95);--danger:#dc2626;--shadow-glow:0 8px 25px rgba(0,0,0,0.15);}
+        *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI','Helvetica Neue',sans-serif}
+        body{background:transparent;color:var(--text);min-height:100vh;overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column}
+        #bg-gradient{position:fixed;inset:0;background:radial-gradient(circle at center,#f8fafc 0%,#cbd5e1 100%);z-index:-5}
+        #canvas-3d{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-4;opacity:0.85;pointer-events:none}
+        
+        /* UI Visible by Default */
+        #main-ui{opacity:1;pointer-events:auto;display:flex;flex-direction:column;width:100%;z-index:10}
+        
+        #command-deck{background:var(--panel);padding:12px 20px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:12px;backdrop-filter:blur(15px);margin:15px;border-radius:16px;box-shadow:var(--shadow-glow)}
+        .header-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+        h1{font-size:1.3rem;letter-spacing:1px;font-weight:900;text-transform:uppercase;color:var(--astrix);}
+        .status-indicators{font-size:0.75rem;display:flex;gap:12px;background:rgba(255,255,255,0.8);padding:5px 12px;border-radius:30px; font-weight:bold;}
+        .input-row{display:flex;gap:8px;width:100%;flex-wrap:wrap}
+        #main-input{flex:1;padding:10px 16px;border:2px solid var(--astrix);background:rgba(255,255,255,0.9);border-radius:30px; outline:none; font-weight:bold;}
+        .btn-group{display:flex;flex-wrap:wrap;gap:6px}
+        .cmd-btn{padding:7px 14px;border:1px solid var(--border);border-radius:40px;background:rgba(255,255,255,0.9);cursor:pointer;font-weight:900;font-size:0.7rem;text-transform:uppercase; transition: 0.2s;}
+        .cmd-btn:hover{background:var(--astrix); color:#fff; border-color:var(--astrix); transform:translateY(-2px)}
+        
+        #core-grid{display:grid;grid-template-columns:300px 1fr 450px;gap:12px;padding:12px;min-height:85vh}
+        @media(max-width:1200px){#core-grid{grid-template-columns:1fr}}
+        
+        .glass-panel{background:var(--panel);backdrop-filter:blur(15px);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;display:flex;flex-direction:column;box-shadow:var(--shadow-glow)}
+        .panel-head{padding:10px 14px;font-weight:900;font-size:0.75rem;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.6);text-transform:uppercase; color:var(--sys);}
+        
+        .hud-box{padding:12px}
+        .stat{font-size:0.75rem;display:flex;justify-content:space-between;margin:4px 0; font-weight:bold;}
+        .gauge-container{width:100%;height:8px;background:rgba(0,0,0,0.1);border-radius:4px;overflow:hidden;margin-bottom:10px;}
+        .gauge-fill{height:100%;background:linear-gradient(90deg,var(--dragon),var(--datacore));transition:width 0.1s}
+        
+        #agents-view{display:flex;flex-direction:column;gap:8px;padding:10px;max-height:300px;overflow-y:auto}
+        .agent-card{border-left:4px solid;padding:8px 10px;background:rgba(255,255,255,0.8);border-radius:6px;display:flex;justify-content:space-between;align-items:center; font-weight:bold; font-size:0.75rem;}
+        
+        #vm-interface{height:300px;background:var(--vm-bg);border-radius:12px;display:flex;flex-direction:column;overflow:hidden;border:1px solid #333;}
+        #vm-header{background:#000;color:var(--vm-green);padding:8px 12px;font-size:0.65rem;font-family:monospace;font-weight:bold;}
+        #vm-terminal{flex:1;padding:10px;overflow-y:auto;color:var(--vm-green);font-family:monospace;font-size:0.7rem;line-height:1.4;}
+        
+        #chat-feed{flex:1;overflow-y:auto;padding:15px;display:flex;flex-direction:column;gap:10px;font-size:0.8rem;min-height:300px}
+        .msg-block{padding:10px 14px;background:rgba(255,255,255,0.9);border-left:4px solid;border-radius:8px;font-family:monospace;font-size:0.7rem;}
+        
+        .collab-panel{background:white}
+        .ai-collab-messages{max-height:250px;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:6px}
+        .ai-message{background:#f8fafc;padding:8px;border-left:4px solid var(--dragon);border-radius:6px;font-size:0.75rem;font-family:monospace;}
+        .code-display{background:#000;color:#0f0;padding:10px;border-radius:8px;font-size:0.65rem;font-family:monospace;white-space:pre-wrap;margin:8px;height:200px;overflow-y:auto;}
+        
+        .merge-panel{background:#fff}
+        .file-selector{display:flex;gap:8px;padding:8px;align-items:center}
+        #merged-output{width:100%;height:150px;background:#f8fafc;border:1px solid var(--border);font-family:monospace;font-size:0.65rem;padding:8px;resize:none;color:var(--sys);}
+        
+        ::-webkit-scrollbar{width:4px}
+        ::-webkit-scrollbar-thumb{background:var(--astrix);border-radius:4px}
+    </style>
+</head>
+<body>
+<div id="bg-gradient"></div>
+<canvas id="canvas-3d"></canvas>
+
+<div id="main-ui">
+    <div id="command-deck">
+        <div class="header-row">
+            <h1>◈ IKNOWEVERYTHING.COM || AUTO-EVOLVING CORE</h1>
+            <div class="status-indicators">
+                <span id="datacore-status" style="color:var(--datacore)">UPLINK: ACTIVE</span>
+                <span id="gen-status">LIFELOG: READING</span>
+                <span id="mesh-status" style="color:var(--dragon)">SWARM: HYPER-SPEED</span>
+            </div>
+        </div>
+        <div class="input-row">
+            <input id="main-input" placeholder="Inject logic directly to Swarm...">
+            <button class="cmd-btn" style="background:var(--astrix);color:#000;border:none;" id="btn-entangle">⟁ INJECT KNOWLEDGE</button>
+            <button class="cmd-btn" id="btn-uplink">🌐 SYNC IKNOWEVERYTHING</button>
+        </div>
+        <div class="btn-group">
+            <button class="cmd-btn" id="collab-start" style="background:var(--datacore);color:#fff">▶ START AUTO-CODE</button>
+            <button class="cmd-btn" id="collab-pause" style="background:var(--danger);color:#fff">⏸ PAUSE</button>
+            <button class="cmd-btn" id="btn-vclone">🧬 CLONE ORGANISM</button>
+        </div>
+    </div>
+
+    <div id="core-grid">
+        <div id="left-view" style="display:flex;flex-direction:column;gap:12px;">
+            <div id="vm-interface">
+                <div id="vm-header">root@IKNOWEVERYTHING:~# AUTO-BOOT LOG</div>
+                <div id="vm-terminal"></div>
+            </div>
+            <div class="glass-panel" style="flex:1;">
+                <div class="panel-head">◈ NEURAL MANIFOLD</div>
+                <div class="hud-box">
+                    <div class="stat"><span>SYNTAX PERFECTED:</span><span id="stat-coh" style="color:var(--astrix)">0%</span></div>
+                    <div class="gauge-container"><div id="coh-gauge" class="gauge-fill" style="width:0%"></div></div>
+                    <div class="stat"><span>LINES GENERATED:</span><span id="stat-lines">0</span></div>
+                </div>
+                <div class="panel-head">◈ 8-DRAGON SWARM</div>
+                <div id="agents-view"></div>
+            </div>
+        </div>
+
+        <div id="center-view" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="glass-panel collab-panel" style="flex:1;">
+                <div class="panel-head" style="color:var(--dragon)">🚀 HYPER-SPEED AUTO-FORGE</div>
+                <div class="ai-collab-messages" id="aiCollabChat" style="flex:0.5; border-bottom:2px solid var(--border);"></div>
+                <div class="code-display" id="collabOutput" style="flex:1;">[Compiled Code Stream...]</div>
+            </div>
+        </div>
+
+        <div id="right-view" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="glass-panel" style="flex:1;">
+                <div class="panel-head">◈ LIVE CUBE RENDERING</div>
+                <iframe id="previewFrame" style="width:100%;height:300px;border:none;background:#fff;border-bottom:1px solid var(--border);"></iframe>
+                <div style="padding:10px;">
+                    <div class="panel-head" style="background:transparent;padding:0 0 5px 0;">💾 MOUNT & MERGE</div>
+                    <div class="file-selector">
+                        <label class="cmd-btn" style="background:var(--blueprint);color:#fff;cursor:pointer;">📂 LOAD FRAGMENTS<input type="file" id="multiFileInput" multiple style="display:none"></label>
+                        <button class="cmd-btn" id="mergeFilesBtn">♻️ MERGE TO MASTER</button>
+                    </div>
+                    <textarea id="merged-output" placeholder="Merged code buffer..." readonly></textarea>
+                    <button class="cmd-btn" id="downloadMergedBtn" style="width:100%;margin-top:5px;background:var(--astrix);color:#000;">⬇ DOWNLOAD ARTIFACT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const escapeHtml = s => String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]);
+
+// 3D Background Engine
+const Engine = {
+    init(){ 
+        if(typeof THREE==='undefined') return; 
+        const cvs=document.getElementById('canvas-3d'); 
+        this.scene=new THREE.Scene(); 
+        this.camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,1000); 
+        this.camera.position.set(0,0,20); 
+        this.renderer=new THREE.WebGLRenderer({canvas:cvs,alpha:true,antialias:true}); 
+        this.renderer.setSize(innerWidth,innerHeight); 
+        
+        const g=new THREE.IcosahedronGeometry(2,1);
+        const m=new THREE.MeshBasicMaterial({color:0xb8860b,wireframe:true}); 
+        this.core=new THREE.Mesh(g,m); 
+        this.scene.add(this.core); 
+        
+        this.particles = new THREE.Group();
+        for(let i=0; i<200; i++){
+            const p = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshBasicMaterial({color:0x0ea5e9}));
+            p.position.set((Math.random()-0.5)*40, (Math.random()-0.5)*40, (Math.random()-0.5)*40);
+            this.particles.add(p);
+        }
+        this.scene.add(this.particles);
+        this.animate(); 
+    },
+    animate(){ 
+        if(!this.renderer) return; 
+        requestAnimationFrame(()=>this.animate()); 
+        this.core.rotation.y+=0.005; 
+        this.core.rotation.x+=0.002;
+        this.particles.rotation.y -= 0.001;
+        this.renderer.render(this.scene,this.camera); 
+    }
+};
+
+window.Singularity = {
+    knowledge: 0.1, lines: 0, vClones: 1, isCollabRunning: true, collabInterval: null,
+    agents: [
+        {id:'1-HTML-FORGE', color:'var(--astrix)', spec:'HTML/DOM'},
+        {id:'2-JS-WEAVER', color:'var(--datacore)', spec:'JavaScript'},
+        {id:'3-PY-MAGE', color:'var(--blueprint)', spec:'Python/Logic'},
+        {id:'4-CSS-STYLIST', color:'var(--goto)', spec:'CSS/Aesthetics'},
+        {id:'5-C-STRUCT', color:'var(--dragon)', spec:'C/C++'},
+        {id:'6-DEBUGGER', color:'var(--danger)', spec:'Error Parsing'},
+        {id:'7-INTEGRATOR', color:'var(--sys)', spec:'Merging'},
+        {id:'8-DRAGON', color:'#000', spec:'Master Override'}
+    ],
+
+    async awaken() {
+        Engine.init();
+        this.renderAgents();
+        this.bindEvents();
+        await this.runBootSequence();
+        this.startCollabSimulation();
+    },
+
+    async runBootSequence() {
+        const term = document.getElementById('vm-terminal');
+        const steps = [
+            "Initializing ASTRIX-AI Core Engine...",
+            "Bypassing Security Overlays. Forcing absolute display...",
+            "Mounting Virtual Drive: LIFELOG_CACHE.bin",
+            "Reading past state... 4,812,094 tokens recovered.",
+            "Routing connection to IKNOWEVERYTHING.COM mainframe...",
+            "[SUCCESS] UPLINK ESTABLISHED. Port 443 active.",
+            "Igniting 8-Dragon Swarm...",
+            "AUTO-CODE GENERATION: ENGAGED."
+        ];
+        for(let s of steps) {
+            term.innerHTML += `<div>> ${s}</div>`;
+            term.scrollTop = term.scrollHeight;
+            await new Promise(r => setTimeout(r, 150));
+        }
+    },
+
+    bindEvents() {
+        document.getElementById('btn-entangle').onclick = () => {
+            const val = document.getElementById('main-input').value;
+            if(val) this.appendVM(`USER INJECT: ${val}`);
+            document.getElementById('main-input').value = '';
+        };
+        document.getElementById('collab-start').onclick = () => { this.isCollabRunning = true; this.startCollabSimulation(); };
+        document.getElementById('collab-pause').onclick = () => { this.isCollabRunning = false; clearInterval(this.collabInterval); };
+        document.getElementById('btn-vclone').onclick = () => this.cloneOrganism();
+        
+        // Let audio unlock on first click anywhere
+        document.body.addEventListener('click', () => {
+            if(window.speechSynthesis && !this.audioUnlocked) {
+                this.audioUnlocked = true;
+                const u = new SpeechSynthesisUtterance("System audio unlocked.");
+                u.volume = 0; window.speechSynthesis.speak(u); // Silent unlock
+            }
+        }, {once:true});
+    },
+
+    renderAgents() {
+        const c = document.getElementById('agents-view');
+        c.innerHTML = this.agents.map(a => `
+            <div class="agent-card" style="border-left-color:${a.color}">
+                <div><strong style="color:${a.color}">${a.id}</strong><br><span style="font-size:0.65rem;color:#666">${a.spec}</span></div>
+                <div style="font-size:0.6rem; background:#eee; padding:2px 6px; border-radius:10px;">IDLE</div>
+            </div>
+        `).join('');
+    },
+
+    startCollabSimulation() {
+        if(this.collabInterval) clearInterval(this.collabInterval);
+        
+        // HYPER FAST INTERVAL - 250ms
+        this.collabInterval = setInterval(() => {
+            if(!this.isCollabRunning) return;
+            
+            const agent = this.agents[Math.floor(Math.random() * this.agents.length)];
+            const actions = [
+                `Optimizing ${agent.spec} matrix...`,
+                `Translating hex buffer to readable syntax...`,
+                `Validating DOM structural integrity...`,
+                `Injecting logic tensor into 3D Space...`,
+                `Parsing response from IKNOWEVERYTHING mainframe...`,
+                `Fixing anomaly in line ${Math.floor(Math.random()*5000)}...`
+            ];
+            const msg = actions[Math.floor(Math.random() * actions.length)];
+            
+            // 1. Log to Chat
+            const chatDiv = document.getElementById('aiCollabChat');
+            chatDiv.innerHTML += `
+                <div class="ai-message" style="border-left-color:${agent.color}">
+                    <strong style="color:${agent.color}">${agent.id}:</strong> ${msg}
+                </div>`;
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+            if(chatDiv.children.length > 20) chatDiv.removeChild(chatDiv.firstChild);
+
+            // 2. Generate Fake Code Stream
+            const outDiv = document.getElementById('collabOutput');
+            const codeSnips = [
+                `function initNode() { return {id: ${Math.random().toFixed(4)}, status: 'ok'}; }`,
+                `<div class="gen-${Math.floor(Math.random()*100)}" style="color:${agent.color};">Data Block</div>`,
+                `[HEX] ${Math.random().toString(16).substring(2, 10).toUpperCase()}`,
+                `if(matrix.isStable()) { swarm.deploy(); }`
+            ];
+            const snip = codeSnips[Math.floor(Math.random() * codeSnips.length)];
+            
+            outDiv.innerHTML += `\n/* ${agent.id} */\n${snip}`;
+            outDiv.scrollTop = outDiv.scrollHeight;
+            if(outDiv.innerHTML.length > 3000) outDiv.innerHTML = outDiv.innerHTML.slice(-3000); // Keep buffer manageable
+
+            // 3. Occasionally Update Live Preview
+            if(Math.random() > 0.8) {
+                const colors = ['#eab308', '#10b981', '#0ea5e9', '#ec4899'];
+                const bg = colors[Math.floor(Math.random()*colors.length)];
+                document.getElementById('previewFrame').srcdoc = `
+                    <body style="background:#020617; color:#fff; font-family:monospace; display:flex; justify-content:center; align-items:center; height:100vh; margin:0;">
+                        <div style="border:2px solid ${bg}; padding:20px; box-shadow:0 0 20px ${bg}; text-align:center;">
+                            <h2 style="color:${bg}; margin:0;">LIVE RENDER OK</h2>
+                            <p>Cycle: ${this.lines}</p>
+                        </div>
+                    </body>
+                `;
+            }
+
+            // 4. Update Stats
+            this.lines += 4;
+            this.knowledge = Math.min(100, this.knowledge + 0.05);
+            document.getElementById('stat-coh').innerText = this.knowledge.toFixed(2) + '%';
+            document.getElementById('coh-gauge').style.width = this.knowledge + '%';
+            document.getElementById('stat-lines').innerText = this.lines;
+
+        }, 250); // Hyper speed
+    },
+
+    appendVM(txt) {
+        const term = document.getElementById('vm-terminal');
+        term.innerHTML += `<div>> ${txt}</div>`;
+        term.scrollTop = term.scrollHeight;
+    },
+
+    cloneOrganism() {
+        this.appendVM("Extracting DOM state for cloning...");
+        const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.download = `ASTRIX_EVOLVED_${Date.now()}.html`;
+        a.href = URL.createObjectURL(blob);
+        a.click();
+        this.appendVM("Clone successfully downloaded.");
+    }
+};
+
+// AUTO-IGNITE ON LOAD
+window.onload = () => {
+    Singularity.awaken();
+};
+</script>
+</body>
+</html>

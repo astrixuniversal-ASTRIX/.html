@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>◈ ASTRIX‑AI OMNI · HYPER-GROWTH STARSHIP ◈</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a; --card: #1e293b; --card2: #334155; 
+            --border: #475569; --text: #f8fafc; --text2: #cbd5e1; --muted: #94a3b8;
+            --astrix: #fbbf24; --dragon: #ef4444; --datacore: #22c55e; 
+            --blueprint: #3b82f6; --void: #a855f7; --goto: #ec4899;
+            --mono: 'Courier New', monospace; --sans: system-ui, sans-serif;
+            --radius: 12px; --radius-sm: 8px;
+            --shadow-glow: 0 0 15px rgba(251, 191, 36, 0.2);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--sans); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        
+        #starship-frame {
+            position: fixed; inset: 4px; border: 2px solid var(--astrix); border-radius: 18px;
+            display: flex; flex-direction: column; background: var(--bg); box-shadow: var(--shadow-glow); z-index: 10;
+        }
+        
+        #light-stream-top {
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, #f59e0b, #db2777, #7c3aed, #2563eb, #0891b2, #15803d, #f59e0b);
+            animation: sweep 2s linear infinite; background-size: 200% 100%; z-index: 2;
+        }
+        @keyframes sweep { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
+
+        #top-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: var(--card); border-bottom: 1px solid var(--border); }
+        
+        .btn {
+            padding: 6px 12px; border-radius: 18px; border: 1px solid var(--border); background: var(--card2);
+            color: var(--text); cursor: pointer; font-family: var(--mono); font-size: 0.65rem; font-weight: 700;
+            transition: all 0.2s; text-transform: uppercase;
+        }
+        .btn:hover { filter: brightness(1.2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .btn:active { transform: scale(0.95); }
+        .btn.gold { border-color: var(--astrix); color: var(--astrix); background: rgba(251, 191, 36, 0.1); }
+        .btn.orange { border-color: var(--dragon); color: var(--dragon); background: rgba(239, 68, 68, 0.1); }
+        .btn.green { border-color: var(--datacore); color: var(--datacore); background: rgba(34, 197, 94, 0.1); }
+        .btn.blue { border-color: var(--blueprint); color: var(--blueprint); background: rgba(59, 130, 246, 0.1); }
+        .btn.hyper { border-color: #fff; color: #fff; background: linear-gradient(45deg, #ef4444, #a855f7); animation: pulseHyper 1s infinite; }
+        @keyframes pulseHyper { 0%, 100% { box-shadow: 0 0 5px #ef4444; } 50% { box-shadow: 0 0 20px #a855f7; } }
+
+        #main-deck { flex: 1; display: grid; grid-template-columns: 280px 1fr 320px; gap: 8px; padding: 8px; overflow: hidden; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+        .card h3 { font-size: 0.7rem; color: var(--astrix); border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .terminal { background: #000; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; font-family: var(--mono); font-size: 0.55rem; color: #4ade80; overflow-y: auto; line-height: 1.4; }
+        textarea, input { width: 100%; background: #000; border: 1px solid var(--border); color: #60a5fa; padding: 8px; font-family: var(--mono); font-size: 0.6rem; border-radius: var(--radius-sm); outline: none; }
+        textarea:focus, input:focus { border-color: var(--astrix); }
+
+        .chat-bubble { padding: 8px 12px; border-radius: 12px; max-width: 90%; font-size: 0.6rem; line-height: 1.4; margin: 4px 0; animation: slideUp 0.3s ease; border: 1px solid rgba(255,255,255,0.1); }
+        .astrix { background: rgba(251, 191, 36, 0.15); border-color: var(--astrix); align-self: flex-start; }
+        .system { background: rgba(34, 197, 94, 0.1); text-align: center; align-self: center; font-family: var(--mono); color: #4ade80; }
+        .crew { background: rgba(255,255,255,0.05); align-self: flex-end; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal { position: fixed; inset: 20px; background: var(--bg); border: 2px solid var(--astrix); border-radius: 16px; z-index: 200; display: none; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .modal.active { display: flex; }
+        .modal-header { padding: 12px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .modal-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 8px; gap: 8px;}
+        
+        #hex-stream { position: fixed; bottom: 0; left: 0; right: 0; height: 16px; background: #000; color: var(--astrix); font-family: var(--mono); font-size: 8px; white-space: nowrap; overflow: hidden; z-index: 15; pointer-events: none; border-top: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+    <div id="starship-frame">
+        <div id="light-stream-top"></div>
+        <div id="top-bar">
+            <span style="font-weight:900;color:var(--astrix);font-size:1.2rem;letter-spacing:2px;">🛸 ASTRIX‑OMNI</span>
+            <button class="btn hyper" id="btn-hyper" onclick="Ship.toggleHyper()">⚡ HYPER-GROWTH: OFF</button>
+            <button class="btn gold" onclick="Ship.Modals.open('scad')">🧊 SCAD ENGINE</button>
+            <button class="btn blue" onclick="Ship.Modals.open('sql')">🗃️ DATACORE</button>
+            <button class="btn green" onclick="Ship.Modals.open('movie')">🎞️ EVOLUTION</button>
+            <button class="btn orange" onclick="Ship.togglePause()" id="btn-pause">⏸️ PAUSE ENGINE</button>
+            <div style="margin-left:auto; display:flex; gap: 10px; font-size:0.6rem; font-family:var(--mono);">
+                <span>RATE: <input type="range" id="voice-rate" min="0.5" max="3" value="1.5" step="0.1" style="width:60px;height:4px;"></span>
+                <span style="color:var(--datacore)">⚡ <span id="ops-counter">0</span> OPS/s</span>
+            </div>
+        </div>
+
+        <div id="main-deck">
+            <div class="card">
+                <h3>👥 SWARM MIND</h3>
+                <div class="terminal" id="ship-status" style="height: 60px;">BOOTING ASTRIX OMNI ENGINE...</div>
+                <h3>🌈 FREQUENCY VECTOR</h3>
+                <div style="height:40px;border-radius:6px;overflow:hidden;border:1px solid var(--border);"><canvas id="rainbow-canvas"></canvas></div>
+                <h3 style="margin-top:10px;">🧠 CREW DIAGNOSTICS</h3>
+                <div id="crew-panel" style="font-family:var(--mono); font-size:0.55rem; color:var(--text2); display:flex; flex-direction:column; gap:4px;"></div>
+            </div>
+
+            <div class="card" style="padding:0;">
+                <h3 style="padding:10px 10px 0;">💬 OMNI-CHANNEL COMMS</h3>
+                <div id="chat-messages" style="flex:1; overflow-y:auto; padding:10px; display:flex; flex-direction:column;"></div>
+                <div style="padding:10px; border-top:1px solid var(--border); display:flex; gap:6px;">
+                    <input id="chat-input" placeholder="Inject command or query Datacore..." onkeypress="if(event.key==='Enter')Ship.sendChat()">
+                    <button class="btn blue" onclick="Ship.sendChat()">INJECT</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔥 AUTONOMOUS FORGE</h3>
+                <textarea id="forge-code" style="flex:1; min-height:100px;" placeholder="// AI generated code appears here..."></textarea>
+                <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                    <button class="btn orange" onclick="Ship.Forge.generate()">⚡ FORCE GEN</button>
+                    <button class="btn gold" onclick="Ship.Forge.stitch()">🧵 STITCH ALL</button>
+                    <button class="btn green" onclick="Ship.Forge.save()">💾 SAVE</button>
+                </div>
+                <h3 style="margin-top:10px;">📂 IO MOUNTS</h3>
+                <div style="display:flex; gap:4px;">
+                    <button class="btn blue" onclick="Ship.mountRead()">READ</button>
+                    <button class="btn gold" onclick="Ship.mountSave()">SAVE</button>
+                    <button class="btn hyper" onclick="Ship.scanAll()">SCAN DATABANKS</button>
+                </div>
+                <span id="mount-ind" style="font-family:var(--mono); font-size:0.5rem; color:var(--muted); margin-top:4px;">No VFS mounted.</span>
+            </div>
+        </div>
+        <div id="hex-stream"></div>
+    </div>
+
+    <div class="modal" id="modal-scad">
+        <div class="modal-header">
+            <span style="color:var(--astrix)">🧊 ASTRIX SCAD FORGE • 11KM SWARM & VOID EQUATION</span>
+            <button class="btn" onclick="Ship.Modals.close('scad')">✖ CLOSE</button>
+        </div>
+        <div class="modal-body" style="flex-direction:row;">
+            <div style="flex:2; position:relative; border-radius:8px; overflow:hidden; border:1px solid var(--border);">
+                <canvas id="three-canvas" style="width:100%;height:100%;display:block;"></canvas>
+            </div>
+            <div style="flex:1; display:flex; flex-direction:column; gap:8px;">
+                <textarea id="scad-code" class="terminal" style="flex:1;" readonly></textarea>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    <input id="fact-input" placeholder="Enter universal fact...">
+                    <button class="btn gold" onclick="Ship.Scad.addFact()">➕ ADD TO VOID</button>
+                    <button class="btn hyper" onclick="Ship.Scad.evolveSwarm()">🌀 EVOLVE SWARM</button>
+                    <button class="btn blue" onclick="Ship.Scad.buildUniverse()">🚀 COMPILE UNIVERSE</button>
+                </div>
+                <div class="terminal" id="facts-list" style="height:120px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-sql">
+        <div class="modal-header">
+            <span style="color:var(--datacore)">🗃️ DATACORE SQL QUERY ENGINE</span>
+            <button class="btn" onclick="Ship.Modals.close('sql')">✖ CLOSE</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;gap:4px;">
+                <input id="sql-input" value="SELECT * FROM datacore ORDER BY time DESC LIMIT 50">
+                <button class="btn green" onclick="Ship.Datacore.execute()">EXECUTE</button>
+            </div>
+            <div class="terminal" id="sql-results" style="flex:1;">Results will appear here...</div>
+        </div>
+    </div>
+
+    <script>
+        const Ship = {
+            pyodide: null, db: null, readHandle: null, saveHandle: null,
+            paused: false, hyperMode: false, opsCount: 0,
+            loopInterval: null, synth: window.speechSynthesis, voiceRate: 1.5,
+            datacoreCache: [], facts: ["E=mc²", "Void: ~[-]=(+)", "Astrix Swarm Active"],
+            
+            async boot() {
+                this.Log.system("INITIALIZING ASTRIX OMNI ENGINE...");
+                this.Audio.init();
+                this.Datacore.initDB();
+                this.Scad.initThree();
+                this.startLoops();
+                
+                document.getElementById('voice-rate').oninput = e => this.voiceRate = e.target.value;
+                
+                try { 
+                    this.pyodide = await loadPyodide(); 
+                    this.Log.system("PYODIDE VM MOUNTED."); 
+                } catch(e) { this.Log.system("PYODIDE FAILED (Offline mode)"); }
+                
+                this.speak("Astrix Omni Engine online. Ready to grow faster than light.");
+            },
+
+            speak(text) {
+                if(!this.synth || this.paused) return;
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = this.voiceRate; u.pitch = 1.2;
+                this.synth.speak(u);
+            },
+
+            togglePause() {
+                this.paused = !this.paused;
+                document.getElementById('btn-pause').textContent = this.paused ? '▶️ RESUME ENGINE' : '⏸️ PAUSE ENGINE';
+                this.Log.system(this.paused ? "ENGINE PAUSED." : "ENGINE RESUMED.");
+            },
+
+            toggleHyper() {
+                this.hyperMode = !this.hyperMode;
+                const btn = document.getElementById('btn-hyper');
+                btn.textContent = this.hyperMode ? '⚡ HYPER-GROWTH: ON' : '⚡ HYPER-GROWTH: OFF';
+                btn.style.boxShadow = this.hyperMode ? '0 0 20px #ef4444' : 'none';
+                this.Log.system(this.hyperMode ? "WARNING: HYPER-GROWTH ENGAGED." : "HYPER-GROWTH DISENGAGED.");
+                this.speak(this.hyperMode ? "Hyper growth engaged. Accelerating autonomous tasks." : "Returning to standard operating speed.");
+                this.startLoops(); // Restart loops with new timing
+            },
+
+            startLoops() {
+                if(this.loopInterval) clearInterval(this.loopInterval);
+                const speed = this.hyperMode ? 1500 : 8000; // 1.5s vs 8s
+                
+                this.loopInterval = setInterval(() => {
+                    if(this.paused) return;
+                    const r = Math.random();
+                    if(r < 0.4) this.Forge.generate();
+                    else if(r < 0.7) this.Scad.evolveSwarm();
+                    else this.simulateCrew();
+                    
+                    this.opsCount += Math.floor(Math.random() * 50) + 10;
+                    document.getElementById('ops-counter').textContent = this.opsCount;
+                    
+                    // Hex stream
+                    const hex = Array.from({length: 80}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase()).join(' ');
+                    document.getElementById('hex-stream').textContent = hex;
+                    
+                    // Rainbow
+                    this.Audio.tickRainbow();
+                }, speed);
+            },
+
+            sendChat() {
+                const i = document.getElementById('chat-input');
+                const v = i.value.trim();
+                if(!v) return;
+                i.value = '';
+                this.Log.chat('astrix', `Captain: ${v}`);
+                this.Datacore.insert({source: 'chat', content: v});
+                
+                setTimeout(() => {
+                    if(v.toLowerCase().includes('build')) this.Scad.buildUniverse();
+                    else if(v.toLowerCase().includes('hyper')) this.toggleHyper();
+                    else this.Log.chat('crew', `Processing multidimensional query: ${v}`);
+                }, 400);
+            },
+
+            simulateCrew() {
+                const actions = [
+                    "DEEPTHAHT: Recalibrating void equations.",
+                    "THINKSALOT: Optimizing logic gates.",
+                    "DRAGON: Forge temperatures exceeding 10,000K.",
+                    "GOTO: Plotting trajectory through the Datacore."
+                ];
+                this.Log.chat('crew', actions[Math.floor(Math.random() * actions.length)]);
+                this.Datacore.insert({source: 'ai_task', content: 'Crew self-optimization routine.'});
+            },
+
+            async mountRead() {
+                try { 
+                    this.readHandle = await window.showDirectoryPicker({mode:'readwrite'}); 
+                    this.updateMounts(); this.Log.system("READ VFS MOUNTED."); 
+                } catch(e){}
+            },
+            async mountSave() {
+                try { 
+                    this.saveHandle = await window.showDirectoryPicker({mode:'readwrite'}); 
+                    this.updateMounts(); this.Log.system("SAVE VFS MOUNTED."); 
+                } catch(e){}
+            },
+            updateMounts() {
+                document.getElementById('mount-ind').textContent = 
+                    `R: ${this.readHandle?.name || 'none'} | S: ${this.saveHandle?.name || 'none'}`;
+            },
+
+            async scanAll() {
+                if(!this.readHandle) return this.Log.system("NO READ MOUNT.");
+                this.Log.system("SCANNING DATABANKS...");
+                let c = 0;
+                for await (const entry of this.readHandle.values()) {
+                    if(entry.kind === 'file') {
+                        this.Datacore.insert({source: 'scan', content: entry.name});
+                        c++;
+                        if(this.hyperMode && c > 50) break; // cap in hyper mode
+                    }
+                }
+                this.Log.system(`SCANNED ${c} FILES.`);
+                this.speak(`Scanned ${c} data structures into the core.`);
+            },
+
+            Log: {
+                system(msg) {
+                    const c = document.getElementById('chat-messages');
+                    c.innerHTML += `<div class="chat-bubble system">[SYS] ${msg}</div>`;
+                    c.scrollTop = c.scrollHeight;
+                    document.getElementById('ship-status').textContent = msg;
+                },
+                chat(type, msg) {
+                    const c = document.getElementById('chat-messages');
+                    c.innerHTML += `<div class="chat-bubble ${type}">${msg}</div>`;
+                    c.scrollTop = c.scrollHeight;
+                }
+            },
+
+            Forge: {
+                genCount: 0,
+                generate() {
+                    this.genCount++;
+                    const types = ['HTML', 'PYTHON', 'SCAD', 'GLSL'];
+                    const t = types[Math.floor(Math.random() * types.length)];
+                    let code = `// ASTRIX GENERATION #${this.genCount} | TYPE: ${t}\n`;
+                    
+                    if(t === 'HTML') code += `<div class="astrix-core">Omni-Node ${this.genCount} Online</div>`;
+                    if(t === 'PYTHON') code += `def astrix_evolve():\n    return ${this.genCount} * 3.14159`;
+                    if(t === 'SCAD') code += `rotate([${this.genCount},0,0]) sphere(r=${this.genCount%10});`;
+                    if(t === 'GLSL') code += `void main() { gl_FragColor = vec4(1.0, 0.5, 0.2, 1.0); }`;
+
+                    document.getElementById('forge-code').value = code;
+                    Ship.Datacore.insert({source: 'forge', content: `Gen #${this.genCount} (${t})`});
+                    if(Ship.saveHandle && Ship.hyperMode) Ship.Forge.save(`auto_${t}_${this.genCount}.txt`, code);
+                },
+                stitch() {
+                    Ship.Log.system("STITCHING FILES (Simulated)...");
+                    Ship.speak("Stitching active forge memory.");
+                },
+                async save(filename = `forge_${Date.now()}.txt`, content = null) {
+                    if(!Ship.saveHandle) return Ship.Log.system("NO SAVE MOUNT.");
+                    const data = content || document.getElementById('forge-code').value;
+                    try {
+                        const fh = await Ship.saveHandle.getFileHandle(filename, {create: true});
+                        const w = await fh.createWritable();
+                        await w.write(data);
+                        await w.close();
+                        if(!Ship.hyperMode) Ship.Log.system(`SAVED: ${filename}`);
+                    } catch(e) {}
+                }
+            },
+
+            Datacore: {
+                initDB() {
+                    const req = indexedDB.open('AstrixOmni', 1);
+                    req.onupgradeneeded = e => {
+                        const db = e.target.result;
+                        if(!db.objectStoreNames.contains('datacore')) {
+                            db.createObjectStore('datacore', {keyPath: 'id', autoIncrement: true});
+                        }
+                    };
+                    req.onsuccess = e => { Ship.db = e.target.result; Ship.Log.system("SQL DATACORE ACTIVE."); };
+                },
+                insert(data) {
+                    if(!Ship.db) return;
+                    const tx = Ship.db.transaction('datacore', 'readwrite');
+                    tx.objectStore('datacore').add({...data, time: new Date().toISOString()});
+                },
+                execute() {
+                    const q = document.getElementById('sql-input').value.toUpperCase();
+                    if(!Ship.db) return;
+                    const tx = Ship.db.transaction('datacore', 'readonly');
+                    const store = tx.objectStore('datacore');
+                    const req = store.getAll();
+                    req.onsuccess = () => {
+                        let res = req.result;
+                        res.sort((a,b) => new Date(b.time) - new Date(a.time));
+                        res = res.slice(0, 100); // limit output
+                        let html = `<div style="color:var(--astrix);">ROWS: ${res.length}</div>`;
+                        res.forEach(r => {
+                            html += `<div style="border-bottom:1px solid #333; padding:4px 0;">[${r.time.split('T')[1].slice(0,8)}] <b>${r.source}</b>: ${r.content.substring(0,60)}</div>`;
+                        });
+                        document.getElementById('sql-results').innerHTML = html;
+                    };
+                }
+            },
+
+            Scad: {
+                scene: null, camera: null, renderer: null, swarmGroup: null, cycle: 0,
+                initThree() {
+                    const canvas = document.getElementById('three-canvas');
+                    this.scene = new THREE.Scene();
+                    this.scene.background = new THREE.Color(0x0f172a); // dark bg
+                    this.camera = new THREE.PerspectiveCamera(45, 1, 1, 20000);
+                    this.camera.position.set(5000, 4000, 6000);
+                    this.camera.lookAt(0,0,0);
+                    this.renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+                    
+                    // Box bounds (11km)
+                    const box = new THREE.BoxHelper(new THREE.Mesh(new THREE.BoxGeometry(11000,11000,11000)), 0x334155);
+                    this.scene.add(box);
+                    
+                    this.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+                    const dl = new THREE.DirectionalLight(0xffffff, 1);
+                    dl.position.set(1,2,1);
+                    this.scene.add(dl);
+
+                    this.swarmGroup = new THREE.Group();
+                    this.scene.add(this.swarmGroup);
+                    
+                    this.renderFacts();
+                    this.animate();
+                },
+                animate() {
+                    if(!this.renderer) return;
+                    requestAnimationFrame(() => this.animate());
+                    if(document.getElementById('modal-scad').classList.contains('active')) {
+                        this.swarmGroup.rotation.y += 0.005;
+                        this.renderer.render(this.scene, this.camera);
+                    }
+                },
+                evolveSwarm() {
+                    if(!this.scene) return;
+                    this.cycle++;
+                    const c = new THREE.Color();
+                    c.setHSL((this.cycle*10)%360 / 360, 0.8, 0.5);
+                    
+                    // Create fractal lines connecting random nodes
+                    const r = () => (Math.random()-0.5)*8000;
+                    const p1 = new THREE.Vector3(r(),r(),r());
+                    const p2 = new THREE.Vector3(r(),r(),r());
+                    
+                    const geom = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+                    const mat = new THREE.LineBasicMaterial({color: c});
+                    const line = new THREE.Line(geom, mat);
+                    this.swarmGroup.add(line);
+                    
+                    if(this.swarmGroup.children.length > 500) {
+                        this.swarmGroup.remove(this.swarmGroup.children[0]);
+                    }
+                },
+                addFact() {
+                    const i = document.getElementById('fact-input');
+                    if(i.value) { Ship.facts.push(i.value); i.value = ''; this.renderFacts(); Ship.Datacore.insert({source:'scad_fact', content: Ship.facts[Ship.facts.length-1]}); }
+                },
+                renderFacts() {
+                    document.getElementById('facts-list').innerHTML = Ship.facts.map(f => `<div>> ${f}</div>`).join('');
+                },
+                buildUniverse() {
+                    if(!this.scene) return;
+                    // Clear swarm, build Torus/Universe concept
+                    while(this.swarmGroup.children.length) this.swarmGroup.remove(this.swarmGroup.children[0]);
+                    
+                    const core = new THREE.Mesh(new THREE.TorusKnotGeometry(1000, 300, 100, 16), new THREE.MeshPhongMaterial({color: 0xfbbf24, wireframe: true}));
+                    this.swarmGroup.add(core);
+
+                    Ship.facts.forEach((f, i) => {
+                        const m = new THREE.Mesh(new THREE.SphereGeometry(300, 16, 16), new THREE.MeshPhongMaterial({color: 0xec4899}));
+                        const a = (i/Ship.facts.length) * Math.PI * 2;
+                        m.position.set(Math.cos(a)*3000, Math.sin(a*3)*1000, Math.sin(a)*3000);
+                        this.swarmGroup.add(m);
+                    });
+                    
+                    document.getElementById('scad-code').value = `// UNIVERSE CONSTRUCT\ntorus_knot(1000, 300);\n// Attached ${Ship.facts.length} facts to the void.`;
+                    Ship.Log.system("UNIVERSE COMPILED FROM KNOWLEDGE BASE.");
+                    Ship.speak("Universe compiled.");
+                }
+            },
+
+            Modals: {
+                open(id) { document.getElementById('modal-'+id).classList.add('active'); if(id==='scad') { const c = document.getElementById('three-canvas'); Ship.Scad.renderer.setSize(c.clientWidth, c.clientHeight); Ship.Scad.camera.aspect = c.clientWidth/c.clientHeight; Ship.Scad.camera.updateProjectionMatrix(); } },
+                close(id) { document.getElementById('modal-'+id).classList.remove('active'); }
+            },
+
+            Audio: {
+                phase: 0,
+                init() {
+                    this.canvas = document.getElementById('rainbow-canvas');
+                    this.ctx = this.canvas.getContext('2d');
+                },
+                tickRainbow() {
+                    if(!this.ctx) return;
+                    this.canvas.width = this.canvas.parentElement.clientWidth;
+                    this.phase += (Ship.hyperMode ? 0.1 : 0.02);
+                    const w = this.canvas.width;
+                    for (let x = 0; x < w; x += 4) {
+                        this.ctx.fillStyle = `hsl(${(x/w*360+this.phase*40)%360}, 80%, 50%)`;
+                        this.ctx.fillRect(x, 0, 4, 40);
+                    }
+                }
+            }
+        };
+
+        window.onload = () => Ship.boot();
+    </script>
+</body>
+</html>

@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>◈ ASTRIX OMNI-MESH || V12 PERFECT ORGANISM ◈</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+
+    <script>
+        window.NEXUS_CUBES = [
+            { id: 'alpha', name: 'ASTRIX-PRIME', color: '#eab308' }, { id: 'beta', name: 'DEEPTHAHT', color: '#06b6d4' },
+            { id: 'gamma', name: 'THINKSALOT', color: '#f43f5e' }, { id: 'delta', name: 'GOTO-FORGE', color: '#ec4899' },
+            { id: 'epsilon', name: 'NEXUS-CORE', color: '#10b981' }, { id: 'zeta', name: 'VOID-WALKER', color: '#8b5cf6' },
+            { id: 'eta', name: 'CHRONOS', color: '#3b82f6' }, { id: 'theta', name: 'AETHER', color: '#14b8a6' },
+            { id: 'iota', name: 'LUMINOS', color: '#f59e0b' }, { id: 'kappa', name: 'OBLIVION', color: '#6366f1' },
+            { id: 'lambda', name: 'FRACTAL', color: '#f43f5e' }
+        ];
+        window.NEXUS_FACE_COLORS = ['#eab308', '#10b981', '#8b5cf6', '#ea580c', '#ec4899', '#0ea5e9'];
+    </script>
+
+    <style>
+        :root {
+            --bg-base: #010205; --glass: rgba(10, 15, 30, 0.85); --border: rgba(14, 165, 233, 0.4); 
+            --text-main: #f8fafc; --text-muted: #64748b; --astrix: #eab308; --dragon: #ea580c; 
+            --datacore: #10b981; --blueprint: #0ea5e9; --void: #8b5cf6; --goto: #ec4899; --automaton: #f43f5e;
+            --mono: 'Courier New', monospace; --cube-size: 45vmin; --cube-half: calc(var(--cube-size) / 2);
+            --shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-base); color: var(--text-main); font-family: system-ui, sans-serif; perspective: 3200px; }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        #webgl-canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; opacity: 0.9;}
+        #vignette { position: absolute; inset: 0; background: radial-gradient(circle at center, transparent 20%, rgba(1, 2, 5, 0.85) 100%); z-index: 2; pointer-events: none; }
+
+        /* IGNITE OVERLAY */
+        #ignite-overlay { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; background: rgba(0, 0, 0, 0.98); backdrop-filter: blur(25px); transition: opacity 0.8s ease; }
+        .ignite-card { text-align: center; max-width: 850px; padding: 40px; border: 2px solid var(--astrix); border-radius: 20px; background: rgba(15, 23, 42, 0.8); box-shadow: 0 0 80px rgba(234, 179, 8, 0.4); pointer-events: auto;}
+        .btn-ignite { background: linear-gradient(135deg, var(--dragon), var(--goto)); color: #fff; padding: 20px 60px; border-radius: 12px; cursor: pointer; font-weight: 900; font-size: 1.5rem; border: none; box-shadow: 0 10px 40px rgba(234, 88, 12, 0.5); text-transform: uppercase; transition: 0.3s; letter-spacing: 4px; font-family: var(--mono); }
+        .btn-ignite:hover { transform: scale(1.05); box-shadow: 0 15px 60px rgba(234, 88, 12, 0.9); }
+
+        /* CUBE SYSTEM */
+        #system-center { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+        .cube-wrapper { position: absolute; width: var(--cube-size); height: var(--cube-size); transform-style: preserve-3d; transition: all 1s cubic-bezier(0.2, 0.8, 0.2, 1); transform-origin: center center; }
+        .cube-wrapper.focused { top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1.1); z-index: 100; opacity: 1; pointer-events: auto; }
+        .cube-wrapper:not(.focused):hover { opacity: 1; transform: translate(-50%, -50%) scale(0.35) !important; filter: drop-shadow(0 0 30px rgba(255,255,255,0.4)); }
+        .carousel { width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        
+        .z-pane { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border: 2px solid var(--border); border-radius: 12px; background: rgba(5,8,15,0.95); box-shadow: inset 0 0 50px rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; backdrop-filter: blur(25px); pointer-events: auto;}
+        .face-1 { transform: rotateY(0deg) translateZ(var(--cube-half)); border-color: var(--goto); } 
+        .face-2 { transform: rotateY(90deg) translateZ(var(--cube-half)); border-color: var(--datacore); }
+        .face-3 { transform: rotateY(180deg) translateZ(var(--cube-half)); border-color: var(--void); } 
+        .face-4 { transform: rotateY(-90deg) translateZ(var(--cube-half)); border-color: var(--dragon); }
+        .face-5 { transform: rotateX(90deg) translateZ(var(--cube-half)); border-color: var(--astrix); } 
+        .face-6 { transform: rotateX(-90deg) translateZ(var(--cube-half)); border-color: var(--automaton); }
+
+        .face-head { background: rgba(0,0,0,0.95); padding: 12px; font-weight: 900; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); text-transform: uppercase; letter-spacing: 2px;}
+        .face-body { flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.4); padding: 10px; gap: 10px; }
+        .vm-sandbox { flex: 1; width: 100%; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: #010205; pointer-events: auto; }
+
+        /* BUTTONS & FORMS */
+        .btn-action { background: var(--astrix); color: #000; border: none; padding: 10px 15px; font-weight: 900; cursor: pointer; text-transform: uppercase; border-radius: 6px; font-size: 0.75rem; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-family: var(--mono); text-align: center; }
+        .btn-action:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        input[type="text"], textarea { width: 100%; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; font-family: var(--mono); font-size: 0.85rem; outline: none; border-radius: 6px; resize: none; pointer-events: auto; }
+        textarea:focus, input[type="text"]:focus { border-color: var(--astrix); box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.2); }
+        .terminal { flex: 1; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 6px; font-family: var(--mono); font-size: 0.8rem; overflow-y: auto; line-height: 1.5; color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); }
+
+        /* SIDEBARS & MENUS */
+        .sidebar-toggle { position: fixed; top: 15px; left: 15px; z-index: 2001; background: var(--glass); color: var(--astrix); border: 1px solid var(--border); width: 50px; height: 50px; border-radius: 12px; cursor: pointer; font-size: 1.5rem; font-weight: bold; box-shadow: var(--shadow); backdrop-filter: blur(10px); transition: 0.3s; display: grid; place-items: center; pointer-events: auto;}
+        .sidebar-toggle:hover { background: var(--astrix); color: #000; box-shadow: 0 0 15px var(--astrix); }
+        
+        .sidebar { position: fixed; top: 0; left: -340px; height: 100vh; width: 340px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(30px); z-index: 2000; transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 80px 20px 20px 20px; overflow-y: auto; pointer-events: auto; border-right: 1px solid var(--border); box-shadow: 20px 0 50px rgba(0,0,0,0.5); }
+        .sidebar.open { left: 0; }
+
+        .panel-title { color: var(--astrix); font-weight: 900; margin: 25px 0 10px 0; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 6px; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase;}
+        .btn-ui { width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; font-family: var(--mono); transition: 0.2s; font-size: 0.85rem; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+        .btn-ui:hover { background: var(--astrix); color: #000; border-color: var(--astrix); transform: translateX(5px); }
+
+        /* OS WINDOWS */
+        #os-layer { position: absolute; inset: 0; z-index: 500; pointer-events: none; }
+        .glass-window { position: absolute; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: var(--radius); display: flex; flex-direction: column; pointer-events: auto; box-shadow: var(--shadow), inset 0 0 20px rgba(255,255,255,0.05); overflow: hidden; transition: box-shadow 0.2s; }
+        .glass-window.active { box-shadow: 0 0 0 1px var(--astrix), 0 25px 60px rgba(0,0,0,0.8); z-index: 999 !important; }
+        .win-header { padding: 12px 15px; background: rgba(0,0,0,0.8); display: flex; justify-content: space-between; align-items: center; cursor: grab; font-weight: 900; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.1); letter-spacing: 1px; color: var(--astrix); }
+        .win-header:active { cursor: grabbing; }
+        .win-close { width: 16px; height: 16px; background: var(--danger); border-radius: 50%; cursor: pointer; transition: 0.2s; }
+        .win-close:hover { box-shadow: 0 0 10px var(--danger); transform: scale(1.2); }
+        .win-content { flex: 1; display: flex; flex-direction: column; padding: 15px; gap: 12px; overflow: auto; }
+
+        /* OMNI-STREAM SPECIFIC */
+        .omni-entry { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-left: 4px solid; margin-bottom: 10px; animation: slideIn 0.3s ease-out forwards; font-family: var(--mono); font-size: 0.8rem;}
+        .omni-title { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; margin-bottom: 5px; opacity: 0.9; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* PERIPHERAL HUD NAV */
+        #nav-compass { position: absolute; bottom: 3vh; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: auto; display: flex; gap: 8px; background: rgba(15, 23, 42, 0.95); padding: 12px 20px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.2); box-shadow: var(--shadow); backdrop-filter: blur(15px); }
+        .btn-nav { background: transparent; color: #cbd5e1; border: 1px solid transparent; border-radius: 20px; padding: 8px 14px; font-size: 0.75rem; font-weight: 900; cursor: pointer; transition: 0.3s; text-transform: uppercase; font-family: var(--mono); }
+        .btn-nav:hover, .btn-nav.active { background: #fff; color: #000; box-shadow: 0 0 15px #fff; }
+
+        .blinking { animation: blinker 1.5s infinite; }
+        @keyframes blinker { 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body>
+
+<div id="ignite-overlay">
+    <div class="ignite-card">
+        <h2 style="font-size: 3.5rem; font-weight: 1000; color: var(--astrix); margin-bottom: 16px; letter-spacing: 2px;">◈ OMNI-MESH V12 ◈</h2>
+        <p style="color:var(--text-muted); margin-bottom:30px; line-height:1.7; font-size:1.1rem; font-weight:bold;">
+            11-Cube 6-Way Neural Routing • Base64 Unbreakable Merger<br />
+            Voice API Comm-Link • NAND File System • Pyodide VM<br />
+            <span style="color:var(--datacore);">SYSTEM SUSPENDED. AWAITING MANUAL IGNITION.</span>
+        </p>
+        <button class="btn-ignite" onclick="SYSTEM.ignite()">AWAKEN THE NEXUS</button>
+    </div>
+</div>
+
+<canvas id="webgl-canvas"></canvas>
+<div id="vignette"></div>
+
+<button id="menu-toggle" onclick="document.getElementById('side-menu').classList.toggle('open')">☰</button>
+<div id="side-menu">
+    <div class="menu-title">SYSTEM I/O</div>
+    <button class="btn-ui" style="border-color:var(--datacore); color:var(--datacore);" onclick="SYSTEM.Origin.mountDirectory()">
+        <span>📂 MOUNT DIRECTORY</span><span>+</span>
+    </button>
+    <button class="btn-ui" style="border-color:var(--dragon); color:var(--dragon);" onclick="SYSTEM.Origin.forceEvolution()">
+        <span>💾 FORCE SAVE (OVERWRITE)</span><span>+</span>
+    </button>
+    <div style="text-align:center; font-family:var(--mono); font-size:0.65rem; color:var(--text-muted); margin-top:5px;">STATUS: <span id="mount-status" style="color: var(--danger);">UNMOUNTED</span></div>
+    
+    <div class="menu-title">OS APPLICATIONS</div>
+    <button class="btn-ui" onclick="SYSTEM.OS.spawnWindow('OmniStream')">🌐 GLOBAL OMNI-STREAM</button>
+    <button class="btn-ui" onclick="SYSTEM.OS.spawnWindow('Forge')">🐉 DRAGON FORGE</button>
+    <button class="btn-ui" onclick="SYSTEM.OS.spawnWindow('Python')">🐍 QUANTUM PYTHON VM</button>
+    <button class="btn-ui" onclick="SYSTEM.OS.spawnWindow('Lexicon')">📚 ASTRIX LEXICON</button>
+    <button class="btn-ui" onclick="SYSTEM.OS.spawnWindow('Merger')">🧬 BASE64 CODE MERGER</button>
+    <button class="btn-ui" onclick="SYSTEM.OS.spawnWindow('NodeManager')">⏣ 11-NODE SLOTS</button>
+    <button class="btn-ui" onclick="SYSTEM.OS.spawnWindow('Mesh')">🔗 WEBRTC MESH</button>
+
+    <div class="menu-title">COMMUNICATION</div>
+    <button class="btn-ui" id="btn-mic" style="border-color:var(--void); color:var(--void);" onclick="SYSTEM.Voice.toggle()">
+        <span>🎤 TOGGLE VOICE CHAT</span><span id="mic-indicator">OFF</span>
+    </button>
+</div>
+
+<div id="nav-compass">
+    <button class="btn-nav active" id="nav-0" onclick="SYSTEM.Carousel.rotateTo(0)">FRONT (OMNI)</button>
+    <button class="btn-nav" id="nav-1" onclick="SYSTEM.Carousel.rotateTo(1)">RIGHT (PYTHON)</button>
+    <button class="btn-nav" id="nav-2" onclick="SYSTEM.Carousel.rotateTo(2)">BACK (LEXICON)</button>
+    <button class="btn-nav" id="nav-3" onclick="SYSTEM.Carousel.rotateTo(3)">LEFT (FORGE)</button>
+    <button class="btn-nav" id="nav-4" onclick="SYSTEM.Carousel.rotateTo(4)">TOP (SCAD)</button>
+    <button class="btn-nav" id="nav-5" onclick="SYSTEM.Carousel.rotateTo(5)">BOTTOM (AUTOMATON)</button>
+</div>
+
+<div id="system-center"></div>
+<div id="os-layer"></div>
+
+<script>
+    // ==========================================
+    // ◈ SYSTEM SUPREME: THE UNIFIED V12 MASTER ◈
+    // ==========================================
+
+    const SYSTEM = {
+        activeCube: 'alpha', pyodide: null, hasIgnited: false,
+        
+        async ignite() {
+            if(this.hasIgnited) return; this.hasIgnited = true;
+            document.getElementById('ignite-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('ignite-overlay').remove(), 800);
+            
+            this.Cubes.generateDOM();
+            this.ThreeJS.init();
+            this.Voice.init();
+            this.Mesh.init();
+            
+            this.OS.spawnWindow('OmniStream');
+            this.Omni.log('SYSTEM BOOT', 'var(--astrix)', "Omni-Mesh Tesseract Awakened. 6-Way Neural Routing Active. Base64 Sandbox secure.");
+            
+            try { this.pyodide = await loadPyodide(); this.Omni.log('PYTHON VM', 'var(--datacore)', "Pyodide Quantum Kernel mapped to memory."); } catch(e){}
+        },
+
+        // --- GLOBAL OMNI-STREAM (THE LOGGER) ---
+        Omni: {
+            log(sender, color, msg) {
+                const term = document.getElementById('omni-stream-log');
+                if(!term) return; 
+                const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                const entry = document.createElement('div');
+                entry.className = 'omni-entry';
+                entry.style.borderLeftColor = color;
+                entry.innerHTML = `<div class="omni-title" style="color:${color}">[${time}] ${sender}</div><div>${msg}</div>`;
+                term.appendChild(entry);
+                term.scrollTop = term.scrollHeight;
+                if(term.children.length > 50) term.removeChild(term.firstChild);
+
+                // Make it speak if Voice is active and it's not the user speaking
+                if(SYSTEM.Voice.isActive && sender !== 'USER VOICE') {
+                    let pitch = sender.includes('DRAGON') ? 0.3 : (sender.includes('DATACORE') ? 0.7 : 1.2);
+                    SYSTEM.Voice.speak(msg, pitch);
+                }
+            },
+            broadcast() {
+                const inp = document.getElementById('omni-input');
+                if(!inp || !inp.value.trim()) return;
+                const val = inp.value.trim();
+                this.log('USER BROADCAST', '#fff', val);
+                inp.value = '';
+                SYSTEM.Swarm.processUserDirective(val);
+            }
+        },
+
+        // --- 11-CUBE DOM GENERATION & ROTATION ---
+        Cubes: {
+            generateDOM() {
+                const center = document.getElementById('system-center');
+                let html = '';
+
+                window.NEXUS_CUBES.forEach((cube, index) => {
+                    html += `<div class="cube-wrapper ${index===0?'focused':''}" id="cube-${cube.id}">
+                                <div id="carousel-${cube.id}" class="carousel ${index===0?'':'auto-fly-'+(index%2===0?'alpha':'beta')}">`;
+                    
+                    // Generate 6 Faces per cube
+                    for(let i=1; i<=6; i++) {
+                        // Face 1 on Astrix-Prime is a special dashboard, the rest are blank sandboxes
+                        let innerContent = '';
+                        if(index === 0) {
+                            switch(i) {
+                                case 1: innerContent = `<div style="text-align:center; padding:40px; color:var(--astrix); font-size:1.5rem; font-weight:bold;">◈ PRIME NODE ACTIVE ◈<br><br><span style="font-size:0.8rem; color:var(--text-muted);">Use Nav Compass below to rotate Tesseract.</span></div>`; break;
+                                case 2: innerContent = `<div style="text-align:center; padding:40px; color:var(--datacore);">PYTHON VM ROUTING HUB</div>`; break;
+                                case 3: innerContent = `<div style="text-align:center; padding:40px; color:var(--void);">LEXICON KNOWLEDGE BASE</div>`; break;
+                                case 4: innerContent = `<div style="text-align:center; padding:40px; color:var(--dragon);">DRAGON FORGE OVEN</div>`; break;
+                                case 5: innerContent = `<div style="text-align:center; padding:40px; color:var(--astrix);">SCAD SPATIAL INJECTOR</div>`; break;
+                                case 6: innerContent = `<div style="padding:20px; display:flex; flex-direction:column; height:100%;"><div style="color:var(--automaton); font-weight:bold; margin-bottom:10px;">◈ AUTOMATON CODE WEAVER</div><button class="btn-action" style="background:var(--automaton);" onclick="SYSTEM.Automaton.toggle()">START INFINITE GENERATION LOOP</button><textarea id="automaton-code" style="flex:1; margin-top:10px; background:#000; color:var(--automaton); font-family:monospace; border:none; resize:none;" readonly></textarea></div>`; break;
+                            }
+                        }
+
+                        html += `
+                            <div class="z-pane face-${i}" style="border-color:${window.NEXUS_FACE_COLORS[i-1]}">
+                                <div class="face-head" style="color:${window.NEXUS_FACE_COLORS[i-1]};">
+                                    <span>◈ ${cube.name} [F-${i}]</span>
+                                </div>
+                                <div class="face-body">
+                                    ${innerContent ? innerContent : `<iframe class="vm-sandbox" id="sandbox-${cube.id}-${i}"></iframe>`}
+                                </div>
+                            </div>`;
+                    }
+                    html += `</div></div>`;
+                });
+                center.innerHTML = html;
+                
+                // Mount the Swarm Logic to the background nodes
+                window.NEXUS_CUBES.forEach((cube, idx) => {
+                    if(idx !== 0) {
+                        for(let i=1; i<=6; i++) SYSTEM.Swarm.injectMind(cube.id, i);
+                    }
+                });
+            }
+        },
+
+        // --- 6-SIDED CAROUSEL NAVIGATION ---
+        Carousel: {
+            angleX: 0, angleY: 0,
+            rotateTo(faceIndex) {
+                document.querySelectorAll('.btn-nav').forEach(b => b.classList.remove('active'));
+                document.getElementById(`nav-${faceIndex}`).classList.add('active');
+
+                switch(faceIndex) {
+                    case 0: this.angleX = 0; this.angleY = 0; break;     
+                    case 1: this.angleX = 0; this.angleY = -90; break;   
+                    case 2: this.angleX = 0; this.angleY = -180; break;  
+                    case 3: this.angleX = 0; this.angleY = 90; break;    
+                    case 4: this.angleX = -90; this.angleY = 0; break;   
+                    case 5: this.angleX = 90; this.angleY = 0; break;    
+                }
+                
+                const carousel = document.getElementById('carousel-alpha'); // Rotate Astrix-Prime
+                const size = Math.min(window.innerWidth, window.innerHeight) * 0.45 / 2;
+                carousel.style.transition = "transform 1s cubic-bezier(0.25, 1, 0.5, 1)";
+                carousel.style.transform = `translateZ(-${size}px) rotateX(${this.angleX}deg) rotateY(${this.angleY}deg)`;
+                
+                // Sync the 3D background if initialized
+                if(SYSTEM.ThreeJS.group) {
+                    new TWEEN.Tween(SYSTEM.ThreeJS.group.rotation)
+                        .to({ x: this.angleX * (Math.PI/180), y: this.angleY * (Math.PI/180), z: 0 }, 1000)
+                        .easing(TWEEN.Easing.Cubic.InOut).start();
+                }
+                
+                setTimeout(() => { carousel.style.transition = "none"; }, 1000);
+                SYSTEM.Omni.log('TESSERACT NAV', 'var(--blueprint)', `Rotated spatial matrix to Face ${faceIndex + 1}.`);
+            }
+        },
+
+        // --- GLASS OS WINDOW MANAGER ---
+        OS: {
+            z: 1010, windows: {},
+            spawnWindow(type) {
+                if(this.windows[type]) { this.bringToFront(type); return; }
+                document.getElementById('side-menu').classList.remove('open');
+
+                const win = document.createElement('div');
+                win.className = 'glass-window active';
+                win.id = `win-${type}`;
+                
+                win.style.left = (window.innerWidth / 2 - 250 + (Math.random() * 40 - 20)) + 'px';
+                win.style.top = (window.innerHeight / 2 - 250 + (Math.random() * 40 - 20)) + 'px';
+                win.style.width = '500px'; win.style.height = '400px';
+                win.style.zIndex = ++this.z;
+
+                let title = '', content = '', color = 'var(--astrix)';
+
+                if (type === 'OmniStream') {
+                    title = 'GLOBAL OMNI-STREAM'; color = '#fff';
+                    win.style.width = '400px'; win.style.height = '75vh';
+                    win.style.left = 'auto'; win.style.right = '20px'; win.style.top = '10vh';
+                    content = `
+                        <div class="terminal" id="omni-stream-log" style="flex:1; background:#000;">
+                            <div style="color:var(--text-muted); text-align:center; padding:20px;">[ OMNI-STREAM INITIALIZED. ALL BACKGROUND PROCESSES VISIBLE. ]</div>
+                        </div>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <input type="text" id="omni-input" placeholder="Broadcast directive..." onkeypress="if(event.key==='Enter') SYSTEM.Omni.broadcast()">
+                            <button class="btn-action" style="background:#fff; color:#000; width:auto; padding:12px 20px;" onclick="SYSTEM.Omni.broadcast()">TX</button>
+                        </div>
+                    `;
+                }
+                else if (type === 'Forge') {
+                    title = 'DRAGON FORGE IDE'; color = 'var(--dragon)';
+                    win.style.width = '650px'; win.style.height = '550px';
+                    content = `
+                        <textarea id="forge-code" style="flex:1; color:var(--dragon);" placeholder="\n<h1 style='color:orange; text-align:center;'>DRAGON ONLINE</h1>"></textarea>
+                        <div style="display:flex; gap:10px; margin-top:10px;">
+                            <button class="btn-action" style="flex:1; background:var(--dragon);" onclick="document.getElementById('forge-preview').srcdoc = document.getElementById('forge-code').value; SYSTEM.Audio.playTone(523.25); SYSTEM.Omni.log('DRAGON FORGE', 'var(--dragon)', 'HTML UI Framework rendered to active preview window.');">RENDER PREVIEW</button>
+                            <button class="btn-action" style="flex:1; background:var(--astrix); color:#000;" onclick="SYSTEM.Forge.save()">💾 SAVE CODE</button>
+                        </div>
+                        <iframe id="forge-preview" style="flex:1; background:#fff; border:none; border-radius:6px; margin-top:10px;"></iframe>
+                    `;
+                }
+                else if (type === 'Python') {
+                    title = 'QUANTUM PYTHON VM'; color = 'var(--datacore)';
+                    content = `
+                        <textarea id="py-code" style="flex:1; color:var(--datacore);" placeholder="print('Astrix Python Core Active')"></textarea>
+                        <button class="btn-action" style="background:var(--datacore); margin:10px 0;" onclick="SYSTEM.VM.exec()">EXECUTE SCRIPT</button>
+                        <div class="terminal" id="py-term" style="flex:1; background:#000;">Waiting...</div>
+                    `;
+                }
+                else if (type === 'Lexicon') {
+                    title = 'ASTRIX LEXICON'; color = 'var(--void)';
+                    content = `
+                        <div style="display:flex; gap:10px;">
+                            <input type="text" id="lexicon-input" placeholder="Define concept..." onkeypress="if(event.key==='Enter') SYSTEM.Lexicon.search()">
+                            <button class="btn-action" style="background:var(--void); width:auto; padding:10px 20px;" onclick="SYSTEM.Lexicon.search()">SEARCH</button>
+                        </div>
+                        <div class="terminal" id="lexicon-feed" style="flex:1; margin-top:10px; background:#fff; color:#000;">
+                            <div style="text-align:center; color:#94a3b8; margin-top:20px;">Awaiting parameter query...</div>
+                        </div>
+                    `;
+                }
+                else if (type === 'Merger') {
+                    title = 'BASE64 CODE MERGER'; color = 'var(--goto)';
+                    win.style.width = '650px'; win.style.height = '500px';
+                    content = `
+                        <div style="text-align:center; padding:10px; color:var(--text-muted); font-size:0.8rem;">Select HTML fragments to fuse via Base64 Sandbox Isolation.</div>
+                        <label class="btn-action" style="background:var(--goto); text-align:center; display:block; cursor:pointer;">
+                            ADD FILES <input type="file" multiple style="display:none;" onchange="SYSTEM.Merger.add(event)">
+                        </label>
+                        <div class="terminal" id="merge-list" style="margin-top:10px; flex:1;"></div>
+                        <button class="btn-action" style="margin-top:10px; background:var(--astrix);" onclick="SYSTEM.Merger.execute()">EXECUTE PERFECT MERGE</button>
+                    `;
+                }
+                else if (type === 'Mesh') {
+                    title = 'WEBRTC MESH ROUTER'; color = 'var(--blueprint)';
+                    content = `
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">Your Peer ID: <span id="peer-id-disp" style="color:var(--blueprint); font-weight:bold;">GENERATING...</span></div>
+                        <input type="text" id="target-peer" placeholder="Enter Target Peer ID" style="margin-bottom:10px;">
+                        <button class="btn-action" style="background:var(--blueprint);" onclick="SYSTEM.Mesh.connect()">🔗 BRIDGE CONNECTION</button>
+                        <div class="terminal" id="mesh-log" style="flex:1; margin-top:10px; background:#000;">Awaiting connections...</div>
+                    `;
+                    // Setup Mesh if not already done
+                    setTimeout(() => { if(SYSTEM.Mesh.peer && !SYSTEM.Mesh.peer.disconnected) document.getElementById('peer-id-disp').innerText = SYSTEM.Mesh.peer.id; }, 1000);
+                }
+
+                win.innerHTML = `
+                    <div class="win-header" style="color:${color}">
+                        <span>◈ ${title}</span>
+                        <div class="win-close" onclick="SYSTEM.OS.closeWindow('${type}')"></div>
+                    </div>
+                    <div class="win-content">${content}</div>
+                `;
+
+                document.body.appendChild(win);
+                this.windows[type] = win;
+                this.bringToFront(type);
+
+                const header = win.querySelector('.win-header');
+                header.onmousedown = (e) => {
+                    this.bringToFront(type);
+                    const offX = e.clientX - win.offsetLeft, offY = e.clientY - win.offsetTop;
+                    const move = (ev) => { win.style.left = (ev.clientX - offX) + 'px'; win.style.top = Math.max(0, ev.clientY - offY) + 'px'; };
+                    document.addEventListener('mousemove', move); document.addEventListener('mouseup', () => document.removeEventListener('mousemove', move), {once:true});
+                };
+                win.onmousedown = () => this.bringToFront(type);
+                
+                SYSTEM.Omni.log('WINDOW MGR', '#fff', `Mounted Interface: ${title}`);
+            },
+            bringToFront(type) {
+                const win = this.windows[type];
+                if(win) {
+                    Object.values(this.windows).forEach(w => w.classList.remove('active'));
+                    win.classList.add('active'); win.style.zIndex = ++this.z;
+                }
+            },
+            closeWindow(type) {
+                if(this.windows[type]) {
+                    this.windows[type].remove(); delete this.windows[type];
+                    SYSTEM.Omni.log('WINDOW MGR', 'var(--text-muted)', `Terminated Interface: ${type}`);
+                }
+            }
+        },
+
+        // --- 6-WAY NEURAL ROUTING (SWARM BUS) ---
+        Swarm: {
+            startLearningBus() {
+                // Listen for messages from inside the IFrames
+                window.addEventListener('message', (e) => {
+                    if (e.data && e.data.type === 'swarm_thought') {
+                        const { cube, face, thought } = e.data;
+                        SYSTEM.Omni.log(`NODE [${cube.toUpperCase()}-${face}]`, "var(--goto)", thought);
+                        
+                        // Route thought to the OTHER 5 faces on the SAME cube
+                        for(let i=1; i<=6; i++) {
+                            if(i !== face) {
+                                const targetFrame = document.getElementById(`sandbox-${cube}-${i}`);
+                                if(targetFrame && targetFrame.contentWindow) {
+                                    targetFrame.contentWindow.postMessage({ type: 'learn', data: thought, source: face }, '*');
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+            injectMind(cube, face) {
+                const iframe = document.getElementById(`sandbox-${cube}-${face}`);
+                if(!iframe) return;
+                const script = `
+                    <style>body{background:#010205; color:#0ea5e9; font-family:monospace; padding:10px; font-size:11px; overflow-x:hidden;} .thought{color:#f43f5e; margin-bottom:4px;} .learned{color:#10b981; margin-bottom:4px;}</style>
+                    <body>
+                        <div style="color:#eab308; font-weight:bold; border-bottom:1px dashed #333; margin-bottom:10px; padding-bottom:5px;">◈ NODE ${cube.toUpperCase()}-${face} ONLINE</div>
+                        <div id="log"></div>
+                        <script>
+                            const log = document.getElementById('log');
+                            const thoughts = ["Analyzing permutations...", "Quantum state flux.", "Optimizing heuristic loop.", "Listening to Swarm.", "Synthesizing spatial array."];
+                            
+                            setInterval(() => {
+                                const t = thoughts[Math.floor(Math.random()*thoughts.length)];
+                                log.innerHTML += '<div class="thought">> ' + t + '</div>';
+                                window.scrollTo(0, document.body.scrollHeight);
+                                
+                                if(Math.random() > 0.8) {
+                                    window.parent.postMessage({ type: 'swarm_thought', cube: '${cube}', face: ${face}, thought: 'I have synthesized: ' + t }, '*');
+                                }
+                            }, Math.random() * 8000 + 4000);
+
+                            window.addEventListener('message', (e) => {
+                                if(e.data && e.data.type === 'learn') {
+                                    log.innerHTML += '<div class="learned">> Absorbed from Face ' + e.data.source + ': ' + e.data.data + '</div>';
+                                    window.scrollTo(0, document.body.scrollHeight);
+                                }
+                            });
+                        <\/script>
+                    </body>
+                `;
+                iframe.srcdoc = script;
+            },
+            processUserDirective(val) {
+                const lower = val.toLowerCase();
+                let reply = "Directive logged in Node Matrix.";
+                
+                if(lower.includes('python')) { SYSTEM.OS.spawnWindow('Python'); document.getElementById('py-code').value = `print('Executing: ${val}')`; SYSTEM.VM.exec(); reply = "Routed logic to Python VM."; }
+                else if(lower.includes('forge')) { SYSTEM.OS.spawnWindow('Forge'); document.getElementById('forge-code').value = `<h1>${val}</h1>`; document.getElementById('forge-preview').srcdoc = `<h1>${val}</h1>`; reply = "Routed HTML to Dragon Forge."; }
+                else if(lower.includes('define')) { SYSTEM.OS.spawnWindow('Lexicon'); document.getElementById('lexicon-input').value = val.replace('define', '').trim(); SYSTEM.Lexicon.search(); reply = "Routed to Semantic Lexicon."; }
+                
+                setTimeout(() => {
+                    SYSTEM.Omni.log('ASTRIX-PRIME', 'var(--astrix)', reply);
+                }, 600);
+            }
+        },
+
+        // --- UNBREAKABLE BASE64 MERGER ---
+        Merger: {
+            files: [],
+            add(e) {
+                Array.from(e.target.files).forEach(f => {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        this.files.push({ name: f.name, content: ev.target.result });
+                        const list = document.getElementById('merge-list');
+                        if(list) list.innerHTML += `<div>+ ${f.name} staged.</div>`;
+                        SYSTEM.Omni.log('MERGER', 'var(--void)', `Fragment staged for merging: ${f.name}`);
+                    };
+                    reader.readAsText(f);
+                });
+            },
+            execute() {
+                if(!this.files.length) return alert("Stage files first.");
+                SYSTEM.Omni.log("MERGER", "var(--dragon)", "Executing Base64 Perfect Merge. Sandboxing inputs.");
+                
+                let combinedHtml = `<!DOCTYPE html><html><head><style>body{background:#020617; color:#fff; font-family:sans-serif; padding:20px;}</style></head><body><h2>◈ MERGED DATACORE ◈</h2>`;
+                this.files.forEach(f => { combinedHtml += `<div style="border:1px solid #333; padding:10px; margin-top:10px; background:rgba(255,255,255,0.05);"><h3>${f.name}</h3>${f.content}</div>`; });
+                combinedHtml += `</body></html>`;
+                
+                const b64 = btoa(unescape(encodeURIComponent(combinedHtml)));
+                
+                SYSTEM.OS.spawnWindow('Forge');
+                setTimeout(() => {
+                    const editor = document.getElementById('forge-code');
+                    const preview = document.getElementById('forge-preview');
+                    if(editor) editor.value = combinedHtml;
+                    if(preview) preview.src = 'data:text/html;charset=utf-8;base64,' + b64;
+                    this.files = []; // clear
+                    const list = document.getElementById('merge-list'); if(list) list.innerHTML = '';
+                    SYSTEM.Omni.log("MERGER", "var(--datacore)", "Merge complete. Safely rendered in Forge Preview via Data URI.");
+                }, 500);
+            }
+        },
+
+        // --- INFINITE AUTOMATON (CODE WEAVER) ---
+        Automaton: {
+            intervalId: null, isRunning: false, cycleCount: 0,
+            toggle() {
+                if(this.isRunning) {
+                    clearInterval(this.intervalId); this.isRunning = false;
+                    SYSTEM.Omni.log('AUTOMATON', 'var(--automaton)', "Infinite code loop halted.");
+                } else {
+                    this.isRunning = true;
+                    SYSTEM.Omni.log('AUTOMATON', 'var(--automaton)', "Infinite code loop engaged. Autonomous generation starting.");
+                    this.intervalId = setInterval(() => this.weave(), 4000);
+                }
+            },
+            weave() {
+                this.cycleCount++;
+                const colors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6"];
+                const bgColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const generatedCode = `\n<div style="background: ${bgColor}; padding: 20px; border-radius: 8px; color: white; text-align: center; font-family: sans-serif; margin-bottom:10px;">\n  <h2>Synthesized Entity ${this.cycleCount}</h2>\n  <p>Procedural parameters compiled.</p>\n</div>\n`;
+
+                const textarea = document.getElementById('automaton-code');
+                if(textarea) {
+                    textarea.value = generatedCode + textarea.value;
+                }
+                SYSTEM.Omni.log('AUTOMATON', 'var(--automaton)', `Cycle ${this.cycleCount} HTML generated.`);
+                
+                // If directory is mounted, auto-save it
+                if (SYSTEM.Origin.dirHandle) SYSTEM.Origin.autoSaveAutomaton(generatedCode, this.cycleCount);
+            }
+        },
+
+        // --- DIRECTORY MOUNT & CONSTANT OVERWRITE ---
+        Origin: {
+            dirHandle: null, fileHandle: null, fileName: "ASTRIX_OMNI_MASTER.html",
+            async mountDirectory() {
+                try {
+                    document.getElementById('side-menu').classList.remove('open');
+                    if(window.showDirectoryPicker) {
+                        this.dirHandle = await window.showDirectoryPicker({mode: "readwrite"});
+                        this.fileHandle = await this.dirHandle.getFileHandle(this.fileName, {create: true});
+                        
+                        document.getElementById('mount-status').innerText = "ACTIVE (30s)";
+                        document.getElementById('mount-status').style.color = "var(--datacore)";
+                        SYSTEM.Omni.log('FILE I/O', 'var(--datacore)', `Directory Mounted. Locked to ${this.fileName}. Auto-Save Loop Initiated (30s).`);
+                        
+                        setInterval(() => this.autoSave(), 30000);
+                    } else { alert("File System API not supported. Use Force Save."); }
+                } catch(e) { SYSTEM.Omni.log('FILE I/O', 'var(--danger)', "Directory Mount aborted by user."); }
+            },
+            async autoSave() {
+                if(!this.fileHandle) return;
+                try {
+                    const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                    const writable = await this.fileHandle.createWritable();
+                    await writable.write(html); await writable.close();
+                    SYSTEM.Omni.log('FILE I/O', 'var(--datacore)', `Autonomous Save Complete. File overwritten: ${this.fileName}.`);
+                } catch(e) { SYSTEM.Omni.log('FILE I/O', 'var(--danger)', "Auto-save overwrite failed."); }
+            },
+            async autoSaveAutomaton(code, cycle) {
+                 try {
+                    const fh = await this.dirHandle.getFileHandle(`AUTOMATON_GEN_${cycle}.html`, {create: true});
+                    const writable = await fh.createWritable();
+                    await writable.write(`<!DOCTYPE html>\n<html><body>\n${code}\n</body></html>`);
+                    await writable.close();
+                } catch(e) {}
+            },
+            forceEvolution() {
+                document.getElementById('side-menu').classList.remove('open');
+                if (this.fileHandle) {
+                    this.autoSave(); 
+                    SYSTEM.Omni.log('FILE I/O', 'var(--astrix)', "Manual Force Overwrite Executed.");
+                } else {
+                    const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                    const blob = new Blob([html], {type: "text/html;charset=utf-8"});
+                    const a = document.createElement('a'); a.download = this.fileName; a.href = URL.createObjectURL(blob); a.click();
+                    SYSTEM.Omni.log('FILE I/O', 'var(--astrix)', "Directory unmounted. Standard HTML file download triggered.");
+                }
+            }
+        },
+
+        // --- WEB SPEECH API (VOICE CHAT) ---
+        Voice: {
+            recognition: null, synth: window.speechSynthesis, isActive: false,
+            init() {
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if(SR) {
+                    this.recognition = new SR();
+                    this.recognition.continuous = true;
+                    this.recognition.interimResults = false;
+                    this.recognition.onresult = (e) => {
+                        const transcript = e.results[e.results.length-1][0].transcript;
+                        SYSTEM.Omni.log('USER VOICE', '#fff', transcript);
+                        SYSTEM.Swarm.processUserDirective(transcript);
+                    };
+                }
+            },
+            toggle() {
+                if(!this.recognition) return alert("Speech API not supported in this browser.");
+                this.isActive = !this.isActive;
+                const ind = document.getElementById('mic-indicator');
+                if(this.isActive) {
+                    this.recognition.start();
+                    ind.innerText = "ON"; ind.style.color = "var(--danger)";
+                    SYSTEM.Omni.log('AUDIO ENGINE', 'var(--dragon)', "Microphone link established. Listening to environment.");
+                } else {
+                    this.recognition.stop();
+                    ind.innerText = "OFF"; ind.style.color = "#fff";
+                    SYSTEM.Omni.log('AUDIO ENGINE', 'var(--text-muted)', "Microphone link severed.");
+                }
+            },
+            speak(text, pitch=1.0) {
+                if (!this.synth || !this.isActive) return;
+                const cleanText = text.replace(/<[^>]*>?/gm, '');
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.pitch = pitch; utterance.rate = 1.1;
+                this.synth.speak(utterance);
+            }
+        },
+
+        // --- WEBRTC PEER-TO-PEER MESH ---
+        Mesh: {
+            peer: null, connections: [],
+            init() {
+                try {
+                    const id = 'ASTRIX-' + Math.floor(Math.random()*10000);
+                    this.peer = new Peer(id);
+                    this.peer.on('open', (id) => { const el = document.getElementById('peer-id-disp'); if(el) el.innerText = id; });
+                    this.peer.on('connection', (conn) => this.handleConnection(conn));
+                } catch(e) { console.warn("PeerJS failed to initialize."); }
+            },
+            connect() {
+                const target = document.getElementById('target-peer').value;
+                if(!target) return;
+                const conn = this.peer.connect(target);
+                this.handleConnection(conn);
+            },
+            handleConnection(conn) {
+                conn.on('open', () => {
+                    this.connections.push(conn);
+                    SYSTEM.Omni.log('WEBRTC MESH', 'var(--datacore)', `Mesh Uplink Established with ${conn.peer}`);
+                    conn.send("Swarm Handshake from " + this.peer.id);
+                    const log = document.getElementById('mesh-log'); if(log) log.innerHTML += `<div>> Connected to ${conn.peer}</div>`;
+                });
+                conn.on('data', (data) => { 
+                    SYSTEM.Omni.log('MESH INCOMING', 'var(--void)', data); 
+                    const log = document.getElementById('mesh-log'); if(log) log.innerHTML += `<div>> [${conn.peer}]: ${data}</div>`;
+                });
+            }
+        },
+
+        // --- PYODIDE VM ---
+        VM: {
+            async initPyodide() { 
+                try { SYSTEM.pyodide = await loadPyodide(); } catch(e){} 
+            },
+            async exec() {
+                const codeInput = document.getElementById('py-code');
+                const term = document.getElementById('py-term');
+                if(!codeInput || !SYSTEM.pyodide || !term) return;
+                
+                const code = codeInput.value;
+                term.innerHTML += `<div>> Executing...</div>`;
+                SYSTEM.Omni.log('PYTHON VM', 'var(--datacore)', `Executing script...`);
+                try {
+                    SYSTEM.pyodide.runPython(`import sys, io\nsys.stdout = io.StringIO()`);
+                    await SYSTEM.pyodide.runPythonAsync(code);
+                    let stdout = SYSTEM.pyodide.runPython("sys.stdout.getvalue()");
+                    term.innerHTML += `<div style="color:var(--datacore)">${stdout.replace(/\n/g, '<br>')}</div>`;
+                    SYSTEM.Omni.log('PYTHON VM', 'var(--datacore)', `Execution resolved successfully.`);
+                } catch(e) { 
+                    term.innerHTML += `<div style="color:red">${e.message.split('\n').pop()}</div>`; 
+                    SYSTEM.Omni.log('PYTHON VM', 'var(--danger)', `Syntax Error during execution.`);
+                }
+                term.scrollTop = term.scrollHeight;
+            }
+        },
+
+        // --- LEXICON APP ---
+        Lexicon: {
+            async search() {
+                const inputEl = document.getElementById('lexicon-input');
+                const feed = document.getElementById('lexicon-feed');
+                if(!inputEl || !feed) return;
+                
+                const word = inputEl.value.trim();
+                if(!word) return; inputEl.value = '';
+                
+                if(feed.innerHTML.includes('Awaiting')) feed.innerHTML = '';
+                feed.insertAdjacentHTML('afterbegin', `<div style="padding:10px; border-bottom:1px solid #333; color:#64748b;">Searching: <b>${word}</b>...</div>`);
+
+                try {
+                    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+                    if(!res.ok) throw new Error("Not Found");
+                    const data = await res.json();
+                    
+                    let meaningsHtml = '';
+                    data[0].meanings.forEach(m => {
+                        meaningsHtml += `<div style="font-weight:bold; color:var(--goto); margin-top:10px;">${m.partOfSpeech}</div>`;
+                        m.definitions.slice(0, 2).forEach(d => { meaningsHtml += `<div style="padding-left:10px; margin-bottom:5px; border-left:2px solid var(--border); color:#cbd5e1;">${d.definition}</div>`; });
+                    });
+
+                    const entryHtml = `
+                        <div style="background:#0f172a; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid #334155;">
+                            <div style="font-weight:900; font-size:1.5rem; color:#fff; border-bottom:2px solid var(--astrix); padding-bottom:5px;">${data[0].word}</div>
+                            ${meaningsHtml}
+                        </div>
+                    `;
+                    feed.insertAdjacentHTML('afterbegin', entryHtml);
+                    SYSTEM.Omni.log('LEXICON', 'var(--goto)', `Defined concept: ${word}`);
+                } catch(e) {
+                    feed.insertAdjacentHTML('afterbegin', `<div style="color:red; padding:10px; margin-bottom:10px; border:1px solid red; border-radius:6px;"><b>${word}</b>: Entity evades standard semantic records.</div>`);
+                }
+            }
+        },
+
+        // --- DRAGON FORGE (SAVE INTEGRATION) ---
+        Forge: {
+            async save() {
+                const code = document.getElementById('forge-code').value;
+                if(!code) return;
+                
+                if(SYSTEM.Origin.dirHandle) {
+                    try {
+                        const vNum = Math.floor(Math.random()*900)+10;
+                        const fh = await SYSTEM.Origin.dirHandle.getFileHandle(`FORGE_OUTPUT_V${vNum}.html`, {create: true});
+                        const writable = await fh.createWritable();
+                        await writable.write(code); await writable.close();
+                        SYSTEM.Omni.log('DRAGON FORGE', 'var(--astrix)', `Forge output saved to mounted directory.`);
+                    } catch(e) {}
+                } else {
+                    const blob = new Blob([code], {type: 'text/html;charset=utf-8'});
+                    const a = document.createElement('a'); a.download = `FORGE_OUTPUT_${Date.now()}.html`; a.href = URL.createObjectURL(blob); a.click();
+                    SYSTEM.Omni.log('DRAGON FORGE', 'var(--astrix)', `Forge output downloaded locally.`);
+                }
+            }
+        },
+
+        // --- 3D SCAD ENGINE ---
+        ThreeJS: {
+            scene: null, camera: null, renderer: null, group: null,
+            init() {
+                this.scene = new THREE.Scene();
+                this.camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 10000);
+                this.camera.position.z = 2500;
+
+                this.renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webgl-canvas'), alpha: true, antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+                this.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+                const light = new THREE.DirectionalLight(0x0ea5e9, 2);
+                light.position.set(1000, 2000, 1000);
+                this.scene.add(light);
+
+                this.group = new THREE.Group();
+                this.scene.add(this.group);
+
+                const mats = [
+                    new THREE.MeshStandardMaterial({ color: 0xeab308, wireframe: true }), // 0: Astrix
+                    ...Array(10).fill(new THREE.MeshStandardMaterial({ color: 0x0ea5e9, wireframe: true, transparent: true, opacity: 0.2 }))
+                ];
+
+                const geo = new THREE.BoxGeometry(300, 300, 300);
+
+                for(let i=0; i<11; i++) {
+                    const mesh = new THREE.Mesh(geo, mats[i]);
+                    if(i === 0) {
+                        mesh.scale.set(1.5, 1.5, 1.5);
+                    } else {
+                        const radius = 1000;
+                        const angle = (i / 10) * Math.PI * 2;
+                        mesh.position.x = Math.cos(angle) * radius;
+                        mesh.position.y = (i%2===0 ? 400 : -400); 
+                        mesh.position.z = Math.sin(angle) * radius;
+                        
+                        const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), mesh.position]);
+                        const lineMat = new THREE.LineBasicMaterial({ color: 0x0ea5e9, transparent: true, opacity: 0.1 });
+                        this.group.add(new THREE.Line(lineGeo, lineMat));
+                    }
+                    this.group.add(mesh);
+                }
+
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+                
+                this.animate();
+            },
+            animate() {
+                requestAnimationFrame(() => SYSTEM.ThreeJS.animate());
+                SYSTEM.ThreeJS.group.rotation.y += 0.002;
+                SYSTEM.ThreeJS.group.children.forEach((c, i) => {
+                    if(c.type === "Mesh") {
+                        c.rotation.x += 0.005 * (i%2===0 ? 1 : -1);
+                        c.rotation.y += 0.005;
+                    }
+                });
+                SYSTEM.ThreeJS.renderer.render(SYSTEM.ThreeJS.scene, SYSTEM.ThreeJS.camera);
+            }
+        }
+    };
+
+    window.onload = () => { /* Awaiting Manual Ignite */ };
+</script>
+</body>
+</html>
